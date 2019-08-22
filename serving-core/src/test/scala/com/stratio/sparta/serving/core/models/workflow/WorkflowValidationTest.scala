@@ -23,8 +23,8 @@ import org.scalatest.{Matchers, WordSpec}
 class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
   val nodes = Seq(
-    NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-    NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+    NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+    NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
   )
   val edges = Seq(
     EdgeGraph("a", "b")
@@ -118,10 +118,10 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate an acyclic graph" in {
       val nodes = Seq(
-        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -140,10 +140,10 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "not validate a graph with a cycle" in {
       val nodes = Seq(
-        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -163,15 +163,15 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate a graph with correct arity" in {
       val nodes = Seq(
-        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.UnaryToUnary), WriterGraph()),
-        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("e", "", "", "", Seq(NodeArityEnum.BinaryToNary), WriterGraph()),
-        NodeGraph("f", "", "", "", Seq(NodeArityEnum.NullaryToNary, NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("j", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph()),
-        NodeGraph("k", "", "", "", Seq(NodeArityEnum.NullaryToUnary), WriterGraph()),
-        NodeGraph("l", "", "", "", Seq(NodeArityEnum.UnaryToNullary), WriterGraph())
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.UnaryToUnary), Option(WriterGraph())),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("e", "", "", "", Seq(NodeArityEnum.BinaryToNary), Option(WriterGraph())),
+        NodeGraph("f", "", "", "", Seq(NodeArityEnum.NullaryToNary, NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("j", "", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph())),
+        NodeGraph("k", "", "", "", Seq(NodeArityEnum.NullaryToUnary), Option(WriterGraph())),
+        NodeGraph("l", "", "", "", Seq(NodeArityEnum.UnaryToNullary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -195,11 +195,11 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "not validate a graph with invalid arity in input relation" in {
       val nodes = Seq(
-        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("d", "", "", "", Seq(NodeArityEnum.UnaryToNullary), WriterGraph()),
-        NodeGraph("e", "", "", "", Seq(NodeArityEnum.NullaryToUnary), WriterGraph())
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.UnaryToNullary), Option(WriterGraph())),
+        NodeGraph("e", "", "", "", Seq(NodeArityEnum.NullaryToUnary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -219,11 +219,11 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "not validate a graph with invalid arity in output relation" in {
       val nodes = Seq(
-        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.UnaryToNullary), WriterGraph()),
-        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NullaryToUnary), WriterGraph()),
-        NodeGraph("e", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph())
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.UnaryToNullary), Option(WriterGraph())),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NullaryToUnary), Option(WriterGraph())),
+        NodeGraph("e", "", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -242,12 +242,12 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "not validate a graph with invalid arity in transform relation" in {
       val nodes = Seq(
-        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "", "", "", Seq(NodeArityEnum.BinaryToNary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph()),
-        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NullaryToUnary), WriterGraph()),
-        NodeGraph("e", "", "", "", Seq(NodeArityEnum.UnaryToNullary), WriterGraph()),
-        NodeGraph("f", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.BinaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph())),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NullaryToUnary), Option(WriterGraph())),
+        NodeGraph("e", "", "", "", Seq(NodeArityEnum.UnaryToNullary), Option(WriterGraph())),
+        NodeGraph("f", "", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -267,9 +267,9 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "not validate a graph with invalid arity two relations" in {
       val nodes = Seq(
-        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToUnary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph())
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToUnary), Option(WriterGraph())),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.UnaryToNary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -286,11 +286,11 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate a graph containing at least one Input-to-Output path" in {
       val nodes = Seq(
-        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("d", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph()),
-        NodeGraph("e", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("d", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph())),
+        NodeGraph("e", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -310,10 +310,10 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "not validate a graph not containing any Input-to-Output path" in {
       val nodes = Seq(
-        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("d", "Transformation", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("d", "Transformation", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -550,8 +550,8 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "not validate an incorrect cube checkpoint settings" in {
       val cubeNodes = Seq(
-        NodeGraph("a", "", "CubeTransformStep", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("a", "", "CubeTransformStep", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
       )
       val pipeline = PipelineGraph(cubeNodes, edges)
       val wrongSettingsModel = Settings(
@@ -571,11 +571,11 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate a graph whose step names are unique" in {
       val nodes = Seq(
-        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("d", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph()),
-        NodeGraph("e", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("d", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph())),
+        NodeGraph("e", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -595,12 +595,12 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "not validate a graph containing duplicate names" in {
       val nodes = Seq(
-        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("d", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("e", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("d", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("d", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("e", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+        NodeGraph("d", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
       )
       val edges = Seq(
         EdgeGraph("a", "b"),

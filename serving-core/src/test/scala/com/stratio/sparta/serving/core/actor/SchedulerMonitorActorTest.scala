@@ -115,8 +115,8 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
   object SchedulerMonitorActorTest {
 
     val nodes = Seq(
-      NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-      NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+      NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
     )
     val edges = Seq(
       EdgeGraph("a", "b")

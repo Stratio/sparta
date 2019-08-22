@@ -56,8 +56,8 @@ class ParameterListPostgresDaoT extends DAOConfiguration
   val paramListWithQuotes = ParameterList(name = "plWithQuotes", parameters = Seq(paramWithQuotes))
   val paramListWithQuotesModified = ParameterList(name = "plWithQuotes", parameters= Seq(paramWithQuotesModified))
   val nodes = Seq(
-    NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-    NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+    NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+    NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
   )
   val edges = Seq(EdgeGraph("a", "b"))
   val pipeGraph = PipelineGraph(nodes, edges)

@@ -10,7 +10,7 @@ package com.stratio.sparta.plugin.workflow.transformation.rest
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.{SaveModeEnum, WhenError, WhenFieldError, WhenRowError}
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.plugin.{TemporalSparkContext, WireMockSupport}
 import org.apache.spark.sql.Row
@@ -46,7 +46,7 @@ class RestTransformStepBatchIT extends TemporalSparkContext with
     )
     val inputRdd1 = sc.parallelize(data1,1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val (result, _, resultDiscard, _) = new RestTransformStepBatch(
       "dummy",
@@ -97,7 +97,7 @@ class RestTransformStepBatchIT extends TemporalSparkContext with
     )
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val outputSchema = StructType(schema1 ++ Seq(StructField("output1", StringType)))
     val result = new RestTransformStepBatch(
@@ -132,7 +132,7 @@ class RestTransformStepBatchIT extends TemporalSparkContext with
     )
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val outputSchema = StructType(Seq(StructField("output1", StringType)))
     val result = new RestTransformStepBatch(
@@ -180,7 +180,7 @@ class RestTransformStepBatchIT extends TemporalSparkContext with
     )
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val (result, _, resultDiscard, _) = new RestTransformStepBatch(
       "dummy",
@@ -224,7 +224,7 @@ class RestTransformStepBatchIT extends TemporalSparkContext with
     )
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val (result, _, resultDiscard, _) = new RestTransformStepBatch(
       "dummy",
@@ -254,7 +254,7 @@ class RestTransformStepBatchIT extends TemporalSparkContext with
     )
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     intercept[Exception](new RestTransformStepBatch(
       "dummy",
@@ -279,7 +279,7 @@ class RestTransformStepBatchIT extends TemporalSparkContext with
     val data1 = Seq.empty[Row]
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val (result, _, resultDiscard, _) = new RestTransformStepBatch(
       "dummy",

@@ -5,8 +5,7 @@
  */
 package com.stratio.sparta.plugin.workflow.input.sftp
 
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.serving.core.models.enumerators.SftpFileTypeEnum
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -23,7 +22,7 @@ class SFTPJsonInputStepBatchIT extends TemporalSparkContext with Matchers with S
     uploadFile(resourcePath, targetPath)
   }
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName")
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
   "Events in sftp json file" should "match the number of events and the content" in {
     val properties = Map("path" -> targetPath, "fileType" -> SftpFileTypeEnum.json.toString, "host" -> sftpHost,

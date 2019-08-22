@@ -77,9 +77,9 @@ object LineageUtils extends ContextBuilderImplicits {
             }.getOrElse(defaultWorkflowRelationSettings)
 
             if (relationSettings.dataType == DataType.ValidData)
-              node.writer.tableName.notBlank.getOrElse(node.name)
+              node.outputTableName(outputNode.name)
             else if (relationSettings.dataType == DataType.DiscardedData)
-              node.writer.discardTableName.notBlank.getOrElse(SdkSchemaHelper.discardTableName(node.name))
+              node.outputDiscardTableName(outputNode.name).getOrElse(SdkSchemaHelper.discardTableName(node.name))
             else node.name
           }
 

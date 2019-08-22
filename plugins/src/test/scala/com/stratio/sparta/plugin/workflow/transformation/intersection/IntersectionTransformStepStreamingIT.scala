@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.intersection
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -41,7 +41,7 @@ class IntersectionTransformStepStreamingIT extends TemporalSparkContext with Mat
     val stream1 = ssc.queueStream(dataQueue1)
     val stream2 = ssc.queueStream(dataQueue2)
     val inputData = Map("step1" -> stream1, "step2" -> stream2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val discardConditions =
       """[
         |{

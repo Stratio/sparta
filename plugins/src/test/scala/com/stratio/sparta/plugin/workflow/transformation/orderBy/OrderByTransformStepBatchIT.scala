@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.orderBy
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -39,7 +39,7 @@ class OrderByTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val inputRDD = sc.parallelize(unorderedData)
     val expectedRDD = data1
     val inputData = Map("step1" -> inputRDD)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val result = new OrderByTransformStepBatch(
       "dummy",
       outputOptions,

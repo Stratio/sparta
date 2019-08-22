@@ -111,7 +111,7 @@ class PipelineGraphValidatorUT extends FlatSpec with Matchers {
 object ExampleGraphs {
 
   private def nodeGraph(name: String): NodeGraph =
-    NodeGraph(name, "", "", "", Seq(), WriterGraph())
+    NodeGraph(name, "", "", "", Seq(), Option(WriterGraph()))
 
   private def edgeGraph(origin: String, destination: String) =
     EdgeGraph(origin, destination, None)

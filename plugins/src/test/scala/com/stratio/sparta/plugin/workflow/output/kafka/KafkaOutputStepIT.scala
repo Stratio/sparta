@@ -8,10 +8,10 @@ package com.stratio.sparta.plugin.workflow.output.kafka
 import java.util.UUID
 
 import com.sksamuel.elastic4s.mappings.FieldType
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.plugin.common.kafka.KafkaSuiteBase
 import com.stratio.sparta.plugin.workflow.input.kafka.KafkaInputStepStreaming
-import com.stratio.sparta.core.models.OutputOptions
-import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputWriterOptions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -81,7 +81,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val input = new KafkaInputStepStreaming("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
       val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
@@ -156,7 +156,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val input = new KafkaInputStepStreaming("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
       val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
@@ -229,7 +229,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val input = new KafkaInputStepStreaming("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
       val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
@@ -304,7 +304,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "value.deserializer.schema.registry.url" -> schemaRegistry,
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val input = new KafkaInputStepStreaming("kafka10", outputOptions, ssc, sparkSession.get, propsConsumer)
       val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")

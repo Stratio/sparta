@@ -11,7 +11,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
-import com.stratio.sparta.core.models.{ErrorsManagement, OutputOptions, SpartaQualityRule}
+import com.stratio.sparta.core.models.{ErrorsManagement, OutputOptions, OutputWriterOptions, SpartaQualityRule}
 import com.stratio.sparta.core.properties.Parameterizable
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.crossdata.XDSession
@@ -31,6 +31,8 @@ abstract class OutputStep[Underlying[Row]](
   override lazy val customPropertyKey = DefaultCustomPropertyKey
   override lazy val customPropertyValue = DefaultCustomPropertyValue
 
+  override val outputOptions: OutputOptions = OutputOptions(Seq.empty)
+
   /**
     * Generic write function that receives the stream data and passes it to the dataFrame, calling the save
     * function afterwards.
@@ -40,7 +42,7 @@ abstract class OutputStep[Underlying[Row]](
     */
   private[sparta] def writeTransform(
                                       inputData: DistributedMonad[Underlying],
-                                      outputOptions: OutputOptions,
+                                      outputOptions: OutputWriterOptions,
                                       errorsManagement: ErrorsManagement,
                                       errorOutputs: Seq[OutputStep[Underlying]],
                                       predecessors: Seq[String],
@@ -87,15 +89,6 @@ abstract class OutputStep[Underlying[Row]](
   private[sparta] def getPartitionByKeyOptions(options: Map[String, String]): Option[String] =
     options.get(PartitionByKey).notBlank
 
-  private[sparta] def getUniqueConstraintNameOptions(options: Map[String, String]): Option[String] =
-    options.get(UniqueConstraintName).notBlank
-
-  private[sparta] def getUniqueConstraintFieldsOptions(options: Map[String, String]): Option[String] =
-    options.get(UniqueConstraintFields).notBlank
-
-  private[sparta] def getUpdateFieldsOptions(options: Map[String, String]): Option[String] =
-    options.get(UpdateFields).notBlank
-
   private[sparta] def getTableNameFromOptions(options: Map[String, String]): String =
     options.getOrElse(TableNameKey, {
       log.error("Table name not defined")
@@ -106,7 +99,7 @@ abstract class OutputStep[Underlying[Row]](
                                        dataFrame: DataFrameWriter[Row],
                                        schemaFields: Array[StructField]): DataFrameWriter[Row] = {
 
-    options.get(PartitionByKey).notBlank.fold(dataFrame)(partitions => {
+    getPartitionByKeyOptions(options).fold(dataFrame)(partitions => {
       val fieldsInDataFrame = schemaFields.map(field => field.name)
       val partitionFields = partitions.split(",").map(_.trim)
       if (partitionFields.forall(field => fieldsInDataFrame.contains(field)))

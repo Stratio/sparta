@@ -11,14 +11,13 @@ import java.net.URL
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 
 import scala.io.Source
 
 trait DummyDebugTestUtils {
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName")
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
   val fileResourcePath: URL = getClass().getResource("/origin.txt")
   val lines = Source.fromURL(fileResourcePath).getLines().toList
   val parentDir = new File(fileResourcePath.getPath).getParent

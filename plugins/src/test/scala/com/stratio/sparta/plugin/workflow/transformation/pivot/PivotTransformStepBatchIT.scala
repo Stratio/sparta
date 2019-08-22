@@ -9,7 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -49,7 +49,7 @@ class PivotTransformStepBatchIT extends TemporalSparkContext with Matchers with 
 
     val rddInput: RDD[Row] = sc.parallelize(dataIn)
     val inputData = Map("step1" -> rddInput)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val transformationsStepManagement = TransformationStepManagement()
 
     val propertiesWithColumn = Map(
@@ -131,7 +131,7 @@ class PivotTransformStepBatchIT extends TemporalSparkContext with Matchers with 
 
     val rddInput: RDD[Row] = sc.parallelize(dataIn)
     val inputData = Map("step1" -> rddInput)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val transformationsStepManagement = TransformationStepManagement()
 
     val propertiesWithExp = Map(

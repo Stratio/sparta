@@ -18,8 +18,8 @@ import org.scalatest.{Matchers, WordSpec}
 class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSugar {
 
   val nodes = Seq(
-    NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-    NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+    NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+    NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
   )
   val edges = Seq(
     EdgeGraph("a", "b")

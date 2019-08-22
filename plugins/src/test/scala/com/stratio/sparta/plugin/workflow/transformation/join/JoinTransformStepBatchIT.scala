@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.join
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
@@ -43,7 +43,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
     new GenericRowWithSchema(Array("blue", "Stratio", "Stratio employee"), schema2).asInstanceOf[Row],
     new GenericRowWithSchema(Array("red", "Paradigma", "Paradigma employee"), schema2).asInstanceOf[Row]
   )
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
   val conditions =
     s"""[
        |{

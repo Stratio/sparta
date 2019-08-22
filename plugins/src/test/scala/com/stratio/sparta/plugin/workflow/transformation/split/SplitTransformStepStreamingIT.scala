@@ -9,7 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
@@ -60,7 +60,7 @@ class SplitTransformStepStreamingIT extends TemporalSparkContext with Matchers w
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val listIndexes = "1,3,4,5"
     val result = new SplitTransformStepStreaming(
       "dummy",
@@ -135,7 +135,7 @@ class SplitTransformStepStreamingIT extends TemporalSparkContext with Matchers w
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val listIndexes = "1,3,4,5"
     val result = new SplitTransformStepStreaming(
       "dummy",

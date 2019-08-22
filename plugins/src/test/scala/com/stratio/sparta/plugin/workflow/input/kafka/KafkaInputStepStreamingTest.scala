@@ -6,7 +6,7 @@
 package com.stratio.sparta.plugin.workflow.input.kafka
 
 
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.kafka.clients.consumer.{RangeAssignor, RoundRobinAssignor}
@@ -24,7 +24,7 @@ class KafkaInputStepStreamingTest extends WordSpec with Matchers with MockitoSug
 
   val ssc = mock[StreamingContext]
   val xdSession = mock[XDSession]
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
   "KafkaInputStep" should {
     "return a tuples (topic,partition)" in {

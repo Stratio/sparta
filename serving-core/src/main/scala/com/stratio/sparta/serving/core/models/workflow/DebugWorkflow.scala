@@ -38,7 +38,7 @@ case class DebugWorkflow(
     className = "DebugOutputStep",
     classPrettyName = "Debug",
     arity = Seq(NodeArityEnum.NullaryToNullary, NodeArityEnum.NaryToNullary),
-    writer = WriterGraph(),
+    writer = Option(WriterGraph()),
     configuration = Map.empty
   )
   private val debugOutputNodeDiscard = NodeGraph(
@@ -47,7 +47,7 @@ case class DebugWorkflow(
     className = "DebugOutputStep",
     classPrettyName = "Debug",
     arity = Seq(NodeArityEnum.NullaryToNullary, NodeArityEnum.NaryToNullary),
-    writer = WriterGraph(),
+    writer = Option(WriterGraph()),
     configuration = Map.empty
   )
 

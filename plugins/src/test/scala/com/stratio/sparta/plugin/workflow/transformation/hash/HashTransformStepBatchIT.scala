@@ -17,7 +17,7 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.plugin.workflow.transformation.column.Hash.HashTransformStepBatch
 
@@ -50,7 +50,7 @@ class HashTransformStepBatchIT extends TemporalSparkContext with Matchers with D
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new HashTransformStepBatch(
       "dummy",
@@ -96,7 +96,7 @@ class HashTransformStepBatchIT extends TemporalSparkContext with Matchers with D
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new HashTransformStepBatch(
       "dummy",
@@ -143,7 +143,7 @@ class HashTransformStepBatchIT extends TemporalSparkContext with Matchers with D
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new HashTransformStepBatch(
       "dummy",
@@ -189,7 +189,7 @@ class HashTransformStepBatchIT extends TemporalSparkContext with Matchers with D
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new HashTransformStepBatch(
       "dummy",
@@ -235,7 +235,7 @@ class HashTransformStepBatchIT extends TemporalSparkContext with Matchers with D
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new HashTransformStepBatch(
       "dummy",
@@ -281,7 +281,7 @@ class HashTransformStepBatchIT extends TemporalSparkContext with Matchers with D
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new HashTransformStepBatch(
       "dummy",
@@ -327,7 +327,7 @@ class HashTransformStepBatchIT extends TemporalSparkContext with Matchers with D
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new HashTransformStepBatch(
       "dummy",

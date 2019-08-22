@@ -18,7 +18,7 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 
 
@@ -56,7 +56,7 @@ class CaseTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     val stream = ssc.queueStream(dataQueue)
 
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CaseTransformStepStreaming(
       "dummy",
@@ -124,7 +124,7 @@ class CaseTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CaseTransformStepStreaming(
       "dummy",
@@ -197,7 +197,7 @@ class CaseTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     val stream = ssc.queueStream(dataQueue)
 
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CaseTransformStepStreaming(
       "dummy",
@@ -264,7 +264,7 @@ class CaseTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CaseTransformStepStreaming(
       "dummy",
@@ -329,7 +329,7 @@ class CaseTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CaseTransformStepStreaming(
       "dummy",
@@ -398,7 +398,7 @@ class CaseTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     val stream = ssc.queueStream(dataQueue)
 
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CaseTransformStepStreaming(
       "dummy",
@@ -466,7 +466,7 @@ class CaseTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CaseTransformStepStreaming(
       "dummy",
@@ -533,7 +533,7 @@ class CaseTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     val stream = ssc.queueStream(dataQueue)
 
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CaseTransformStepStreaming(
       "dummy",

@@ -13,7 +13,7 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 
@@ -29,7 +29,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     )
     val inputRdd = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT * FROM step1 WHERE price > 12 ORDER BY step1.color"
     val inputSchema = """[{"stepName":"step1","schema":"{\"color\":\"1\",\"price\":15.5}"}]"""
     val discardConditions =
@@ -91,7 +91,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val inputRdd1 = sc.parallelize(data1)
     val inputRdd2 = sc.parallelize(data2)
     val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
     val result = new TriggerTransformStepBatch(
@@ -124,7 +124,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val inputRdd1 = sc.parallelize(data1)
     val inputRdd2 = sc.emptyRDD[Row]
     val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
     val result = new TriggerTransformStepBatch(
@@ -143,7 +143,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
   "A TriggerTransformStepBatch" should "make trigger over one RDD empty" in {
     val inputRdd1 = sc.emptyRDD[Row]
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
     val result = new TriggerTransformStepBatch(
@@ -168,7 +168,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val inputRdd1 = sc.parallelize(data1)
     val inputRdd2 = sc.emptyRDD[Row]
     val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT step1.color FROM step1"
     val result = new TriggerTransformStepBatch(
       "dummy",

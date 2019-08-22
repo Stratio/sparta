@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.trigger
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -35,7 +35,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT * FROM step1 WHERE price > 12 ORDER BY step1.color"
     val inputSchema = """[{"stepName":"step1","schema":"{\"color\":\"1\",\"price\":15.5}"}]"""
     val discardConditions =
@@ -98,7 +98,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT * FROM step1 ORDER BY step1.color"
     val result = new TriggerTransformStepStreaming(
       "dummy",
@@ -146,7 +146,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
     val stream1 = ssc.queueStream(dataQueue1)
     val stream2 = ssc.queueStream(dataQueue2)
     val inputData = Map("step1" -> stream1, "step2" -> stream2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
     val result = new TriggerTransformStepStreaming(
@@ -195,7 +195,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
     val stream1 = ssc.queueStream(dataQueue1)
     val stream2 = ssc.queueStream(dataQueue2)
     val inputData = Map("step1" -> stream1, "step2" -> stream2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
     val result = new TriggerTransformStepStreaming(
@@ -237,7 +237,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
     val stream1 = ssc.queueStream(dataQueue1)
     val stream2 = ssc.queueStream(dataQueue2)
     val inputData = Map("step1" -> stream1, "step2" -> stream2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val query = s"SELECT step1.color FROM step1"
     val result = new TriggerTransformStepStreaming(
       "dummy",

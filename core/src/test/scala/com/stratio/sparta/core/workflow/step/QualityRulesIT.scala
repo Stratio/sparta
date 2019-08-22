@@ -34,7 +34,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
   val fakeDate: Date = new Date(dt.getMillis)
 
   val errorManagement = ErrorsManagement()
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "tableA", "tableName", None, None)
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("tableA", None, Option("tableName"))
   val defaultThreshold: SpartaQualityRuleThreshold = SpartaQualityRuleThreshold(
     value = 3.0,
     operation = ">=",
@@ -95,7 +95,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
 
       val result1 = classTest.get.writeRDDTemplate(dataSet.get,
-        outputOptions,
+        outputOptions.outputStepWriterOptions("tableA", ""),
         errorManagement,
         Seq.empty[OutputStep[RDD]],
         Seq("input1", "transformation1"),
@@ -129,7 +129,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -158,7 +158,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -188,7 +188,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -218,7 +218,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -248,7 +248,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -277,7 +277,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -306,7 +306,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -335,7 +335,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -364,7 +364,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -393,7 +393,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -424,7 +424,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -453,7 +453,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -483,7 +483,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -514,7 +514,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -543,7 +543,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -574,7 +574,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -603,7 +603,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       outputName = "")
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
+      outputOptions.outputStepWriterOptions("tableA", ""),
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),

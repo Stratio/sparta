@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -43,7 +43,7 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val dataQueue = sc.parallelize(dataIn)
 
     val inputData = Map("step1" -> dataQueue)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new ExplodeTransformStepBatch(
       "dummy",
@@ -84,7 +84,7 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val dataQueue = sc.parallelize(dataIn)
 
     val inputData = Map("step1" -> dataQueue)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new ExplodeTransformStepBatch(
       "dummy",
@@ -121,7 +121,7 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val dataQueue = sc.parallelize(dataIn)
 
     val inputData = Map("step1" -> dataQueue)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new ExplodeTransformStepBatch(
       "dummy",

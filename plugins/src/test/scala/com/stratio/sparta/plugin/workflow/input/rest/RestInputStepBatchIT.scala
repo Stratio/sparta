@@ -6,8 +6,7 @@
 package com.stratio.sparta.plugin.workflow.input.rest
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.plugin.{TemporalSparkContext, WireMockSupport}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -33,7 +32,7 @@ class RestInputStepBatchIT extends TemporalSparkContext with WireMockSupport wit
           .withStatus(200)))
 
     val totalEvents = sc.accumulator(0L, "Number of events received")
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val properties =Map("url" -> "http://localhost:20000/test/blue", "requestTimeout" -> "20s", "httpMethod" -> "get",
       "httpOutputField" -> "output1")
     val restInput = new RestInputStepBatch("testrest1", outputOptions, None, sparkSession, properties)
@@ -59,7 +58,7 @@ class RestInputStepBatchIT extends TemporalSparkContext with WireMockSupport wit
           .withStatus(505)))
 
     val totalEvents = sc.accumulator(0L, "Number of events received")
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val properties =Map("url" -> "http://localhost:20000/test/blue", "requestTimeout" -> "20s", "httpMethod" -> "get",
       "httpOutputField" -> "output1", "statusCodeWhiteList" -> "505" )
     val restInput = new RestInputStepBatch("testrest1", outputOptions, None, sparkSession, properties)
@@ -84,7 +83,7 @@ class RestInputStepBatchIT extends TemporalSparkContext with WireMockSupport wit
         aResponse().withBody(Serialization.write(response))
           .withStatus(505)))
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val properties =Map("url" -> "http://localhost:20000/test/blue", "requestTimeout" -> "20s", "httpMethod" -> "get",
       "httpOutputField" -> "output1")
     intercept[Exception]{

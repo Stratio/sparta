@@ -5,8 +5,7 @@
  */
 package com.stratio.sparta.plugin.workflow.input.sftp
 
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.serving.core.models.enumerators.SftpFileTypeEnum
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
@@ -21,7 +20,7 @@ class SFTPXmlInputBatchIT extends TemporalSparkContext with Matchers with SftpCo
     uploadFile(resourcePath, targetPath)
   }
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName")
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
   "SFTPXmlInputStep" should "match the number of events and the content" in {
     val properties = Map("path" -> targetPath, "fileType" -> SftpFileTypeEnum.xml.toString, "host" -> sftpHost,

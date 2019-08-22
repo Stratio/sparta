@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.split
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
@@ -20,7 +20,7 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 @RunWith(classOf[JUnitRunner])
 class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
   val inputField = "split"
   val schema = StructType(Seq(
     StructField(inputField, StringType))

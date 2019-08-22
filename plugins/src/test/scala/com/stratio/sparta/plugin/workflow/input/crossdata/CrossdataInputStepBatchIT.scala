@@ -6,8 +6,7 @@
 package com.stratio.sparta.plugin.workflow.input.crossdata
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.core.models.OutputOptions
-import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputWriterOptions
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.junit.runner.RunWith
@@ -33,7 +32,7 @@ class CrossdataInputStepBatchIT extends TemporalSparkContext with Matchers {
     sparkSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName)
 
     val datasourceParams = Map("query" -> s"select * from $tableName")
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val crossdataInput = new CrossdataInputStepBatch(
       "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
     val inputRdd = crossdataInput.initWithSchema()._1

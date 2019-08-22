@@ -6,8 +6,7 @@
 package com.stratio.sparta.plugin.workflow.input.rest
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, getAllServeEvents, urlEqualTo}
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.plugin.{TemporalSparkContext, WireMockSupport}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -34,7 +33,7 @@ class RestInputStepStreamingIT extends TemporalSparkContext with WireMockSupport
           .withStatus(200)))
 
     val totalEvents = sc.accumulator(0L, "Number of events received")
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val properties =Map("url" -> "http://localhost:20000/test/blue", "requestTimeout" -> "20s", "httpMethod" -> "get",
       "httpOutputField" -> "output1")
     val restInput = new RestInputStepStreaming("testrest1", outputOptions, Option(ssc), sparkSession, properties)

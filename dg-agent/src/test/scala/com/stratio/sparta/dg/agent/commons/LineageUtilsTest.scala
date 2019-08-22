@@ -24,21 +24,14 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class LineageUtilsTest extends WordSpec with Matchers {
 
-  val writerA = WriterGraph(
-    SaveModeEnum.Append,
-    Option(JsoneyString("tableName"))
-  )
-
-  val writerC = WriterGraph(
-    SaveModeEnum.Append,
-    Option(JsoneyString("tableName2"))
-  )
+  val writerA = Option(WriterGraph(SaveModeEnum.Append, Option("tableName")))
+  val writerC = Option(WriterGraph(SaveModeEnum.Append, Option("tableName2")))
 
   val nodes = Seq(
     NodeGraph("a", "input", "ParquetInputStep", "Parquet", Seq(NodeArityEnum.NullaryToNary), writerA),
-    NodeGraph("b", "output", "PostgresOutputStep", "Postgres", Seq(NodeArityEnum.NaryToNullary), WriterGraph()),
+    NodeGraph("b", "output", "PostgresOutputStep", "Postgres", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph())),
     NodeGraph("c", "transformation", "TriggerTransformStepBatch", "Trigger", Seq(NodeArityEnum.NullaryToNary), writerC),
-    NodeGraph("d", "output", "CrossdataOutputStep", "Crossdata", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+    NodeGraph("d", "output", "CrossdataOutputStep", "Crossdata", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
 
   )
   val edges = Seq(

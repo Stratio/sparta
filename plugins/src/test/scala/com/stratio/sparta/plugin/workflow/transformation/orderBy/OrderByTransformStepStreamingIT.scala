@@ -17,7 +17,7 @@ import org.scalatest.junit.JUnitRunner
 
 import scala.collection.mutable
 import com.stratio.sparta.core.DistributedMonad.Implicits._
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 
 @RunWith(classOf[JUnitRunner])
 class OrderByTransformStepStreamingIT extends TemporalSparkContext with Matchers {
@@ -41,7 +41,7 @@ class OrderByTransformStepStreamingIT extends TemporalSparkContext with Matchers
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val result = new OrderByTransformStepStreaming(
       "dummy",
       outputOptions,

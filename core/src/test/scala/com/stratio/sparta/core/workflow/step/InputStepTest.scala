@@ -7,7 +7,7 @@ package com.stratio.sparta.core.workflow.step
 
 import java.io.Serializable
 
-import com.stratio.sparta.core.models.{OutputFields, OutputOptions}
+import com.stratio.sparta.core.models.{OutputFields, OutputOptions, OutputWriterOptions}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.storage.StorageLevel
@@ -26,7 +26,7 @@ class InputStepTest extends WordSpec with Matchers with MockitoSugar {
   "InputStep" should {
     val name = "input"
     val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val properties = Map.empty[String, Serializable]
 
     "Return default storageLevel" in {

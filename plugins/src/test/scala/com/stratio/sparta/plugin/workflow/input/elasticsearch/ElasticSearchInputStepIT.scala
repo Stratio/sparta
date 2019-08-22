@@ -10,7 +10,7 @@ import java.time.Instant
 
 import com.github.nscala_time.time.Imports.DateTime
 import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
@@ -76,7 +76,7 @@ class ElasticSearchInputStepIT extends TemporalSparkContext with ShouldMatchers 
       PrimaryKey -> "age"
     ))
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val properties = Map("nodes" -> JsoneyString(
       s"""
          |[{

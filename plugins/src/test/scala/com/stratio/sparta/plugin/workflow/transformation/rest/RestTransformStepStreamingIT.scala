@@ -11,7 +11,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.plugin.TemporalSparkContext
 import org.apache.spark.rdd.RDD
@@ -68,7 +68,7 @@ class RestTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
 
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val outputSchema = StructType(schema1 ++ Seq(StructField("output1", StringType)))
     val result = new RestTransformStepStreaming(

@@ -5,8 +5,7 @@
  */
 package com.stratio.sparta.plugin.workflow.input.elasticsearch
 
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import org.junit.runner.RunWith
@@ -23,7 +22,7 @@ class ElasticSearchInputStepTest extends TemporalSparkContext
     final val localPort = 9200
     final val remotePort = 9300
     val input = getInstance("localhost", localPort, remotePort)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val outputMultipleNodes = new ElasticSearchInputStepBatch(
       "ES-out", outputOptions, Option(ssc), sparkSession,
       Map("nodes" -> JsoneyString(

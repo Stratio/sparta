@@ -9,7 +9,7 @@ import com.stratio.sparta.plugin.workflow.transformation.cube.models.{CubeModel,
 import com.stratio.sparta.plugin.workflow.transformation.cube.operators.CountOperator
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
 import com.stratio.sparta.plugin.{TemporalSparkContext, TestReceiver}
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.{SaveModeEnum, WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -35,7 +35,7 @@ class CubeTransformStepStreamingIT extends TemporalSparkContext with Matchers {
     val initDStream = ssc.receiverStream(new TestReceiver(fields, 2, StorageLevel.MEMORY_ONLY))
       .asInstanceOf[DStream[Row]]
     val inputData = Map("step1" -> initDStream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val dimensionsProp =
       s"""[
          | {"name":"dim1"}

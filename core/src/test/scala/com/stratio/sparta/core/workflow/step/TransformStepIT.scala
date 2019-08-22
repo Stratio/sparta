@@ -7,7 +7,7 @@ package com.stratio.sparta.core.workflow.step
 
 import java.io.Serializable
 
-import com.stratio.sparta.core.models.{OutputFields, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputFields, OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.{DistributedMonad, TemporalSparkContext}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
@@ -25,7 +25,7 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
 
   import DistributedMonad.Implicits._
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
   val transformationsStepManagement = TransformationStepManagement()
   def passSameStream(
                       stepName: String,

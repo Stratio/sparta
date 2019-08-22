@@ -9,7 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -51,7 +51,7 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CsvTransformStepBatch(
       "dummy",
@@ -91,7 +91,7 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
     val dataInRow = dataIn.map(_.asInstanceOf[Row])
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CsvTransformStepBatch(
       "dummy",
@@ -142,7 +142,7 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CsvTransformStepBatch(
       "dummy",

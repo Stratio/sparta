@@ -77,6 +77,15 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert, SaveModeEnum.Delete)
 
+  private[postgres] def getUniqueConstraintNameOptions(options: Map[String, String]): Option[String] =
+    options.get(OutputStep.UniqueConstraintName).notBlank
+
+  private[postgres] def getUniqueConstraintFieldsOptions(options: Map[String, String]): Option[String] =
+    options.get(OutputStep.UniqueConstraintFields).notBlank
+
+  private[postgres] def getUpdateFieldsOptions(options: Map[String, String]): Option[String] =
+    options.get(OutputStep.UpdateFields).notBlank
+
   //scalastyle:off
   private[postgres] def constraintExists(connectionProperties: JDBCOptions, uniqueConstraintName: String, outputName: String, dialect: JdbcDialect): Boolean = {
     synchronized {

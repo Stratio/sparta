@@ -7,9 +7,9 @@ package com.stratio.sparta.plugin.workflow.input.kafka
 
 import java.util.UUID
 
-import com.stratio.sparta.plugin.common.kafka.KafkaSuiteBase
-import com.stratio.sparta.core.models.OutputOptions
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.plugin.common.kafka.KafkaSuiteBase
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.plugin.workflow.output.kafka.KafkaOutputStep
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -60,7 +60,7 @@ class KafkaInputStepStreamingIT extends KafkaSuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
       log.info("Creating kafka input step")
 
@@ -113,7 +113,7 @@ class KafkaInputStepStreamingIT extends KafkaSuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
       log.info("Creating kafka input step")
 
@@ -194,7 +194,7 @@ class KafkaInputStepStreamingIT extends KafkaSuiteBase {
         "auto.offset.reset" -> "earliest"
       )
 
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
       log.info("Creating kafka input step")
 

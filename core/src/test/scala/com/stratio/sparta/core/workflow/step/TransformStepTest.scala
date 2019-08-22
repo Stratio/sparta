@@ -7,7 +7,7 @@ package com.stratio.sparta.core.workflow.step
 
 import java.io.Serializable
 
-import com.stratio.sparta.core.models.{OutputFields, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputFields, OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
@@ -28,7 +28,7 @@ class TransformStepTest extends WordSpec with Matchers with MockitoSugar {
     val schema = StructType(Seq(StructField("inputField", StringType)))
     val inputSchemas = Map("input" -> schema)
     val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val properties = Map("addAllInputFields" -> true.asInstanceOf[Serializable])
     val transformationStepManagement = TransformationStepManagement()
 

@@ -37,12 +37,12 @@ class WorkflowValidationIT extends WordSpec with Matchers with MockitoSugar {
 
   "not validate a graph containing duplicate names" in {
     val nodes = Seq(
-      NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-      NodeGraph("stepNameTest", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-      NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-      NodeGraph("d", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-      NodeGraph("e", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
-      NodeGraph("d", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+      NodeGraph("stepNameTest", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+      NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+      NodeGraph("d", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+      NodeGraph("e", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), Option(WriterGraph())),
+      NodeGraph("d", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
     )
     val edges = Seq(
       EdgeGraph("a", "stepNameTest"),

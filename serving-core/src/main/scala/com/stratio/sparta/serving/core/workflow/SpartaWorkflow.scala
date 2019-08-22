@@ -16,8 +16,8 @@ import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.SdkSchemaHelper.discardExtension
 import com.stratio.sparta.core.helpers.{AggregationTimeHelper, SdkSchemaHelper}
+import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
-import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, SpartaQualityRule, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step._
@@ -66,9 +66,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   private var order = 0L
 
   /**
-   * Execute the setup function associated to all the steps. Previously is mandatory execute the stages
-   * function because the steps variable is mutable and is initialized to empty value.
-   */
+    * Execute the setup function associated to all the steps. Previously is mandatory execute the stages
+    * function because the steps variable is mutable and is initialized to empty value.
+    */
   def setup(): Unit = {
     val phaseEnum = PhaseEnum.Setup
     val errorMessage = s"An error was encountered while executing the setup steps"
@@ -94,9 +94,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   }
 
   /**
-   * Execute the validate function associated to all the steps. Previously is mandatory execute the stages
-   * function because the steps variable is mutable and is initialized to empty value.
-   */
+    * Execute the validate function associated to all the steps. Previously is mandatory execute the stages
+    * function because the steps variable is mutable and is initialized to empty value.
+    */
   def validate(): Seq[ErrorValidations] = {
     val phaseEnum = PhaseEnum.Validate
     val errorMessage = s"An error was encountered while executing the validate steps"
@@ -109,6 +109,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
   /**
     * *
+    *
     * @param inOutNodes sequence of input and output names cointained in the workflow
     * @return a Map(stepName -> Map(xdLineageKey -> xdLineageValue)) for every input and output with a non-empty
     *         lineage property map. The values contained in this map will be used to built the step metadataPath.
@@ -147,10 +148,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
       val xdLineageOutProps = getXDOutStepsLineageProps(xdOutNodesWithWriter)
-      val  xDOutputPropertiesWithMetadataPath = xdOutNodesWithWriter.map { case (stepName, tableName, _) =>
-        val newXDProps = xdLineageOutProps.getOrElse(stepName, Map.empty[String,Seq[String]])
+      val xDOutputPropertiesWithMetadataPath = xdOutNodesWithWriter.map { case (stepName, tableName, _) =>
+        val newXDProps = xdLineageOutProps.getOrElse(stepName, Map.empty[String, Seq[String]])
 
-        newXDProps.map{case prop@(k, v) =>
+        newXDProps.map { case prop@(k, v) =>
           if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
             ProvidedMetadatapathKey -> Seq(getXDSession().fold(EmptyMetadataPath)(_.getLineageTable(tableName)))
           else
@@ -164,7 +165,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         val newXDProps = xdProps.map { case prop@(k, v) =>
           if (k.equals(ProvidedMetadatapathKey))
             ProvidedMetadatapathKey ->
-              v.filterNot{ path => steps.map(step => path.endsWith(step.name + ":")).fold(false)(_|_)}
+              v.filterNot { path => steps.map(step => path.endsWith(step.name + ":")).fold(false)(_ | _) }
           else
             prop
         }
@@ -197,21 +198,21 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     *
     *
     * spartaWorkflow.getStepsWithXDOutputNodesAndProperties(
-        xdOutNodesWithWriter,
-        spartaWorkflow.getXDOutStepsLineageProps(xdOutNodesWithWriter))
+    *         xdOutNodesWithWriter,
+    *spartaWorkflow.getXDOutStepsLineageProps(xdOutNodesWithWriter))
     */
   def getStepsWithXDOutputNodesAndProperties(xdOutNodesWithWriter: Seq[(String, String, Option[String])])
-  :Seq[Map[String, (String, String)]] = {
+  : Seq[Map[String, (String, String)]] = {
     xdOutNodesWithWriter.map { case (outputName, tableName, predecessorName) =>
-      val xdOutputWithProps = getXDOutStepsLineageProps(xdOutNodesWithWriter).getOrElse(outputName, Map.empty[String,Seq[String]])
+      val xdOutputWithProps = getXDOutStepsLineageProps(xdOutNodesWithWriter).getOrElse(outputName, Map.empty[String, Seq[String]])
 
       xdOutputWithProps.map { case (k, v) =>
-          val metadataPath =
-            if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
-              getXDSession().fold("")(_.getLineageTable(tableName))
-            else
-              ""
-          predecessorName.getOrElse(tableName) -> (outputName, metadataPath)
+        val metadataPath =
+          if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
+            getXDSession().fold("")(_.getLineageTable(tableName))
+          else
+            ""
+        predecessorName.getOrElse(tableName) -> (outputName, metadataPath)
       }
     }
   }
@@ -223,7 +224,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
       workflow.pipelineGraph.nodes
         .filter(node => node.stepType.toLowerCase == OutputStep.StepType || node.stepType.toLowerCase == InputStep.StepType)
-        .map(node => (node, steps.find(_.name == node.name).fold(Map.empty[String,String])(_.lineageProperties())))
+        .map(node => (node, steps.find(_.name == node.name).fold(Map.empty[String, String])(_.lineageProperties())))
     }
   }
 
@@ -369,7 +370,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     * @param workflowContext The Spark Contexts used in the steps creation
     */
   def executeWorkflow(qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule])(implicit workflowContext: WorkflowContext,
-                      customClasspathClasses: Map[String, String] ) : Seq[SparkQualityRuleResults] = {
+                                                                                           customClasspathClasses: Map[String, String]): Seq[SparkQualityRuleResults] = {
 
     import com.stratio.sparta.serving.core.helpers.GraphHelperImplicits._
 
@@ -479,13 +480,14 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
               case (_, InputStepData(step, data, _, _)) =>
                 seqSparkResults ++= newOutput.writeTransform(
                   data,
-                  step.outputOptions,
+                  step.outputOptions.outputStepWriterOptions(predecessor.name, outputNode.name),
                   workflow.settings.errorsManagement,
                   errorOutputs,
                   Seq.empty[String],
-                  qualityRules.filter{ qr => qr.enable &&
-                    qr.outputName == outputNode.name &&
-                      (qr.stepName == predecessor.name || qr.stepName == step.outputOptions.tableName)
+                  qualityRules.filter { qr =>
+                    qr.enable &&
+                      qr.outputName == outputNode.name &&
+                      (qr.stepName == predecessor.name || qr.stepName == step.outputTableName(outputNode.name))
                   }
                 )
             }
@@ -508,9 +510,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
             */
             val stepName = nodeName(predecessor.name, relationSettings.dataType)
             transformations.filterKeys(_ == stepName).foreach { case (_, transform) =>
-              val newOutputOptions = transform.step.outputOptions.copy(
+              val newOutputOptions = transform.step.outputOptions.outputStepWriterOptions(predecessor.name, outputNode.name).copy(
                 stepName = stepName,
-                tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType, transform.step.outputOptions.discardTableName)
+                tableName = nodeName(transform.step.outputTableName(outputNode.name), relationSettings.dataType, transform.step.outputDiscardTableName(outputNode.name))
               )
               seqSparkResults ++= newOutput.writeTransform(
                 transform.data,
@@ -518,8 +520,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
                 workflow.settings.errorsManagement,
                 errorOutputs,
                 transform.predecessors,
-                qualityRules.filter { qr => qr.enable &&
-                  qr.outputName == outputNode.name &&
+                qualityRules.filter { qr =>
+                  qr.enable &&
+                    qr.outputName == outputNode.name &&
                     (qr.stepName == stepName || qr.stepName == newOutputOptions.tableName)
                 }
               )
@@ -529,10 +532,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       }
     }
 
-    inputs.foreach{ case (_, input) =>
+    inputs.foreach { case (_, input) =>
       input.step match {
-        case inputStep : OneTransactionOffsetManager =>
-          if(inputStep.executeOffsetCommit)
+        case inputStep: OneTransactionOffsetManager =>
+          if (inputStep.executeOffsetCommit)
             inputStep.commitOffsets()
         case _ =>
       }
@@ -541,8 +544,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   }
 
   /**
-   * Execute steps once Spark execution has ended successfully. It applies only to batch workflows.
-   */
+    * Execute steps once Spark execution has ended successfully. It applies only to batch workflows.
+    */
   def postExecutionStep(): Unit = {
     val errorMessage = s"An error was encountered while executing final sql sentences"
     val okMessage = s"Final Sql sentences executed successfully"
@@ -553,12 +556,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   }
 
   /**
-   * Create the step associated to the node passed as parameter.
-   *
-   * @param node            The node of the graph
-   * @param workflowContext The Spark contexts are contained into this parameter
-   * @param graphContext    The context contains the graph and the steps created
-   */
+    * Create the step associated to the node passed as parameter.
+    *
+    * @param node            The node of the graph
+    * @param workflowContext The Spark contexts are contained into this parameter
+    * @param graphContext    The context contains the graph and the steps created
+    */
   private[core] def createStep(node: NodeGraph)
                               (implicit workflowContext: WorkflowContext, graphContext: GraphContext[Underlying], customClasspathClasses: Map[String, String])
   : Unit =
@@ -618,7 +621,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
           s"\tWrong type: ${node.stepType}")
     }
 
-  private[core] def getStepsNonEmptyLineageProps: Map[String, Map[String,Seq[String]]] =
+  private[core] def getStepsNonEmptyLineageProps: Map[String, Map[String, Seq[String]]] =
     steps.map { step =>
       step.name -> step.lineageCatalogProperties()
     }.toMap.filter(_._2.nonEmpty)
@@ -634,24 +637,25 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
                               discardTableName: Option[String] = None
                             ): String =
     if (relationDataType == DataType.ValidData) name
-    else if(!name.contains(discardExtension) && discardTableName.isDefined) discardTableName.get
+    else if (!name.contains(discardExtension) && discardTableName.isDefined) discardTableName.get
     else SdkSchemaHelper.discardTableName(name)
 
   private[core] def inputIdentificationName(step: InputStep[Underlying]): String =
-    s"${InputStep.StepType}-${step.outputOptions.errorTableName.getOrElse(step.name)}"
+    s"${InputStep.StepType}-${step.outputErrorTableName}&${step.name}"
 
   private[core] def transformIdentificationName(step: TransformStep[Underlying], relationDataType: DataType): String = {
-    val name = nodeName(step.outputOptions.errorTableName.getOrElse(step.name), relationDataType)
-    s"${TransformStep.StepType}-$name"
+    val name = nodeName(step.outputErrorTableName, relationDataType)
+    val stepName = nodeName(step.name, relationDataType)
+    s"${TransformStep.StepType}-$name&$stepName"
   }
 
   /**
-   * Find the input steps that are predecessors to the node passed as parameter.
-   *
-   * @param node    The node to find predecessors
-   * @param context The context that contains the graph and the steps created
-   * @return The predecessors steps
-   */
+    * Find the input steps that are predecessors to the node passed as parameter.
+    *
+    * @param node    The node to find predecessors
+    * @param context The context that contains the graph and the steps created
+    * @return The predecessors steps
+    */
   private[core] def findInputPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
   : scala.collection.mutable.HashMap[String, InputStepData[Underlying]] =
     context.inputs.filter { input =>
@@ -662,12 +666,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     }
 
   /**
-   * Find the transform steps that are predecessors to the node passed as parameter.
-   *
-   * @param node    The node to find predecessors
-   * @param context The context that contains the graph and the steps created
-   * @return The predecessors steps
-   */
+    * Find the transform steps that are predecessors to the node passed as parameter.
+    *
+    * @param node    The node to find predecessors
+    * @param context The context that contains the graph and the steps created
+    * @return The predecessors steps
+    */
   private[core] def findTransformPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
   : scala.collection.mutable.HashMap[String, TransformStepData[Underlying]] =
     context.transformations.filter { transform =>
@@ -700,28 +704,15 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
       val classType = node.configuration.getOrElse(CustomTypeKey, className).toString
-      val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val configuration = {
-        if(node.className.equalsIgnoreCase("MlModelTransformStep"))
+        if (node.className.equalsIgnoreCase("MlModelTransformStep"))
           node.configuration ++ getIntelligenceConfiguration
         else node.configuration
-      }  ++
+      } ++
         workflow.executionId.fold(Map.empty[String, JsoneyString]) { executionId =>
           Map(ExecutionIdKey -> JsoneyString(executionId))
         }
-      val outputOptions = OutputOptions(
-        node.writer.saveMode,
-        node.name,
-        tableName,
-        node.writer.partitionBy.notBlank,
-        node.writer.constraintType.notBlank,
-        node.writer.primaryKey.notBlank,
-        node.writer.uniqueConstraintName.notBlank,
-        node.writer.uniqueConstraintFields.notBlank,
-        node.writer.updateFields.notBlank,
-        node.writer.errorTableName.notBlank.orElse(Option(tableName)),
-        node.writer.discardTableName.notBlank.orElse(Option(tableName))
-      )
+
       workflowContext.classUtils.tryToInstantiate[TransformStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
@@ -730,7 +721,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
           classOf[Option[StreamingContext]],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, outputOptions, workflow.settings.errorsManagement.transformationStepsManagement,
+        ).newInstance(node.name, node.outputOptions, workflow.settings.errorsManagement.transformationStepsManagement,
           workflowContext.ssc, workflowContext.xDSession, configuration)
           .asInstanceOf[TransformStep[Underlying]],
         customClasspathClasses
@@ -755,24 +746,11 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
       val classType = node.configuration.getOrElse(CustomTypeKey, className).toString
-      val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val configuration = node.configuration ++
         workflow.executionId.fold(Map.empty[String, JsoneyString]) { executionId =>
           Map(ExecutionIdKey -> JsoneyString(executionId))
         }
-      val outputOptions = OutputOptions(
-        node.writer.saveMode,
-        node.name,
-        tableName,
-        node.writer.partitionBy.notBlank,
-        node.writer.constraintType.notBlank,
-        node.writer.primaryKey.notBlank,
-        node.writer.uniqueConstraintName.notBlank,
-        node.writer.uniqueConstraintFields.notBlank,
-        node.writer.updateFields.notBlank,
-        node.writer.errorTableName.notBlank.orElse(Option(tableName)),
-        node.writer.discardTableName.notBlank.orElse(Option(tableName))
-      )
+
       workflowContext.classUtils.tryToInstantiate[InputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
@@ -780,7 +758,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
           classOf[Option[StreamingContext]],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, outputOptions, workflowContext.ssc, workflowContext.xDSession, configuration)
+        ).newInstance(node.name, node.outputOptions, workflowContext.ssc, workflowContext.xDSession, configuration)
           .asInstanceOf[InputStep[Underlying]],
         customClasspathClasses
       )
@@ -807,7 +785,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         if (node.className.equalsIgnoreCase("DebugOutputStep")) {
           val extraConfig = Map(WorkflowIdKey -> JsoneyString(workflow.id.get))
           node.configuration ++ extraConfig
-        } else if(node.className.equalsIgnoreCase("MlPipelineOutputStep"))
+        } else if (node.className.equalsIgnoreCase("MlPipelineOutputStep"))
           node.configuration ++ getIntelligenceConfiguration
         else node.configuration
       } ++

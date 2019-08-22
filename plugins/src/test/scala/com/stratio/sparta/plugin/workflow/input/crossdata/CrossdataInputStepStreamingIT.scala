@@ -9,8 +9,7 @@ import java.io.{Serializable => JSerializable}
 import java.util.{Properties, UUID}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.core.models.OutputOptions
-import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.plugin.common.postgresql.PostgresSuiteBase
 import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcUtils}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
@@ -61,7 +60,7 @@ class CrossdataInputStepStreamingIT extends TemporalSparkContext with PostgresSu
       "offsetFields" -> offsetFields.asInstanceOf[JSerializable]
     )
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val crossdataInput = new CrossdataInputStepStreaming(
       "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
     val inputStream = crossdataInput.init
@@ -124,7 +123,7 @@ class CrossdataInputStepStreamingIT extends TemporalSparkContext with PostgresSu
         )
 
         new CrossdataInputStepStreaming(
-          "crossdata", OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None), Option(ssc), sparkSession, datasourceParams
+          "crossdata", OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName")), Option(ssc), sparkSession, datasourceParams
         )
       }
 

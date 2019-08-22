@@ -79,7 +79,7 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
     require(brokerList.nonEmpty, s"The bootstrap server definition is wrong")
 
     val tableName = getTableNameFromOptions(options)
-    val partitionKey = options.get(PartitionByKey).notBlank
+    val partitionKey = getPartitionByKeyOptions(options)
 
     dataFrame.rdd.foreachPartition { rows =>
 

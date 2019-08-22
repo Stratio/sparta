@@ -8,8 +8,7 @@ package com.stratio.sparta.plugin.workflow.input.filesystem
 import java.io.{File, PrintWriter}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.core.models.OutputOptions
-import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputWriterOptions
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -22,7 +21,7 @@ import scala.io.Source
 @RunWith(classOf[JUnitRunner])
 class FileSystemInputStepStreamingIT extends TemporalSparkContext with Matchers {
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName")
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
   val resourcePath = getClass().getResource("/origin.txt")
   val lines = Source.fromURL(resourcePath).getLines().toList

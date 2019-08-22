@@ -11,7 +11,7 @@ import java.util.Calendar
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
-import com.stratio.sparta.core.DistributedMonad.{TableNameKey, saveOptionsFromOutputOptions}
+import com.stratio.sparta.core.DistributedMonad.{StepName, saveOptionsFromOutputOptions}
 import com.stratio.sparta.core.enumerators.{SaveModeEnum, WhenError}
 import com.stratio.sparta.core.helpers.SdkSchemaHelper._
 import com.stratio.sparta.core.helpers.{CastingHelper, QualityRuleActionEnum, SdkSchemaHelper}
@@ -32,6 +32,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 import QualityRuleActionEnum._
+import OutputStep._
 
 /**
  * This is a typeclass interface whose goal is to abstract over DStreams, RDD, Datasets and whichever
@@ -56,7 +57,6 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
   case class RedirectContext(
                               rdd: RDD[Row],
-                              outputOptions: OutputOptions,
                               outputsToSend: Seq[OutputStep[Underlying]],
                               errorOutputActions: Seq[ErrorOutputAction],
                               currentDate: Timestamp
@@ -102,7 +102,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
    * @param save          Write operation implementation (it'll be executed at the end of each window).
    */
   final def write(
-                   outputOptions: OutputOptions,
+                   outputOptions: OutputWriterOptions,
                    xDSession: XDSession,
                    errorsManagement: ErrorsManagement,
                    errorOutputs: Seq[OutputStep[Underlying]],
@@ -118,7 +118,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
    * to be able to use xdSession within functions which should be serialized to work with Spark.
    */
   protected def writeTemplate(
-                               outputOptions: OutputOptions,
+                               outputOptions: OutputWriterOptions,
                                errorsManagement: ErrorsManagement,
                                errorOutputs: Seq[OutputStep[Underlying]],
                                predecessors: Seq[String],
@@ -133,7 +133,6 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
       redirectDependencies(
         RedirectContext(
           dependency.rdd.asInstanceOf[RDD[Row]],
-          outputOptions,
           outputsToSend,
           errorOutputActions,
           currentDate
@@ -149,24 +148,30 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
       } else false
     }.foreach { dependencyStepRdd =>
       val inputRdd = dependencyStepRdd.rdd.asInstanceOf[RDD[Row]]
-      val tableName = inputRdd.name.split("#").find(pName => predecessors.exists(iName => pName.contains(iName)))
-        .getOrElse(throw new Exception(s"The RDD name (${inputRdd.name}) is not present in ${predecessors.mkString}"))
-        .replace(s"${InputStep.StepType}-", "")
-        .replace(s"${TransformStep.StepType}-", "")
+      val (tableName, stepName) = {
+        val stepNameAndErrorTableName = inputRdd.name.split("#").find(pName => predecessors.exists(iName => pName.contains(iName)))
+          .getOrElse(throw new Exception(s"The RDD name (${inputRdd.name}) is not present in ${predecessors.mkString}"))
+          .replace(s"${InputStep.StepType}-", "")
+          .replace(s"${TransformStep.StepType}-", "")
+          .split("&")
+
+        (stepNameAndErrorTableName.head, stepNameAndErrorTableName.last)
+      }
+      val outputOptions = OutputWriterOptions.defaultOutputWriterOptions(stepName, None, Option(tableName))
 
       redirectToOutput(
-        RedirectContext(inputRdd, outputOptions, outputsToSend, errorOutputActions, currentDate),
-        Map(TableNameKey -> tableName)
+        RedirectContext(inputRdd, outputsToSend, errorOutputActions, currentDate),
+        outputOptions
       )
     }
   }
 
-  private def redirectToOutput(redirectContext: RedirectContext, saveOptions: Map[String, String]): Unit = {
+  private def redirectToOutput(redirectContext: RedirectContext, outputOptions: OutputWriterOptions): Unit = {
     import redirectContext._
 
     rdd.setName(s"${rdd.name}#$processedKey")
 
-    SdkSchemaHelper.getSchemaFromSession(xdSession, saveOptions(TableNameKey))
+    SdkSchemaHelper.getSchemaFromSession(xdSession, outputOptions.stepName)
       .orElse(if (!rdd.isEmpty()) Option(rdd.first().schema) else None).foreach { schema =>
       val dataFrame = xdSession.createDataFrame(rdd, schema)
 
@@ -184,12 +189,12 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
           dataFrame.withColumn(dateField, lit(currentDate))
         } else dataFrame
 
-        Try(output.save(dataFrameToSave, outputOptions.saveMode, saveOptions)) match {
+        Try(output.save(dataFrameToSave, outputOptions.saveMode, saveOptionsFromOutputOptions(outputOptions))) match {
           case Success(_) =>
-            log.debug(s"Data saved correctly into table ${saveOptions(TableNameKey)} in the output ${output.name}")
+            log.debug(s"Data saved correctly into table ${outputOptions.tableName} in the output ${output.name}")
           case Failure(exception) =>
             if (omitSaveErrors)
-              log.debug(s"Error saving data into table ${saveOptions(TableNameKey)} in the output ${output.name}." +
+              log.debug(s"Error saving data into table ${outputOptions.tableName} in the output ${output.name}." +
                 s" ${exception.getLocalizedMessage}")
             else throw exception
         }
@@ -201,7 +206,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
   protected[core] def writeRDDTemplate(
                                         rdd: RDD[Row],
-                                        outputOptions: OutputOptions,
+                                        outputOptions: OutputWriterOptions,
                                         errorsManagement: ErrorsManagement,
                                         errorOutputs: Seq[OutputStep[Underlying]],
                                         predecessors: Seq[String],
@@ -252,7 +257,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
           val qualityRulesFailingDataFrame = cachedRDD.map { row =>
             val failingQRs = sparkRules.filter(rule => !rule.composedPredicates(row)).map(_.id.toString)
-            val passingQRs = sparkRules.filterNot(x => failingQRs.contains(x.id)).map(_.id.toString)
+            val passingQRs = sparkRules.filterNot(x => failingQRs.contains(x.id.toString)).map(_.id.toString)
             if(failingQRs.nonEmpty)
               Row.fromSeq(row.toSeq ++ Seq(passingQRs) ++ Seq(failingQRs) ++ Seq(executionId) ++ Seq(executionTime))
             else Row.empty
@@ -296,11 +301,11 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
           log.info(s"Quality Rule Results: ${res.mkString(",")}")
 
           strictestPolicy match {
-            case ActionPassthrough if (dataFrame.schema.fields.nonEmpty) =>
+            case ActionPassthrough if dataFrame.schema.fields.nonEmpty =>
               save(dataFrame, outputOptions.saveMode, saveOptions)
 
-            case ActionMove if (dataFrame.schema.fields.nonEmpty) =>
-              val tableNameRefusals = ("tableName" -> s"${saveOptions("tableName")}_refusals")
+            case ActionMove if dataFrame.schema.fields.nonEmpty =>
+              val tableNameRefusals = "tableName" -> s"${saveOptions("tableName")}_refusals"
               save(qualityRulesPassingDataFrame, outputOptions.saveMode, saveOptions)
               save(qualityRulesFailingDataFrame, outputOptions.saveMode, saveOptions + tableNameRefusals)
           }
@@ -308,8 +313,6 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
         }
         else if (dataFrame.schema.fields.nonEmpty)
           save(dataFrame, outputOptions.saveMode, saveOptions)
-
-
       }
     } match {
       case Success(_) =>
@@ -326,19 +329,21 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
           if (sendInputData && outputsToSend.nonEmpty)
             redirectDependencies(
-              RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
+              RedirectContext(rdd, outputsToSend, sendToOutputs, currentDate),
               Seq(InputStep.StepType)
             )
           if (sendPredecessorsData && outputsToSend.nonEmpty)
             redirectDependencies(
-              RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
+              RedirectContext(rdd, outputsToSend, sendToOutputs, currentDate),
               predecessors
             )
-          if (sendStepData && outputsToSend.nonEmpty && Option(rdd.name).notBlank.isDefined && rdd.name != processedKey)
+          if (sendStepData && outputsToSend.nonEmpty && Option(rdd.name).notBlank.isDefined && rdd.name != processedKey) {
+            val errorOutputOptions = OutputWriterOptions.defaultOutputWriterOptions(outputOptions.stepName, None, Option(outputOptions.errorTableName))
             redirectToOutput(
-              RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
-              Map(TableNameKey -> outputOptions.errorTableName.getOrElse(outputOptions.tableName))
+              RedirectContext(rdd, outputsToSend, sendToOutputs, currentDate),
+              errorOutputOptions
             )
+          }
         } match {
           case Success(_) =>
             log.debug(s"Error management executed correctly in ${outputOptions.tableName}")
@@ -350,7 +355,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
               res ++= res.map(sparkQRResult => sparkQRResult.copy(successfulWriting = false))
             }
           case Failure(exception) =>
-            log.debug(s"Error management executed with errors in ${outputOptions.tableName}." +
+            log.info(s"Error management executed with errors in ${outputOptions.tableName}." +
               s" ${exception.getLocalizedMessage}")
             if (errorsManagement.genericErrorManagement.whenError == WhenError.Error)
               throw new Exception(s"Main exception: ${e.getLocalizedMessage}." +
@@ -370,13 +375,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
 object DistributedMonad {
 
-  val PrimaryKey = "primaryKey"
-  val TableNameKey = "tableName"
-  val PartitionByKey = "partitionBy"
   val StepName = "stepName"
-  val UniqueConstraintName = "uniqueConstraintName"
-  val UniqueConstraintFields = "uniqueConstraintFields"
-  val UpdateFields = "updateFields"
 
   //scalastyle:off
   trait DistributedMonadImplicits {
@@ -443,7 +442,7 @@ object DistributedMonad {
       }
 
       override def writeTemplate(
-                                  outputOptions: OutputOptions,
+                                  outputOptions: OutputWriterOptions,
                                   errorsManagement: ErrorsManagement,
                                   errorOutputs: Seq[OutputStep[DStream]],
                                   predecessors: Seq[String],
@@ -517,7 +516,7 @@ object DistributedMonad {
       }
 
       override def writeTemplate(
-                                  outputOptions: OutputOptions,
+                                  outputOptions: OutputWriterOptions,
                                   errorsManagement: ErrorsManagement,
                                   errorOutputs: Seq[OutputStep[Dataset]],
                                   predecessors: Seq[String],
@@ -580,7 +579,7 @@ object DistributedMonad {
       }
 
       override def writeTemplate(
-                                  outputOptions: OutputOptions,
+                                  outputOptions: OutputWriterOptions,
                                   errorsManagement: ErrorsManagement,
                                   errorOutputs: Seq[OutputStep[RDD]],
                                   predecessors: Seq[String],
@@ -605,23 +604,8 @@ object DistributedMonad {
 
   object Implicits extends DistributedMonadImplicits with ContextBuilderImplicits with Serializable
 
-  private def saveOptionsFromOutputOptions(outputOptions: OutputOptions): Map[String, String] = {
-    Map(TableNameKey -> outputOptions.tableName, StepName -> outputOptions.stepName) ++
-      outputOptions.partitionBy.notBlank.fold(Map.empty[String, String]) { partition =>
-        Map(PartitionByKey -> partition)
-      } ++
-      outputOptions.primaryKey.notBlank.fold(Map.empty[String, String]) { key =>
-        Map(PrimaryKey -> key)
-      } ++
-      outputOptions.uniqueConstraintName.notBlank.fold(Map.empty[String, String]) { key =>
-        Map(UniqueConstraintName -> key)
-      } ++
-      outputOptions.uniqueConstraintFields.notBlank.fold(Map.empty[String, String]) { key =>
-        Map(UniqueConstraintFields -> key)
-      } ++
-      outputOptions.updateFields.notBlank.fold(Map.empty[String, String]) { key =>
-        Map(UpdateFields -> key)
-      }
+  private def saveOptionsFromOutputOptions(outputOptions: OutputWriterOptions): Map[String, String] = {
+    Map(TableNameKey -> outputOptions.tableName, StepName -> outputOptions.stepName) ++ outputOptions.extraOptions
   }
 }
 

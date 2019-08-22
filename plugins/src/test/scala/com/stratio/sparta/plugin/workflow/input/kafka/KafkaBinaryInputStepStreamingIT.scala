@@ -7,8 +7,7 @@ package com.stratio.sparta.plugin.workflow.input.kafka
 
 import java.util.UUID
 
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.plugin.common.kafka.KafkaBinarySuiteBase
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -54,7 +53,7 @@ class KafkaBinaryInputStepStreamingIT extends KafkaBinarySuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
       log.info("Creating kafka input step")
 
@@ -106,7 +105,7 @@ class KafkaBinaryInputStepStreamingIT extends KafkaBinarySuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
       log.info("Creating kafka input step")
 

@@ -8,8 +8,7 @@ package com.stratio.sparta.plugin.workflow.input.arangodb
 
 import com.arangodb.entity.BaseDocument
 import com.arangodb.{ArangoDB, ArangoDBException}
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.DataFrame
@@ -164,7 +163,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
       "tlsEnabled" -> "false"
     )
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val arangoInput = new ArangoDBInputStepBatch(
       "dummy",
       outputOptions,
@@ -193,7 +192,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
       "filterQuery" -> "doc.`surname` == \"Stark\""
     )
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val arangoInput = new ArangoDBInputStepBatch(
       "dummy",
       outputOptions,
@@ -223,7 +222,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
       "addArangoRevision" -> "true"
     )
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val arangoInput = new ArangoDBInputStepBatch(
       "dummy",
       outputOptions,
@@ -272,7 +271,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
       "arangoSchema" -> s"${schema.json}"
     )
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val arangoInput = new ArangoDBInputStepBatch(
       "dummy",
       outputOptions,

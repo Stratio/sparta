@@ -17,7 +17,7 @@ import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 import com.stratio.sparta.core.DistributedMonad.Implicits._
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 
 import scala.collection.mutable
 
@@ -42,7 +42,7 @@ class DateTimeTransformStepStreamingIT extends TemporalSparkContext with Matcher
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val dataDatetime = Seq(
       new GenericRowWithSchema(Array("ADFGHJKGHG1235", "1416330788000", ""), schemaOutput),
       new GenericRowWithSchema(Array("ADFGHJKGHG1325", "1416330799999", ""), schemaOutput)
@@ -118,7 +118,7 @@ class DateTimeTransformStepStreamingIT extends TemporalSparkContext with Matcher
     dataQueue1 += sc.parallelize(dataIn)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val fieldsDatetime =
       """[
         |{

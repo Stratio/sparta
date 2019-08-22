@@ -12,7 +12,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.workflow.transformation.column.CaseLetter.CaseLetterTransformStepBatch
 import com.stratio.sparta.plugin.workflow.transformation.column.CommaDelimiter.CommaDelimiterTransformStepBatch
@@ -56,7 +56,7 @@ class CommaDelimiterTransformStepBatchIT extends TemporalSparkContext with Match
 
     val dataSet: RDD[Row] = sc.parallelize(dataIn)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
     val result = new CommaDelimiterTransformStepBatch(
       "dummy",

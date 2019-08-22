@@ -18,7 +18,7 @@ import com.stratio.sparta.plugin.utils.TestUtils._
 import org.scalactic._
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -26,7 +26,7 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
 
   val ssc = mock[StreamingContext]
   val xdSession = mock[XDSession]
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
   "CrossdataInputStep" should {
       val offsetFields =

@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.initNulls
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -33,7 +33,7 @@ class InitNullsTransformStepStreamingIT extends TemporalSparkContext with Matche
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val result = new InitNullsTransformStepStreaming(
       "dummy",
       outputOptions,
@@ -88,7 +88,7 @@ class InitNullsTransformStepStreamingIT extends TemporalSparkContext with Matche
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val result = new InitNullsTransformStepStreaming(
       "dummy",
       outputOptions,
@@ -130,7 +130,7 @@ class InitNullsTransformStepStreamingIT extends TemporalSparkContext with Matche
     dataQueue1 += sc.parallelize(dataIn)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val result = new InitNullsTransformStepStreaming(
       "dummy",
       outputOptions,

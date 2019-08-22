@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.datetime
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
@@ -20,7 +20,7 @@ class DateTimeTransformStepStreamingTest extends WordSpecLike
   with Matchers {
 
   "A DateTimeTransform" should {
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val schemaInput = StructType(Seq(StructField("ts", StringType)))
 
     //scalastyle:off

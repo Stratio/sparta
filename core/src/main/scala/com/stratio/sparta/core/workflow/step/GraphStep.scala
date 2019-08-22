@@ -7,10 +7,11 @@ package com.stratio.sparta.core.workflow.step
 
 import java.io.Serializable
 
-import com.stratio.sparta.core.models.ErrorValidations
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, OutputWriterOptions}
 import com.stratio.sparta.core.properties.CustomProperties
 import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
 import org.apache.spark.sql.types.{IntegerType, _}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 import scala.util.Try
 
@@ -18,6 +19,7 @@ trait GraphStep extends CustomProperties {
 
   /* GLOBAL VARIABLES */
   val name: String
+  val outputOptions: OutputOptions
 
   lazy val customKey = "customOptions"
   lazy val customPropertyKey = "customOptionsKey"
@@ -66,6 +68,19 @@ trait GraphStep extends CustomProperties {
   def lineageProperties(): Map[String, String] = Map.empty
 
   def lineageCatalogProperties(): Map[String, Seq[String]] = Map.empty
+
+  def getOutputWriterOptions(outputStepName: String): Option[OutputWriterOptions] =
+    outputOptions.outputWriterOptions.find(_.outputStepName == outputStepName)
+      .orElse(outputOptions.outputWriterOptions.find(_.outputStepName == OutputWriterOptions.OutputStepNameNA))
+
+  def outputTableName(outputStepName : String): String =
+    getOutputWriterOptions(outputStepName).map(_.tableName).notBlank.getOrElse(name)
+
+  def outputDiscardTableName(outputStepName : String): Option[String] =
+    getOutputWriterOptions(outputStepName).flatMap(_.discardTableName).notBlank
+
+  def outputErrorTableName: String =
+    outputOptions.outputWriterOptions.headOption.map(_.errorTableName).notBlank.getOrElse(name)
 
 }
 

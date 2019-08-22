@@ -5,18 +5,74 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputWriterOptions
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.OutputStep
 
 case class WriterGraph(
                         saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                        tableName: Option[JsoneyString] = None,
-                        partitionBy: Option[JsoneyString] = None,
-                        constraintType: Option[JsoneyString] = None,
-                        primaryKey: Option[JsoneyString] = None,
-                        uniqueConstraintName: Option[JsoneyString] = None,
-                        uniqueConstraintFields: Option[JsoneyString] = None,
-                        updateFields: Option[JsoneyString] = None,
-                        errorTableName: Option[JsoneyString] = None,
-                        discardTableName: Option[JsoneyString] = None
-                      )
+                        tableName: Option[String] = None,
+                        partitionBy: Option[String] = None,
+                        constraintType: Option[String] = None,
+                        primaryKey: Option[String] = None,
+                        uniqueConstraintName: Option[String] = None,
+                        uniqueConstraintFields: Option[String] = None,
+                        updateFields: Option[String] = None,
+                        errorTableName: Option[String] = None,
+                        discardTableName: Option[String] = None
+                      ) {
+
+  def toOutputWriterOptions(nodeName: String): OutputWriterOptions = {
+    val calculatedTableName = tableName.notBlank.getOrElse(nodeName)
+
+    OutputWriterOptions(
+      saveMode = SaveModeEnum.Append,
+      outputStepName = OutputWriterOptions.OutputStepNameNA,
+      stepName = nodeName,
+      tableName = calculatedTableName,
+      errorTableName = errorTableName.notBlank.getOrElse(nodeName),
+      discardTableName = discardTableName.notBlank,
+      extraOptions = {
+        partitionBy.notBlank.fold(Map.empty[String, String]) { partition =>
+          Map(OutputStep.PartitionByKey -> partition)
+        } ++
+          primaryKey.notBlank.fold(Map.empty[String, String]) { key =>
+            Map(OutputStep.PrimaryKey -> key)
+          } ++
+          uniqueConstraintName.notBlank.fold(Map.empty[String, String]) { key =>
+            Map(OutputStep.UniqueConstraintName -> key)
+          } ++
+          uniqueConstraintFields.notBlank.fold(Map.empty[String, String]) { key =>
+            Map(OutputStep.UniqueConstraintFields -> key)
+          } ++
+          updateFields.notBlank.fold(Map.empty[String, String]) { key =>
+            Map(OutputStep.UpdateFields -> key)
+          }
+      }
+    )
+  }
+}
+
+case class OutputWriter(
+                         saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
+                         outputStepName: String,
+                         tableName: Option[String] = None,
+                         discardTableName: Option[String] = None,
+                         extraOptions: Map[String, String] = Map.empty[String, String]
+                       ) {
+
+  def toOutputWriterOptions(nodeName: String, errorTableName: String): OutputWriterOptions = {
+    val calculatedTableName = tableName.notBlank.getOrElse(nodeName)
+
+    OutputWriterOptions(
+      saveMode = SaveModeEnum.Append,
+      outputStepName = outputStepName,
+      stepName = nodeName,
+      tableName = calculatedTableName,
+      errorTableName = errorTableName,
+      discardTableName = discardTableName.notBlank,
+      extraOptions = extraOptions
+    )
+  }
+}

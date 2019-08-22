@@ -91,6 +91,9 @@ class MigrationUtils private(private val refreshDB: Boolean, timeout: Int) {
   private def andromedaMigrationNewJsoney(value: JsoneyString): JsoneyString =
     JsoneyString(regexMatchingMoustacheVariable.replaceAllIn(value.toString, matchEnvironmentVariables))
 
+  private def andromedaMigrationString(value: String): String =
+    regexMatchingMoustacheVariable.replaceAllIn(value.toString, matchEnvironmentVariables)
+
   def fromAndromedaToOrionTemplate(template: TemplateElementOrion): TemplateElementOrion = {
     val newConfig: Map[String, JsoneyString] = for {
       (key, value: JsoneyString) <- template.configuration
@@ -110,24 +113,25 @@ class MigrationUtils private(private val refreshDB: Boolean, timeout: Int) {
             } yield {
               key -> andromedaMigrationNewJsoney(value)
             }
-            val newWriter = node.writer.copy(
-              tableName = node.writer.tableName
-                .map(value => andromedaMigrationNewJsoney(value)),
-              partitionBy = node.writer.partitionBy
-                .map(value => andromedaMigrationNewJsoney(value)),
-              constraintType = node.writer.constraintType
-                .map(value => andromedaMigrationNewJsoney(value)),
-              primaryKey = node.writer.primaryKey
-                .map(value => andromedaMigrationNewJsoney(value)),
-              uniqueConstraintName = node.writer.uniqueConstraintName
-                .map(value => andromedaMigrationNewJsoney(value)),
-              uniqueConstraintFields = node.writer.uniqueConstraintFields
-                .map(value => andromedaMigrationNewJsoney(value)),
+            val oldWriter = node.writer.getOrElse(WriterGraph())
+            val newWriter = oldWriter.copy(
+              tableName = oldWriter.tableName
+                .map(value => andromedaMigrationString(value)),
+              partitionBy = oldWriter.partitionBy
+                .map(value => andromedaMigrationString(value)),
+              constraintType = oldWriter.constraintType
+                .map(value => andromedaMigrationString(value)),
+              primaryKey = oldWriter.primaryKey
+                .map(value => andromedaMigrationString(value)),
+              uniqueConstraintName = oldWriter.uniqueConstraintName
+                .map(value => andromedaMigrationString(value)),
+              uniqueConstraintFields = oldWriter.uniqueConstraintFields
+                .map(value => andromedaMigrationString(value)),
               updateFields = None,
-              errorTableName = node.writer.errorTableName
-                .map(value => andromedaMigrationNewJsoney(value))
+              errorTableName = oldWriter.errorTableName
+                .map(value => andromedaMigrationString(value))
             )
-            node.copy(configuration = newConfig, writer = newWriter)
+            node.copy(configuration = newConfig, writer = Option(newWriter))
           }
         ),
       settings = {

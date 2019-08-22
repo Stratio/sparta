@@ -12,8 +12,7 @@ import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.workflow.step.DebugOptions
 import org.apache.spark.sql.{Row, SparkSession}

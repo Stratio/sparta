@@ -7,8 +7,7 @@ package com.stratio.sparta.plugin.workflow.input.generic
 
 import java.net.URL
 
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.plugin.TemporalSparkContext
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
@@ -21,7 +20,7 @@ import scala.util.matching.Regex
 @RunWith(classOf[JUnitRunner])
 class GenericDatasourceInputStepBatchIT extends TemporalSparkContext with Matchers {
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName")
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
   val resourcePath: URL = getClass.getResource("/test.parquet")
 
   "GenericInputStep" should "allow to read data from generic input datasource" in {

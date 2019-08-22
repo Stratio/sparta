@@ -218,7 +218,7 @@ object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSeria
           val transformationStep = workflow.pipelineGraph.nodes.filter(_.name == nodeName).head
           val outputStep = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head
           val stepType = outputStep.stepType.toLowerCase
-          val tableNameType = getTableNameWithSchema(nodeName, transformationStep, outputStep, props)
+          val tableNameType = getTableNameWithSchema(transformationStep, outputStep, props)
           val dataStoreType = outputStep.classPrettyName
           val extraPath = props.get(PathKey)
             .map(_ ++ LineageUtils.extraPathFromFilesystemOutput(stepType, dataStoreType, props.get(PathKey), tableNameType))
@@ -228,12 +228,11 @@ object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSeria
   }
 
   private def getTableNameWithSchema(
-                                      nodeName: String,
                                       transformationStep: NodeGraph,
                                       outputStep: NodeGraph,
                                       props: Map[String, String]
                                     ): Option[String] = {
-    val tableName = transformationStep.writer.tableName.fold(nodeName) { nameFromWriter => nameFromWriter.toString }
+    val tableName = transformationStep.outputTableName(outputStep.name)
     val schema = props.get(DefaultSchemaKey).notBlank.getOrElse("public")
     //The schema must be added only if it is a postgres or a jdbc output and if it was not specified by the user
     if ((outputStep.classPrettyName.equalsIgnoreCase("Postgres") || outputStep.classPrettyName.equalsIgnoreCase("Jdbc"))
@@ -250,7 +249,7 @@ object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSeria
         val outNodeGraph = graph.get(outputNode)
         val predecessors = outNodeGraph.diPredecessors.toList
         predecessors.map { predecessor =>
-          val writerName = predecessor.writer.tableName.map(_.toString).getOrElse("")
+          val writerName = predecessor.outputTableName(outputNode.name)
           val tableName = if (writerName.nonEmpty) writerName else predecessor.name
 
           workflow.pipelineGraph.nodes.find(x => x.name == predecessor.name)

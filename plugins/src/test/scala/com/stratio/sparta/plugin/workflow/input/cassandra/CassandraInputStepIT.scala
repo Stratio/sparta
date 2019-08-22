@@ -6,7 +6,7 @@
 package com.stratio.sparta.plugin.workflow.input.cassandra
 
 import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.models.OutputWriterOptions
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.plugin.TemporalSparkContext
@@ -62,7 +62,7 @@ class CassandraInputStepBatchIT extends TemporalSparkContext with ShouldMatchers
       "table" -> "sparta",
       "keyspace" -> "spartakeyspace"
     )
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val cassandraOutput = new CassandraOutputStep("cassandra.out", sparkSession, outputProperties)
     val cassandraInput = new CassandraInputStepBatch(
       "cassandra-out",

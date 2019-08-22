@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.queryBuilder
 
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import org.apache.spark.sql.Row
@@ -29,7 +29,7 @@ class QueryBuilderTransformStepBatchIT extends TemporalSparkContext with Matcher
     )
     val inputRdd = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val visualClause =
       """{
         |   "selectClauses": [
@@ -72,7 +72,7 @@ class QueryBuilderTransformStepBatchIT extends TemporalSparkContext with Matcher
     )
     val inputRdd = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val discardConditions =
       """[
         |{
@@ -150,7 +150,7 @@ class QueryBuilderTransformStepBatchIT extends TemporalSparkContext with Matcher
     val inputRdd1 = sc.parallelize(data1)
     val inputRdd2 = sc.parallelize(data2)
     val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val visualClause =
       """{
         |   "selectClauses": [

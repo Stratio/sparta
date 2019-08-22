@@ -8,8 +8,7 @@ package com.stratio.sparta.plugin.workflow.input.xml
 import java.net.URL
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.core.models.OutputOptions
-import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputWriterOptions
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -18,7 +17,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class XMLInputBatchTest extends TemporalSparkContext with Matchers {
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName")
+  val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
   val resourcePath: URL = getClass().getResource("/test.xml")
 
   "XMLInputStep" should "match the number of events and the content" in {

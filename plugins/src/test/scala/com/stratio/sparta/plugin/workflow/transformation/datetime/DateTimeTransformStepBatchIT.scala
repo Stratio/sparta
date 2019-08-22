@@ -9,7 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.Implicits._
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -40,7 +40,7 @@ class DateTimeTransformStepBatchIT extends TemporalSparkContext with Matchers {
     )
     val inputRdd = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val dataDatetime = Seq(
       new GenericRowWithSchema(Array("ADFGHJKGHG1235", "1416330788000", ""), schemaOutput),
       new GenericRowWithSchema(Array("ADFGHJKGHG1325", "1416330799999", ""), schemaOutput)
@@ -104,7 +104,7 @@ class DateTimeTransformStepBatchIT extends TemporalSparkContext with Matchers {
     )
     val inputRdd = sc.parallelize(dataIn)
     val inputData = Map("step1" -> inputRdd)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val dataOut = Seq(
       new GenericRowWithSchema(Array("ADFGHJKGHG1235", "1416330788000", ""), schemaOutput),
       new GenericRowWithSchema(Array("ADFGHJKGHG1325", "1416330799999", ""), schemaOutput)

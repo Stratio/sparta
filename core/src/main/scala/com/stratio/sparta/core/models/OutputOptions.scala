@@ -7,18 +7,53 @@
 package com.stratio.sparta.core.models
 
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputWriterOptions.OutputStepNameNA
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 
-case class OutputOptions(
-                          saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                          stepName: String,
-                          tableName: String,
-                          partitionBy: Option[String] = None,
-                          constraintType : Option[String] = None,
-                          primaryKey: Option[String] = None,
-                          uniqueConstraintName: Option[String] = None,
-                          uniqueConstraintFields: Option[String] = None,
-                          updateFields: Option[String] = None,
-                          errorTableName: Option[String] = None,
-                          discardTableName: Option[String] = None
-                        )
+case class OutputOptions(outputWriterOptions: Seq[OutputWriterOptions]) {
+
+  def outputStepWriterOptions(stepName: String, outputStepName: String): OutputWriterOptions = {
+    outputWriterOptions.find(_.outputStepName == outputStepName)
+      .orElse(outputWriterOptions.find(_.outputStepName == OutputStepNameNA))
+      .getOrElse(OutputWriterOptions.defaultOutputWriterOptions(stepName, Option(outputStepName)))
+  }
+
+}
+
+case class OutputWriterOptions(
+                                saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
+                                stepName: String,
+                                outputStepName: String,
+                                tableName: String,
+                                errorTableName: String,
+                                discardTableName: Option[String] = None,
+                                extraOptions: Map[String, String] = Map.empty[String, String]
+                              )
+
+case object OutputWriterOptions {
+
+  val OutputStepNameNA = "NONE"
+
+  def defaultOutputWriterOptions(
+                                  nodeName: String,
+                                  outputStepName: Option[String] = None,
+                                  tableName: Option[String] = None
+                                ): OutputWriterOptions = {
+    OutputWriterOptions(
+      saveMode = SaveModeEnum.Append,
+      stepName = nodeName,
+      tableName = tableName.notBlank.getOrElse(nodeName),
+      errorTableName = nodeName,
+      outputStepName = outputStepName.notBlank.getOrElse(OutputStepNameNA)
+    )
+  }
+
+  def defaultOutputOptions(
+                            nodeName: String,
+                            outputStepName: Option[String] = None,
+                            tableName: Option[String] = None
+                          ): OutputOptions = {
+    OutputOptions(Seq(defaultOutputWriterOptions(nodeName, outputStepName.notBlank, tableName.notBlank)))
+  }
+}

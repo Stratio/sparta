@@ -7,8 +7,7 @@
 package com.stratio.sparta.plugin.workflow.transformation.select
 
 import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
-
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import org.junit.runner.RunWith
 import org.scalatest.{Matchers, WordSpecLike}
 import org.scalatest.junit.JUnitRunner
@@ -20,7 +19,7 @@ class SelectTransformStepTest extends WordSpecLike with Matchers {
   //scalastyle:off
   "A SelectTransformStep" should {
     "check if the sql expression contains where statement" in {
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
       val selectTransform = new SelectTransformStepStreaming(
         "dummy",
@@ -39,7 +38,7 @@ class SelectTransformStepTest extends WordSpecLike with Matchers {
     }
 
     "check if the sql expression contains from statement" in {
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
       val selectTransform = new SelectTransformStepStreaming(
         "dummy",
@@ -58,7 +57,7 @@ class SelectTransformStepTest extends WordSpecLike with Matchers {
     }
 
     "check if the sql expression contains from statement and is well parsed" in {
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
       val selectTransform = new SelectTransformStepStreaming(
         "dummy",
@@ -77,7 +76,7 @@ class SelectTransformStepTest extends WordSpecLike with Matchers {
     }
 
     "check if the sql expression contains where statement and is well parsed" in {
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
       val selectTransform = new SelectTransformStepStreaming(
         "dummy",

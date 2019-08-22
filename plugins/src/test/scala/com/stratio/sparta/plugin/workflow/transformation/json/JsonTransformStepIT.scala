@@ -10,7 +10,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -64,7 +64,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
     val name = "JsonTransformStep"
     new JsonTransformStepStreaming(
       name,
-      OutputOptions(tableName = name, stepName = name),
+      OutputWriterOptions.defaultOutputOptions(name, None, Option(name)),
       TransformationStepManagement(),
       Option(ssc),
       xDSession,
@@ -75,7 +75,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
   def doTransformStream(ds: DStream[Row], properties: Map[String, JSerializable]): DStream[Row] =
     new JsonTransformStepStreaming(
       "dummy",
-      OutputOptions(tableName = "jsonTransform", stepName = "jsonTransform"),
+      OutputWriterOptions.defaultOutputOptions("jsonTransform", None, Option("jsonTransform")),
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
@@ -84,7 +84,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
   def doTransformBatch(df: RDD[Row], properties: Map[String, JSerializable]): RDD[Row] =
     new JsonTransformStepBatch(
       "dummy",
-      OutputOptions(tableName = "jsonTransform", stepName = "jsonTransform"),
+      OutputWriterOptions.defaultOutputOptions("jsonTransform", None, Option("jsonTransform")),
       TransformationStepManagement(),
       None,
       sparkSession,

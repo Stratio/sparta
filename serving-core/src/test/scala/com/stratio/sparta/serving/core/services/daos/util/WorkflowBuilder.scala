@@ -34,8 +34,8 @@ object WorkflowBuilder {
     )
 
     val nodes = Seq(
-      NodeGraph("a", "Input", "TestInputStep", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-      NodeGraph("b", "Output", "PrintOutputStep", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      NodeGraph("a", "Input", "TestInputStep", "", Seq(NodeArityEnum.NullaryToNary), Option(WriterGraph())),
+      NodeGraph("b", "Output", "PrintOutputStep", "", Seq(NodeArityEnum.NaryToNullary), Option(WriterGraph()))
     )
     val edges = Seq(
       EdgeGraph("a", "b")

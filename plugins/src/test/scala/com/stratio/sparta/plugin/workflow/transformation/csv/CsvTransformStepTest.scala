@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.csv
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -38,7 +38,7 @@ class CsvTransformStepTest extends WordSpecLike
            |""".stripMargin
 
       val input = new GenericRowWithSchema(Array(CSV), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val result = new CsvTransformStepStreaming(
         inputField,
         outputOptions,
@@ -57,7 +57,7 @@ class CsvTransformStepTest extends WordSpecLike
 
     "parse a CSV string adding also the input fields" in {
       val input = new GenericRowWithSchema(Array(CSV), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val fields =
         """[
           |{
@@ -86,7 +86,7 @@ class CsvTransformStepTest extends WordSpecLike
 
     "parse a CSV string adding also the input fields with header schema" in {
       val input = new GenericRowWithSchema(Array(CSV), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val header = "name,price"
       val result = new CsvTransformStepStreaming(
         inputField,
@@ -107,7 +107,7 @@ class CsvTransformStepTest extends WordSpecLike
     "parse a CSV string adding the input fields with header schema and change the input field" in {
       val input = new GenericRowWithSchema(Array("var", CSV),
         StructType(Seq(StructField("foo", StringType), StructField(inputField, StringType))))
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val header = "name,price"
       val result = new CsvTransformStepStreaming(
         inputField,
@@ -128,7 +128,7 @@ class CsvTransformStepTest extends WordSpecLike
     "parse a CSV string adding the input fields with header schema and change the input field with null values" in {
       val input = new GenericRowWithSchema(Array("var", "red,19.95,,var"),
         StructType(Seq(StructField("foo", StringType), StructField(inputField, StringType))))
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val header = "name,price,age,address"
       val result = new CsvTransformStepStreaming(
         inputField,
@@ -148,7 +148,7 @@ class CsvTransformStepTest extends WordSpecLike
 
     "parse a CSV string adding also the input fields with spark schema" in {
       val input = new GenericRowWithSchema(Array(CSV), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val sparkSchema = "StructType((StructField(name,StringType,true),StructField(age,DoubleType,true)))"
       val result = new CsvTransformStepStreaming(
         inputField,
@@ -169,7 +169,7 @@ class CsvTransformStepTest extends WordSpecLike
     "not parse anything if a field does not match" in {
       val schema = StructType(Seq(StructField("wrongField", StringType)))
       val input = new GenericRowWithSchema(Array(CSV), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val fields =
         """[
           |{
@@ -195,7 +195,7 @@ class CsvTransformStepTest extends WordSpecLike
 
     "not parse anything if the number of fields do not match with the values parsed" in {
       val input = new GenericRowWithSchema(Array(CSV), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val fields =
         """[
           |{
@@ -224,7 +224,7 @@ class CsvTransformStepTest extends WordSpecLike
 
     "not parse anything if the input is wrong" in {
       val input = Row("{}")
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val fields =
         """[
           |{
@@ -251,7 +251,7 @@ class CsvTransformStepTest extends WordSpecLike
     "not parse anything if the values parsed are greated than the fields stated" in {
       val CSV = "red,19.95,3"
       val input = new GenericRowWithSchema(Array(CSV), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val fields =
         """[
           |{
@@ -278,7 +278,7 @@ class CsvTransformStepTest extends WordSpecLike
     "discard the header if specified so" in {
       val header = "color,price"
       val input = new GenericRowWithSchema(Array(header), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
       val result = new CsvTransformStepStreaming(
         inputField,
         outputOptions,

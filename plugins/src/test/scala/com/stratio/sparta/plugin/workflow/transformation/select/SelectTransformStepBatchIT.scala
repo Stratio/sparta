@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.select
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -35,7 +35,7 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
     )
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val result = new SelectTransformStepBatch(
       "dummy",
       outputOptions,
@@ -68,7 +68,7 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
     )
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val columns =
       s"""[
          |{
@@ -110,7 +110,7 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
     )
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val result = new SelectTransformStepBatch(
       "dummy",
       outputOptions,
@@ -146,7 +146,7 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val selectTransform = new SelectTransformStepBatch(
       "dummy",
       outputOptions,
@@ -184,7 +184,7 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
     val selectTransform = new SelectTransformStepBatch(
       "dummy",
       outputOptions,
