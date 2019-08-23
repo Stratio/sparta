@@ -6,6 +6,7 @@
 
 import { StepType, Engine } from '@models/enums';
 
+import arangoDBTemplate from './outputs/arangoOutput.json';
 import avroTemplate from './outputs/avro.json';
 import cassandraTemplate from './outputs/cassandra.json';
 import crossdataTemplate from './outputs/crossdata.json';
@@ -34,6 +35,7 @@ import xmlTemplate from './outputs/xml.json';
 
 
 export const outputs = [
+    arangoDBTemplate,
     avroTemplate,
     cassandraTemplate,
     crossdataTemplate,

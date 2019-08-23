@@ -1,0 +1,94 @@
+{
+  "name": "ArangoDB",
+  "classPrettyName": "ArangoDB",
+  "className": "ArangoDBOutputStep",
+  "icon": "ArangoDB",
+  "arity": ["NullaryToNullary", "NaryToNullary"],
+  "supportedEngines": ["Batch"],
+  "description": "ArangoDB input allows read from an ArangoDB database.",
+  "properties": [
+    {
+      "propertyId": "hosts",
+      "propertyName": "_ARANGODB_HOSTS_",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "tooltip": "List of host/port pairs to use for establishing the initial connection to ArangoDB",
+      "qa": "fragment-details-stratio-kafkadirect-bootstrap-servers",
+      "fields": [
+        {
+          "propertyId": "host",
+          "propertyName": "_HOST_",
+          "propertyType": "text",
+          "default": "{{{Environment.ARANGODB_HOST}}}",
+          "required": true,
+          "width": 6,
+          "tooltip": "Server address. Default value set to localhost",
+          "hidden": false,
+          "qa": "fragment-details-stratio-arangodb-host"
+        },
+        {
+          "propertyId": "port",
+          "propertyName": "_PORT_",
+          "propertyType": "text",
+          "default": "{{{Environment.ARANGODB_PORT}}}",
+          "required": true,
+          "width": 5,
+          "tooltip": "Server port. Default value set to 8529",
+          "hidden": false,
+          "qa": "fragment-details-stratio-arangodb-port"
+        }
+      ]
+    },
+    {
+      "propertyId": "databaseName",
+      "propertyName": "_DATABASE_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "default": "_system",
+      "tooltip": "Name of the ArangoDb database.",
+      "qa": "fragment-details-arangodb-database-name"
+    },
+    {
+      "propertyId": "username",
+      "propertyName": "_ARANGO_USERNAME_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "ArangoDb username.",
+      "qa": "fragment-details-arangodb-username"
+    },
+    {
+      "propertyId": "password",
+      "propertyName": "_ARANGO_PASSWORD_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "ArangoDb password.",
+      "qa": "fragment-details-arangodb-password"
+    },
+    {
+      "propertyId": "failOnConflict",
+      "propertyName": "_ARANGO_FAIL_ON_CONFLICT_",
+      "propertyType": "boolean",
+      "tooltip": "In case a key is already used on ArangoDB the workflow fails on Append mode",
+      "default": false,
+      "qa": "fragment-details-arangodb-failOnConflict"
+    },
+    {
+      "propertyId": "tlsEnabled",
+      "propertyName": "_TLS_ENABLE_",
+      "propertyType": "boolean",
+      "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection.",
+      "default": false,
+      "qa": "fragment-details-arangodb-tls"
+    },
+    {
+      "propertyId": "maxConnections",
+      "propertyName": "_MAX_CONNECTIONS_",
+      "propertyType": "text",
+      "default": "1",
+      "required": true,
+      "tooltip": "Max number of connections per host.",
+      "qa": "fragment-details-arangodb-max-connections"
+    }
+  ]
+}
