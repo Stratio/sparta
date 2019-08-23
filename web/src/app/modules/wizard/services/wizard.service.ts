@@ -91,7 +91,8 @@ export class WizardService {
       },
       pipelineGraph: {
         nodes: wizard.nodes,
-        edges: wizard.edges
+        edges: wizard.edges,
+        annotations: wizard.annotations
       },
       group: wizard.workflowGroup && wizard.workflowGroup.id ?
         wizard.workflowGroup : state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup,

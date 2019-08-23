@@ -41,6 +41,10 @@
       [selectedEdge]="selectedEdge"
       [debugResult]="debugResult"
       [serverStepValidations]="serverStepValidations"
+      [isCreatingNoteActive]="createNote$ | async"
+      [nodeAnnotationsMap]="nodeAnnotationsMap$ | async"
+      [edgeAnnotationsMap]="edgeAnnotationsMap$ | async"
+      [draggableAnnotations]="draggableAnnotations$ | async"
       (setEditorDirty)="setEditorDirty()"
       (createNode)="createNode($event)"
       (editEntity)="editEntity($event)"
@@ -50,7 +54,11 @@
       (selectEdge)="selectEdge($event)"
       (editorPositionChange)="editorPositionChange($event)"
       (showEdgeOptions)="showEdgeOptions($event)"
-      (disableSelection)="disableSelection()"></wizard-editor>
+      (disableSelection)="disableSelection()"
+      (createAnnotation)="configAnnotation($event)"
+      (disableSelection)="disableSelection()"
+      (tipPositionChange)="tipPositionChange($event)"
+      (showAnnotation)="showAnnotation($event)"></wizard-editor>
   </div>
   <sparta-sidebar
     showScrollBar="true"
@@ -63,3 +71,14 @@
 </section>
 <notification-alert *ngIf="showForbiddenError$ | async" (onClose)="hideAlert()"></notification-alert>
 <edge-options *ngIf="edgeOptions.active" [edgeOptions]="edgeOptions"></edge-options>
+<selected-entity *ngIf="(creationMode$ | async).active"></selected-entity>
+<selected-entity *ngIf="createNote$ | async" icon="icon-plus"></selected-entity>
+<wizard-annotation *ngIf="activeAnnotation"
+  [annotation]="activeAnnotation"
+  [position]="activeAnnotation.tipPosition"
+  (activeChange)="deselectAnnotation()"
+  (createMessage)="createMessage($event)"
+  (changeColor)="changeColor($event)"
+  (deleteAnnotation)="deleteAnnotationConfirm($event)"
+  (postMessage)="postMessage($event, activeAnnotation.number)"
+  class="editor__annotation"></wizard-annotation>

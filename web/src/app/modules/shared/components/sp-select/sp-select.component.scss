@@ -1,0 +1,99 @@
+@import '~@stratio/egeo/theme/constants';
+.sp-select-data {
+  position: relative;
+}
+
+.label {
+  display: inline-block;
+  font-weight: 400;
+  color: $neutral-10;
+  font-family: $egeo-nunito-sans;
+  font-size: $egeo-font-size-xxsmall;
+  line-height: $egeo-line-height-xxsmall;
+  margin-bottom: 5px;
+
+  &.active {
+    color: $action-primary-default;
+ }
+}
+
+.options {
+  border: 1px solid #88c5ee;
+  border-top: 0;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  margin-bottom: 30px;
+  max-height: 265px;
+  overflow: auto;
+  overflow-x: hidden;
+  background: white;
+  z-index: 9;
+  ul,
+  li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  li {
+    color: $action-secondary-07;
+    font-family: 'Nunito Sans';
+    font-size: 0.938rem;
+    line-height: 1.25rem;
+    padding: 7px 14px;
+    cursor: pointer;
+    &:hover {
+      /* color: #37b5e4; */
+      background-color: #f4f4f4;
+    }
+  }
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.st-input {
+  position: relative;
+  height: 40px;
+  .select-value {
+    width: 100%;
+    outline: 0;
+  }
+  .arrow {
+    position: absolute;
+    right: 15px;
+    top: 12px;
+  }
+
+  &__label.error {
+    color: $status-critical-default;
+  }
+}
+
+:host .sp-select.active .sp-select-data {
+  .st-input {
+    border-color: #88c5ee;
+    border-radius: 4px 4px 0 0;
+  }
+  .arrow {
+    color: $action-primary-default;
+  }
+}
+
+.disabled {
+  .st-input {
+    border-color: $neutral-06;
+    background-color: $neutral-01;
+    color: $neutral-08;
+  }
+  .arrow {
+    color: $neutral-03;
+  }
+}
+
+.sp-select .error .st-input {
+  border-color: $status-critical-default;
+}

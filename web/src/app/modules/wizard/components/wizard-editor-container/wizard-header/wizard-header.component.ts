@@ -52,20 +52,18 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
    @ViewChild('nameForm') public nameForm: NgForm;
    @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
 
-   public runOptions: MenuOptionListGroup[] = [
+   public runOptions: MenuOptionListGroup[] = [{
+      options: [
+        {
+          label: 'Debug',
+          id: 'simple'
+      },
       {
-         options: [
-            {
-               label: 'Debug',
-               id: 'simple'
-            },
-            {
-               label: 'Debug with parameters',
-               id: 'advanced'
-            }
-         ]
-      }
-   ];
+          label: 'Debug with parameters',
+          id: 'advanced'
+      }]
+   }];
+   public annotationOptions: MenuOptionListGroup[] = [];
    public isShowedEntityDetails$: Observable<boolean>;
    public menuOptions$: Observable<Array<FloatingMenuModel>>;
    public isLoading$: Observable<boolean>;
@@ -75,6 +73,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
    public isPristine = true;
    public genericError: any;
    public validations: any = {};
+   public showAnnotations: boolean;
 
    private _componentDestroyed = new Subject();
 
@@ -118,8 +117,23 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
             this._cd.markForCheck();
          });
 
+      this._store.pipe(select(fromWizard.showAnnotations))
+        .pipe(takeUntil(this._componentDestroyed))
+        .subscribe((showAnnotations: boolean) => {
+          this.showAnnotations = showAnnotations;
+          this._cd.markForCheck();
+       });
+
       this.menuOptions$ = this._store.pipe(select(fromWizard.getMenuOptions));
    }
+
+  createNote() {
+    this._store.dispatch(new wizardActions.PositionNote());
+  }
+
+  toggleNotes() {
+    this._store.dispatch(new wizardActions.ToggleAnnotationActivation());
+  }
 
    selectedMenuOption($event: any): void {
       this._store.dispatch(new wizardActions.SelectedCreationEntityAction($event));
@@ -196,6 +210,43 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
    redoAction() {
       this._store.dispatch(new wizardActions.RedoChangesAction());
    }
+
+   public getAnnotationOptions() {
+    this.annotationOptions = this.showAnnotations ?  [{
+      options: [
+        {
+          icon: 'icon-edit-3',
+          label: 'New note',
+          id: 'new-note'
+        }, {
+          icon: 'icon-message-circle',
+          label: 'Hide notes',
+          id: 'toggle-notes'
+        }
+      ]
+    }] :
+    [
+      {
+        options: [
+        {
+          icon: 'icon-message-circle',
+          label: 'Show notes',
+          id: 'toggle-notes'
+      }
+    ]
+  }];
+}
+
+   public onSelectNoteOption(event: string) {
+    switch (event) {
+      case 'new-note':
+        this.createNote();
+        break;
+      case 'toggle-notes':
+        this.toggleNotes();
+        break;
+    }
+  }
 
    ngOnDestroy(): void {
       this._componentDestroyed.next();

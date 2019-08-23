@@ -12,6 +12,7 @@ import { StModalService } from '@stratio/egeo';
 import { Store, select } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 
+import * as fromRoot from 'reducers';
 import * as fromWizard from './reducers';
 import * as debugActions from './actions/debug';
 import * as wizardActions from './actions/wizard';
@@ -68,6 +69,8 @@ export class WizardComponent implements OnInit, OnDestroy {
   @ViewChild('editorContainer') _editor: ElementRef;
   @ViewChild('wizardCardsModal', { read: ViewContainerRef }) target: any;
 
+  public username$: Observable<string>;
+
   private _componentDestroyed = new Subject();
 
   constructor(
@@ -93,7 +96,7 @@ export class WizardComponent implements OnInit, OnDestroy {
     if (!showHelpCards) {
       this._showCardsModal();
     }
-
+    this.username$ = this._store.pipe(select(fromRoot.getUsername));
     this._store.dispatch(new externalDataActions.GetParamsListAction());
     this._store.dispatch(new externalDataActions.GetMlModelsListAction());
     this._store.dispatch(new wizardActions.ResetWizardAction(this.isEdit));  // Reset wizard to default settings

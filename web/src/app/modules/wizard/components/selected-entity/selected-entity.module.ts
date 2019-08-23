@@ -6,15 +6,14 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-import { SelectedEntityComponent } from './selected-entity.component';
+import { WizardSelectedEntityComponent } from './selected-entity.component';
 
 @NgModule({
   exports: [
-    SelectedEntityComponent
+    WizardSelectedEntityComponent
   ],
   declarations: [
-    SelectedEntityComponent
+    WizardSelectedEntityComponent
   ],
   imports: [
     CommonModule

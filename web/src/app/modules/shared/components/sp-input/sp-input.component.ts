@@ -15,10 +15,10 @@ import {
   OnInit,
   Output,
   ViewChildren,
-  ElementRef,
   AfterViewInit,
   ViewChild,
-  ViewContainerRef
+  ViewContainerRef,
+  AfterContentInit
 } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -52,9 +52,9 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
   @Input() maxLength: number;
   @Input() min: number;
   @Input() max: number;
-  @Input() step: number;
   @Input() isFocused = false;
   @Input() readonly = false;
+  @Input() step: number;
   @Input() parameters: any;
   @Input() showVars = false;
   @Input() customValidator: (_: string) => string;
@@ -71,7 +71,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
   @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
   @ViewChildren('input') vc: any;
-  @ViewChild('variableSelectorModal', { read: ViewContainerRef }) target: any;
+  @ViewChild('variableSelectorModal', { read: ViewContainerRef}) target: any;
 
   public disabled = false; // To check disable
   public focus = false;
@@ -88,118 +88,110 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
   public paramType = '';
   public paramValue = '';
   public parameterValue = '';
-
-  private sub: Subscription;
-  private _value: any;
-  private valueChangeSub: Subscription;
-  private internalInputModel: any = '';
   public options = [];
 
-  private _element: any;
+  private _sub: Subscription;
+  private _value: any;
+  private _valueChangeSub: Subscription;
+  private _internalInputModel: any = '';
 
-  private focusPristine = true;
+  constructor(private _cd: ChangeDetectorRef,
+    private _stModalService: StModalService) { }
 
-  constructor(private _cd: ChangeDetectorRef, private _elementRef: ElementRef, private _stModalService: StModalService) {
-    this._element = _elementRef.nativeElement;
-  }
+  public onChange = (_: any) => { };
+  public onTouched = () => { };
 
-  onChange = (_: any) => { };
-  onTouched = () => { };
-
-  validate(control: FormControl): any {
-    if (this.sub) {
-      this.sub.unsubscribe();
-    } else {
-      this.checkErrors(control);
+  public validate(control: FormControl): any {
+    const errors = this.checkErrors(this.internalControl);
+    if (this._sub) {
+      this._sub.unsubscribe();
     }
-    this.sub = control.statusChanges.subscribe(() => this.checkErrors(control));
+    this._sub = control.statusChanges.subscribe(() => this.checkErrors(control));
+    return errors && errors.length ? {
+      input: errors
+    } : null;
   }
 
-  ngOnChanges(change: any): void {
+  public ngOnChanges(change: any): void {
     if (this.forceValidations && this.internalControl) {
       this.writeValue(this.internalControl.value);
     }
     this._cd.markForCheck();
   }
 
-  ngOnInit(): void {
-    this.internalControl = new FormControl(this.internalInputModel);
-    this.valueChangeSub = this.internalControl.valueChanges.subscribe((value) => {
-      if(!this.focusPristine) {
-        this.valuechange();
-      }
-      this.focusPristine = false;
-
+  public ngOnInit(): void {
+    this.internalControl = new FormControl(this._internalInputModel);
+    this._valueChangeSub = this.internalControl.valueChanges.subscribe((value) => {
+      this.valuechange();
     });
   }
 
-
-  ngAfterViewInit(): void {
+  public ngAfterViewInit(): void {
     if (this.isFocused) {
-      this.focus = true;
-      this.vc.first.nativeElement.focus();
+      setTimeout(() => this.vc.first.nativeElement.focus());
     }
     if (this.forceValidations) {
-      this.onChange(this.internalControl.value);
+      this.onChange(this.isParameterValue ? `{{{${this.paramValue}}}}` : this.internalControl.value);
     }
   }
 
-  ngOnDestroy(): void {
-    if (this.valueChangeSub) {
-      this.valueChangeSub.unsubscribe();
+  public ngOnDestroy(): void {
+    if (this._valueChangeSub) {
+      this._valueChangeSub.unsubscribe();
     }
-    if (this.sub) {
-      this.sub.unsubscribe();
+    if (this._sub) {
+      this._sub.unsubscribe();
     }
   }
 
 
-  valuechange() {
+  public valuechange() {
     this.pristine = false;
     this.onChange(this.isParameterValue ? `{{{${this.paramValue}}}}` : this.internalControl.value);
   }
 
   // When value is received from outside
-  writeValue(value: any): void {
+  public writeValue(value: any): void {
     if (typeof value === 'object') {
       value = JSON.stringify(value);
     }
     this.isParameterValue = false;
+    const reg = /^{{.*.}}$/;
+    const reg2 = /^{{{.*.}}}$/;
     if (this.parameters && value) {
-      if (value.length > 6 && value.indexOf('{{{') === 0 && value.indexOf('}}}') === value.length - 3) {
+      if (value.length > 6 && reg2.test(value)) {
         value = value.replace('{{{', '').replace('}}}', '');
         this.isParameterValue = true;
         this.paramValue = value;
         value = this.getParamLabel(value);
-
-      } else if (value.length > 4 && value.indexOf('{{') === 0 && value.indexOf('}}') === value.length - 2) {
+      } else if (value.length > 4 && reg.test(value)) {
         value = value.replace('{{', '').replace('}}', '');
         this.isParameterValue = true;
         this.paramValue = value;
         value = this.getParamLabel(value);
       }
     }
-
     if (this.forceValidations) {
       this.onChange(this.isParameterValue ? `{{{${this.paramValue}}}}` : value);
     }
-    this.internalInputModel = value;
+    this._internalInputModel = value;
     this._value = value;
-    setTimeout(() => this.internalControl.setValue(value));
-    this.focusPristine = true;
+    if (this._internalInputModel !== value && this.value !== value) {
+      setTimeout(() => this.internalControl.setValue(value));
+    }
   }
 
   // Registry the change function to propagate internal model changes
-  registerOnChange(fn: (_: any) => void): void {
+  public registerOnChange(fn: (_: any) => void): void {
     this.onChange = fn;
   }
 
   // Registry the touch function to propagate internal touch events TODO: make this function.
-  registerOnTouched(fn: () => void): void {
+  public registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
-  setDisabledState(disable: boolean): void {
+  public setDisabledState(disable: boolean): void {
     this.disabled = disable;
     if (this.disabled && this.internalControl && this.internalControl.enabled) {
       this.internalControl.disable();
@@ -209,7 +201,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
     this._cd.markForCheck();
   }
 
-  showError(): boolean {
+  public showError(): boolean {
     return this.errorMessage !== undefined &&
       (!this.pristine || this.forceValidations) && !this.focus && !this.disabled;
   }
@@ -219,15 +211,15 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
   }
 
   /** Style functions */
-  onFocus(event: Event): void {
+  public onFocus(event: Event): void {
     this.focus = true;
   }
 
-  onFocusOut(event: Event): void {
+  public onFocusOut(event: Event): void {
     this.focus = false;
   }
 
-  showParameterSelector() {
+  public showParameterSelector() {
     this._stModalService.container = this.target;
     this._stModalService.show({
       modalTitle: 'Parameter selection',
@@ -252,7 +244,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
     }, VariableSelectorComponent);
   }
 
-  getParamLabel(value) {
+  public getParamLabel(value) {
     this.getParamValue(value);
     if (value.indexOf('Global.') === 0) {
       this.paramType = 'Global';
@@ -269,7 +261,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
     }
   }
 
-  getParamValue(value) {
+  public getParamValue(value) {
     if (this.parameters) {
       this.parameterValue = '';
       const params = value.split('.');
@@ -287,12 +279,12 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
     }
   }
 
-  onKeydown(event) {
+  public onKeydown(event) {
     if (this.isParameterValue) {
       if (event.key === 'Backspace') {
         this.isParameterValue = false;
         this.internalControl.setValue('');
-      } else if(![37, 39, 17, 67].includes(event.keyCode))  {
+      } else if (![37, 39, 17, 67].includes(event.keyCode)) {
         event.preventDefault();
       }
     }
@@ -300,17 +292,20 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
   }
 
   // When status change call this function to check if have errors
-  private checkErrors(control: FormControl): void {
+  private checkErrors(control: FormControl): string {
     const errors: { [key: string]: any } = control.errors;
     this.errorMessage = this.getErrorMessage(errors);
     this._cd.markForCheck();
+    return this.errorMessage;
   }
 
   // Get error message in function of error list.
   private getErrorMessage(errors: { [key: string]: any }): string {
     if (this.customValidator) {
       const error = this.customValidator(this.internalControl.value);
-      return error.length ? error : undefined;
+      if (error && error.length) {
+        return error;
+      }
     }
     if (!errors) {
       return undefined;

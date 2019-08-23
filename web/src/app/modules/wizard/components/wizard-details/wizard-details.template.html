@@ -9,38 +9,59 @@
 -->
 
 <div class="workflow-detail">
-    <div class="egeo-title-extra-large overview" *ngIf="(!entityData || !entityData.name) && (genericError || (validations && validations.valid === false && validations.messages.length))">
-        Overview
-    </div>
-    <div class="validation-errors" *ngIf="(!entityData || !entityData.name) && validations && validations.valid === false && validations.messages.length">
-        <div class="egeo-title-mini">Validation errors</div>
-        <div class="validation-error-message" *ngFor="let messageObject of validations.messages">
+  <ng-container *ngIf="!entityData || !entityData.name">
+    <st-horizontal-tabs
+      [options]="tabItems"
+      [activeOption]="activeTabItem"
+      (changedOption)="changedTabOption($event)"></st-horizontal-tabs>
+    <ng-container *ngIf="activeTabItem.id === 'overview'">
+      <!-- empty selection, generic errors and validations -->
+      <div class="not-selected"
+        *ngIf="!genericError && (!validations || !validations.valid === false || !validations.messages.length)">
+        <img src="assets/images/planet.svg" class="workflow-detail-image" />
+        <div class="workflow-info">{{'DASHBOARD.NODE_INFO' | translate}}</div>
+      </div>
+
+       <!-- validations and generic errors-->
+      <div class="workflow-detail__data">
+        <div class="validation-errors"
+          *ngIf="validations && validations.valid === false && validations.messages.length">
+          <div class="egeo-title-mini">Validation errors</div>
+          <div class="validation-error-message" *ngFor="let messageObject of validations.messages">
             {{messageObject.message}}
+          </div>
         </div>
-    </div>
-    <div class="debug-generic-errors" *ngIf="(!entityData || !entityData.name) && genericError">
-        <div class="debug-error">
+        <div class="debug-generic-errors" *ngIf="genericError">
+          <div class="debug-error">
             <div class="egeo-title-mini">Debug summary</div>
             <span class="value">Phase: {{genericError.phase}}</span>
             <div class="value">Error date: {{genericError.date}}</div>
             <div class="debug-global-error-message">
-                {{(genericError.localizedMsg && genericError.localizedMsg.length > 140) ? (genericError.localizedMsg | slice:0:140)+'..':(genericError.localizedMsg) }}
+              {{(genericError.localizedMsg && genericError.localizedMsg.length > 140) ? (genericError.localizedMsg | slice:0:140)+'..':(genericError.localizedMsg) }}
             </div>
             <div class="details" (click)="showConsole('Exceptions')">View details</div>
+          </div>
         </div>
-    </div>
+      </div>
+    </ng-container>
+    <wizard-details-notes *ngIf="activeTabItem.id === 'notes'"
+      [annotations]="annotations$ | async"></wizard-details-notes>
+  </ng-container>
 
-    <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
-    <div class="not-selected" *ngIf="(!entityData || !entityData.name) && !genericError && (!validations || !validations.valid === false || !validations.messages.length)">
-        <img src="assets/images/planet.svg" class="workflow-detail-image" />
-        <div class="workflow-info">{{'DASHBOARD.NODE_INFO' | translate}}</div>
+   <!-- node details -->
+  <div class="selected" *ngIf="entityData && entityData.name">
+    <st-horizontal-tabs
+      [options]="tabItems"
+      [activeOption]="activeTabItem"
+      (changedOption)="changedTabOption($event)"></st-horizontal-tabs>
+    <div class="selected__overview" *ngIf="activeTabItem.id === 'overview'">
+      <h3 class="egeo-title-medium node-title">{{entityData.name}}</h3>
+      <span class="type">{{entityData.stepType}} - {{entityData.classPrettyName}}</span>
+      <span class="description">{{entityData.description}}</span>
+      <node-errors [serverValidationError]="entityData.serverValidationError" [debugResult]="entityData.debugResult"
+        [schemas]="entityData.schemas" openedSchema="Output"></node-errors>
     </div>
-    <div class="selected" *ngIf="entityData && entityData.name">
-        <h3 class="egeo-title-medium node-title">{{entityData.name}}</h3>
-        <span class="type">{{entityData.stepType}} - {{entityData.classPrettyName}}</span>
-
-        <span class="description">{{entityData.description}}</span>
-        <node-errors [serverValidationError]="entityData.serverValidationError" [debugResult]="entityData.debugResult" [schemas]="entityData.schemas"
-            openedSchema="Output"></node-errors>
-    </div>
+    <wizard-details-notes *ngIf="activeTabItem.id === 'notes'"
+      [annotations]="selectedNodeAnnotations$ | async"></wizard-details-notes>
+  </div>
 </div>

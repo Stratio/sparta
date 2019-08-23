@@ -2,9 +2,21 @@
 
 .not-selected {
    text-align: center;
+   margin-top: 40px;
    .workflow-info {
       margin-top: 20px;
    }
+}
+
+.selected {
+  &__overview {
+    margin-top: 20px;
+  }
+}
+.workflow-detail {
+  &__data {
+    margin-top: 20px;
+  }
 }
 
 .description {

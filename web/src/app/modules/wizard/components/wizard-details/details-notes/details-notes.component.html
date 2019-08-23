@@ -1,0 +1,30 @@
+<div class="annotations">
+  <div *ngFor="let annotation of localizedAnnotations" class="annotation">
+    <div class="annotation__messages">
+      <ng-container *ngFor="let message of annotation.messages; let i = index;">
+        <div class="annotation__header"
+          *ngIf="i === 0 || annotation.messages[i - 1].author !== message.author">
+          <svg class="annotation__status" *ngIf="i === 0">
+            <g wizard-annotation-tip
+              [notificationNumber]="annotation.number"
+              [color]="annotation.color"
+              transform="translate(14, 12)"></g>
+          </svg>
+          <span class="annotation__author"
+            [ngClass]="{'annotation__author--response' : annotation.author !== message.author}">
+            {{message.author}}
+          </span>
+        </div>
+        <div class="annotation__message" [ngClass]="annotation.author !== message.author ? 'response' : 'message'">
+          <div *ngIf="i === 0 && (annotation.edge || annotation.stepName)">
+            <span class="icon-link-2 annotation__icon"></span>
+            <span class="annotation__step-name">{{annotation.stepName || annotation.edge.origin}}</span>
+            <span class="annotation__type">({{annotation.edge ? 'connection' : 'step'}})</span>
+          </div>
+          <div class="annotation__content" [innerText]="message.text"></div>
+        </div>
+        <div class="annotation__date" *ngIf="annotation.messages.length === (i + 1) || message.author !== annotation.messages[i + 1].author">{{message.localizedDate}}</div>
+      </ng-container>
+    </div>
+  </div>
+</div>

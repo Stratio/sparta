@@ -17,6 +17,7 @@ import { StepMenuService } from '../services/step-menu.service';
 export interface State {
   templates: any;
   selectedCreationEntity: any;
+  createNote: boolean;
   entityCreationMode: boolean;
   workflowType: string;
   menuOptions: Array<FloatingMenuModel>;
@@ -32,6 +33,7 @@ export interface State {
 const initialState: State = {
   templates: {},
   selectedCreationEntity: null,
+  createNote: false,
   entityCreationMode: false,
   floatingMenuSearch: '',
   workflowType: '',
@@ -77,14 +79,17 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         selectedCreationEntity: action.payload,
-        entityCreationMode: true
+        entityCreationMode: true,
+        createNote: false
       };
     }
+    case wizardActions.CONFIG_NOTE:
     case wizardActions.DESELECTED_CREATION_ENTITY: {
       return {
         ...state,
         selectedCreationEntity: null,
-        entityCreationMode: false
+        entityCreationMode: false,
+        createNote: false
       };
     }
     case wizardActions.SET_WORKFLOW_TYPE: {
@@ -135,6 +140,14 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         notification: action.payload
+      };
+    }
+    case wizardActions.POSITION_NOTE: {
+      return {
+        ...state,
+        createNote: true,
+        selectedCreationEntity: null,
+        entityCreationMode: false
       };
     }
     default:

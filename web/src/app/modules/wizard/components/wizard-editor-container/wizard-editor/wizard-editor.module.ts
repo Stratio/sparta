@@ -12,6 +12,8 @@ import { GraphEditorModule } from '@app/shared/components/graph-editor/graph-edi
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
 import { WizardEdgeModule } from '@app/wizard/components/wizard-edge/wizard-edge.module';
 import { WizardNodeModule } from '@app/wizard/components/wizard-node/wizard-node.module';
+import { WizardAnnotationTipModule } from '@app/shared/wizard/components/wizard-annotation-tip/wizard-annotation-tip.module';
+import { WizardAnnotationService } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.service';
 
 @NgModule({
   exports: [
@@ -25,9 +27,11 @@ import { WizardNodeModule } from '@app/wizard/components/wizard-node/wizard-node
     GraphEditorModule,
     WizardEdgeModule,
     WizardNodeModule,
+    WizardAnnotationTipModule
   ],
   providers: [
-    InitializeStepService
+    InitializeStepService,
+    WizardAnnotationService
   ]
 })
 

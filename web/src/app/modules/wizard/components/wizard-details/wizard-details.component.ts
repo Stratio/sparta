@@ -6,12 +6,16 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { WizardService } from '@app/wizard/services/wizard.service';
+
 import * as fromWizard from './../../reducers';
 import * as debugActions from './../../actions/debug';
+
+import { StHorizontalTab } from '@stratio/egeo';
+import { WizardAnnotation } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.model';
 
 @Component({
   selector: 'wizard-details',
@@ -26,12 +30,29 @@ export class WizardDetailsComponent implements OnInit, OnDestroy {
   public config = {};
   public genericError: any;
   public validations: any;
+  public tabItems: Array<StHorizontalTab> = [
+    {
+      text: 'Overview',
+      id: 'overview'
+    }, {
+      text: 'Notes',
+      id: 'notes'
+    }
+  ];
+  public activeTabItem = this.tabItems[0];
+  public annotations$: Observable<WizardAnnotation[]>;
+  public selectedNodeAnnotations$: Observable<WizardAnnotation[]>;
 
   private _componentDestroyed = new Subject();
 
-  constructor(private _cd: ChangeDetectorRef, private wizardService: WizardService, private _store: Store<fromWizard.State>) { }
+  constructor(
+    private _cd: ChangeDetectorRef,
+    private wizardService: WizardService,
+    private _store: Store<fromWizard.State>) { }
 
   ngOnInit() {
+    this.annotations$ = this._store.pipe(select(fromWizard.getAnnotationsWithNumbers));
+    this.selectedNodeAnnotations$ = this._store.pipe(select(fromWizard.getSelectedNodeAnnotations));
     this._store.pipe(select(fromWizard.getWorkflowType))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((workflowType: string) => {
@@ -57,6 +78,10 @@ export class WizardDetailsComponent implements OnInit, OnDestroy {
         this.validations = validations;
         this._cd.markForCheck();
       });
+  }
+
+  public changedTabOption(event: StHorizontalTab) {
+    this.activeTabItem = event;
   }
 
   showConsole(tab: string) {

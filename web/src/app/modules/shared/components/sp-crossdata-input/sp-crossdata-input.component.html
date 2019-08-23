@@ -1,0 +1,24 @@
+<div class="row st-form-field" [attr.id]="qaTag">
+  <div class="col-sm-12" [ngClass]="{'disabled' : isDisabled}">
+    <span class="crossdata-title">{{label}}</span>
+  </div>
+  <div class="col-sm-6">
+    <sp-select [formControl]="databaseFormControl"
+      label="Database"
+      [errorRequiredMessage]="errorRequiredMessage"
+      [options]="databasesOptions$ | async"
+      [forceValidations]="forceValidations"
+      (change)="changeDatabase()"
+      placeholder="Select a database"
+      required></sp-select>
+  </div>
+  <div class="col-sm-6">
+    <sp-select [formControl]="tableFormControl"
+      label="Table"
+      [errorRequiredMessage]="errorRequiredMessage"
+      [options]="tablesOptions$ | async"
+      [forceValidations]="forceValidations"
+      placeholder="Select a table"
+      required></sp-select>
+  </div>
+</div>

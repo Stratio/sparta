@@ -13,10 +13,11 @@ import { WizardHeaderModule } from './wizard-header/wizard-header.module';
 
 import { WizardDetailsModule } from '@app/wizard/components/wizard-details/wizard-details.module';
 import { EdgeOptionsModule } from '@app/wizard/components/edge-options/edge-options.module';
-
+import { WizardAnnotationModule } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.module';
 import { NotificationAlertModule, SpartaSidebarModule } from '@app/shared';
 import { WizardEditorModule } from './wizard-editor/wizard-editor.module';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
+import { SelectedEntityModule } from '../selected-entity/selected-entity.module';
 
 @NgModule({
   exports: [
@@ -29,7 +30,9 @@ import { InitializeStepService } from '@app/wizard/services/initialize-step.serv
     CommonModule,
     EdgeOptionsModule,
     NotificationAlertModule,
+    SelectedEntityModule,
     SpartaSidebarModule,
+    WizardAnnotationModule,
     WizardDetailsModule,
     WizardEditorModule,
     WizardHeaderModule

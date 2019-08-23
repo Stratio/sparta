@@ -20,6 +20,7 @@ import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
 import { SpColumnInputModule } from '../sp-column-input/sp-column-input.module';
 import { MlTagInputModule } from '@app/shared/components/ml-tag-input/ml-tag-input.module';
 import {MlChipsModule} from '@app/shared/components/ml-chips/ml-chips.module';
+import { SpCrossdataInputModule } from '../sp-crossdata-input/sp-crossdata-input.module';
 
 @NgModule({
   exports: [
@@ -41,6 +42,7 @@ import {MlChipsModule} from '@app/shared/components/ml-chips/ml-chips.module';
     MlTagInputModule,
     TranslateModule,
     SpColumnInputModule,
+    SpCrossdataInputModule,
     MlChipsModule
   ],
   declarations: [

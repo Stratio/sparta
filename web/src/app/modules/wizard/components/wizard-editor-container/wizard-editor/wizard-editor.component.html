@@ -5,8 +5,8 @@
   [connectorPosition]="drawingConnectionStatus.initPosition"
   [disableEvents]="disableEvents"
   (setEditorDirty)="setEditorDirty.emit()"
-  (disableSelection)="disableSelection.emit()"
   (createNode)="createNode.emit($event)"
+  (onClickEditor)="onClickEditor($event)"
   (editorPositionChange)="editorPositionChange.emit($event)"
   (finishSelection)="onFinishSelection($event)"
   (removeConnector)="removeConnector()">
@@ -17,8 +17,15 @@
     [activedEdge]="selectedNodeNames.includes(edge.destination.name) || selectedNodeNames.includes(edge.origin.name)"
     [initPosition]="edge.origin.uiConfiguration.position"
     [endPosition]="edge.destination.uiConfiguration.position"
-    (selectEdge)="selectEdge.emit($event)"
+    (selectEdge)="onEdgeClick($event)"
     (showEdgeOptions)="showEdgeOptions.emit($event)">
+    <ng-container *ngIf="edgeAnnotationsMap[edge.origin.name + '////' + edge.destination.name] as annotation">
+      <svg:g wizard-annotation-tip
+        (onMouseDown)="onShowAnnotation($event, annotation)"
+        [notificationNumber]="annotation.number"
+        [color]="annotation.color"
+        [openOnCreate]="annotation.openOnCreate"></svg:g>
+    </ng-container>
   </svg:g>
   <svg:g draggable-element *ngFor="let nodeData of workflowNodes;"
     draggableGroupName="workflow"
@@ -26,7 +33,7 @@
     [selected]="selectedNodeNames.indexOf(nodeData.name) > -1"
     (onDoubleClickEvent)="editEntity.emit(nodeData)"
     (setEditorDirty)="setEditorDirty.emit()"
-    (onClickEvent)="selectNode.emit(nodeData)">
+    (onClickEvent)="clickNode(nodeData)">
       <svg:g wizard-node
         #wnode
         [data]="nodeData"
@@ -37,6 +44,27 @@
         [selected]="selectedNodeNames.indexOf(nodeData.name) > -1"
         [drawingConnectionStatus]="drawingConnectionStatus"
         (onDrawConnector)="createEdge($event)"
-        (onFinishConnector)="finishConnector($event)"></svg:g>
+        (onFinishConnector)="finishConnector($event)">
+        <ng-container>
+          <svg:g wizard-annotation-tip *ngIf="nodeAnnotationsMap[nodeData.name] as annotation"
+            (onMouseDown)="onShowAnnotation($event, annotation)"
+            [notificationNumber]="annotation.number"
+            [color]="annotation.color"
+            [openOnCreate]="annotation.openOnCreate"
+            transform="translate(124, -1)"></svg:g>
+        </ng-container>
+      </svg:g>
     </svg:g>
+
+  <svg:g draggable-element *ngFor="let annotation of draggableAnnotations; trackBy: trackByNoteFn;"
+    [position]="annotation.position"
+    (onFinishPositionChange)="changeTipPosition($event, annotation.number)"
+    (onClickEvent)="showEditorAnnotation($event, annotation)">
+    <svg:g wizard-annotation-tip
+      [notificationNumber]="annotation.number"
+      [color]="annotation.color"
+      [openOnCreate]="annotation.openOnCreate"
+      [disableEvents]="true"
+      (onMouseDown)="annotation.openOnCreate && onShowAnnotation($event, annotation)"></svg:g>
+  </svg:g>
 </graph-editor>

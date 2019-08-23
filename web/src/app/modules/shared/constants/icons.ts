@@ -110,6 +110,7 @@ export const icons: any = {
     Mask: '\ue9d1',
     LeftPadding: '\ue9d2',
     InsertLiteral: '\ue9d3',
+    ArangoDB: '\ue9d6',
 
     AFTSurvivalRegression: '\ue62d',
     ALS: '\ue62d',

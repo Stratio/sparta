@@ -7,7 +7,7 @@
 import { Injectable } from '@angular/core';
 import { writerTemplate } from 'data-templates/index';
 import { WizardService } from './wizard.service';
-import {StepType} from '@models/enums';
+import { StepType } from '@models/enums';
 
 
 @Injectable()
@@ -47,6 +47,7 @@ export class ValidateSchemaService {
       }
     } else {
       // if its an output skip writer validation (outputs has not writer)
+
       if (stepType === StepType.Input || stepType === StepType.Transformation) {
         return this.validate(schema.properties, model.configuration).concat(this.validate(writerTemplate, model.writer));
       } else {
@@ -63,25 +64,15 @@ export class ValidateSchemaService {
    *
    * Validates the model without paint the form with the same rules and validations than this one
    */
-  validate(schema: any, model: any): Array<any> {
+  validate(fields: any, model: any): Array<any> {
     const errors: Array<any> = [];
+
+    const schema = this._filterDisabledFields(fields, model);
 
     schema.forEach((prop: any) => {
       const value = model[prop.propertyId];
-      let disabled = false;
       // if there are not validations skip this input
       if (!prop.regexp && !prop.required) {
-        return;
-      }
-      // check if the input is disabled
-      if (prop.visible && prop.visible[0].length) {
-        prop.visible[0].forEach((condition: any) => {
-          if (model[condition.propertyId] !== condition.value) {
-            disabled = true;
-          }
-        });
-      }
-      if (disabled) {
         return;
       }
       // check required validation
@@ -101,7 +92,8 @@ export class ValidateSchemaService {
               propertyId: prop.propertyId,
               propertyName: prop.propertyName,
               type: 'required',
-              message: `Field ${prop.propertyName} is required.`
+              message: `Field ${prop.propertyName} is required.`,
+              visbile: prop.visible
             });
           }
         }
@@ -120,5 +112,40 @@ export class ValidateSchemaService {
       }
     });
     return errors;
+  }
+
+  private _filterDisabledFields(schema, model) {
+    const disabledFields = [];
+    return schema.filter((prop: any) => {
+      // if there are not validations skip this input
+      if (!prop.regexp && !prop.required) {
+        return;
+      }
+      // check if the input is disabled
+      if (prop.visible && prop.visible[0].length) {
+        const disabled = prop.visible[0].find((condition: any) => {
+          if (model[condition.propertyId] !== condition.value || disabledFields.includes(condition.propertyId)) {
+            return true;
+          }
+        });
+        if (disabled) {
+          disabledFields.push(prop.propertyId);
+          return false;
+        }
+      }
+      if (prop.visibleOR && prop.visibleOR[0].length) {
+        let valid = false;
+        prop.visibleOR[0].forEach((condition: any) => {
+          if (model[condition.propertyId] === condition.value && !disabledFields.includes(condition.propertyId)) {
+            valid = true;
+          }
+        });
+        if (!valid) {
+          disabledFields.push(prop.propertyId);
+        }
+        return valid;
+      }
+      return true;
+    });
   }
 }

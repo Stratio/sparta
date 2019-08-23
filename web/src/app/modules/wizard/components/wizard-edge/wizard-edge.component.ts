@@ -57,6 +57,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
   private _svgAuxDefs: any;
   private _edgeElement: any;
   private _edgeLabel: any;
+  private _content: any;
 
   private _supportedDataRelations: Array<string>;
 
@@ -73,6 +74,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
     this._supportedDataRelations = this.edge.origin.supportedDataRelations;
     this._dataType = this.edge.dataType;
     this._container = d3Select(this.elementRef.nativeElement.querySelector('.sparta-edge-container'));
+    this._content = d3Select(this.elementRef.nativeElement.querySelector('.sparta-edge-content'));
 
     this._svgAuxDefs = this._container.append('defs')
       .append('path')
@@ -146,8 +148,14 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
       return;
     }
     const coors = getBezierEdge(this._svgAuxDefs, x1, y1, x2, y2, this.h, this.w);
+    const centerPoint = `translate(${(coors.x1 - (coors.x1 - coors.x2) / 2)}, ${(coors.y1 - (coors.y1 - coors.y2) / 2)})`;
     if (this._edgeLabel) {
-      this._edgeLabel.attr('transform', `translate(${(coors.x1 - (coors.x1 - coors.x2) / 2)}, ${(coors.y1 - (coors.y1 - coors.y2) / 2)})`);
+      this._edgeLabel.attr('transform', centerPoint);
+      const totalPathLength = this._svgAuxDefs.node()['getTotalLength']();
+      const contentPoint = this._svgAuxDefs.node()['getPointAtLength'](totalPathLength / 2 + 45);
+      this._content.attr('transform', `translate(${contentPoint.x}, ${contentPoint.y})`);
+    } else {
+      this._content.attr('transform', centerPoint);
     }
   }
 

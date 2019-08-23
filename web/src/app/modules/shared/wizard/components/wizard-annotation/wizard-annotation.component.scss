@@ -1,0 +1,148 @@
+@import '~@stratio/egeo/theme/constants';
+
+.annotation {
+  width: 310px;
+
+  &__header {
+    overflow: hidden;
+    margin-top: -5px;
+  }
+
+  &__title {
+    line-height: 22px;
+    margin-bottom: 4px;
+    &-author {
+      color: $action-secondary-07;
+      font-weight: bold;
+      font-size: 14px;
+      margin-left: 5px;
+    }
+
+    &-time {
+      color: $neutral-09;
+      font-size: 13px;
+    }
+
+    &--response {
+      overflow: hidden;
+      & > span {
+        float: right;
+      }
+    }
+  }
+
+  &__messages {
+    max-height: 200px;
+    overflow: auto;
+    width: 100%;
+    margin-top: -2px;
+  }
+
+  &__message {
+    width: 100%;
+    background-color: $neutral-02;
+    font-size: 14px;
+    color: $neutral-11;
+    padding: 12px 13px;
+    outline: none;
+    resize: none;
+    min-height: 35px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    display: block;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &--response {
+      background-color: $action-primary-light;
+    }
+  }
+
+  [contenteditable=true] {
+    cursor: text;
+    margin-bottom: 0;
+    &:empty:before{
+      content: attr(placeholder);
+      display: block; /* For Firefox */
+    }
+  }
+}
+
+
+.palette {
+  overflow: hidden;
+
+  &__container{
+    float: right;
+    margin: 5px 3px;
+  }
+
+  &__color {
+    border-radius: 50%;
+    height: 15px;
+    width: 15px;
+    border: 1.5px solid white;
+    cursor: pointer;
+    &--right {
+      cursor: auto;
+      float: right;
+      margin: 5px 3px;
+
+    }
+  }
+
+  &__color-border {
+    border: 1px solid;
+    display: inline-block;
+    margin-left: 7px;
+    border-radius: 50%;
+  }
+}
+
+
+.popover {
+  display: block!important;
+  opacity: 0;
+  margin-top: 10px;
+  margin-left: -10px;
+  position: fixed;
+  z-index: 9000;
+
+  &__space {
+    width: 40px;
+    height: 20px;
+  }
+
+  &.showed {
+    opacity: 1;
+    transition: 0.5s opacity;
+  }
+
+  .reply-button, .done-button, .post-button {
+    font-size: 12px;
+    padding: 5px 15px;
+    line-height: 5px;
+    height: 28px;
+    min-height: 0;
+    margin-top: 5px;
+    margin-right: 5px;
+  }
+
+  .delete-button {
+    color:$action-secondary-05;
+    margin-right: 8px;
+    margin-top: 8px;
+    float: right;
+    font-size: 14px;
+    &:hover {
+      color: $status-critical-default;
+    }
+  }
+  .edit-button {
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px;
+  }
+}

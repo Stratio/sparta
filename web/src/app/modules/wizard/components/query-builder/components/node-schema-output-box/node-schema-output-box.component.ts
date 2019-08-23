@@ -185,7 +185,6 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit, OnChanges {
   }
 
   onFocusOut(ev) {
-    console.log("a")
     this._store.dispatch(new queryBuilderActions.SaveFilter(this.filter));
   }
 

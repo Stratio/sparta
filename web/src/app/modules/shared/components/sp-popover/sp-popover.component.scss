@@ -1,0 +1,53 @@
+@import '~@stratio/egeo/theme/constants';
+
+$sp-popover-arrow-height: 8px;
+
+:host {
+  display: inline-block;
+  position: relative;
+}
+
+.popover-content {
+  position: absolute;
+  z-index: 11;
+  background: white;
+  padding: 6px;
+  top: 0;
+  left: 100%;
+  margin-left: 10px;
+  transform: translate(0, -50%);
+  border-radius: 5px;
+  box-shadow: 0 2px 4px 0 rgba(15, 27, 39, 0.3);
+  border: solid 1px $neutral-06;
+
+  &--left {
+    right: 100%;
+    left: auto;
+    margin-right: 10px;
+  }
+
+  .arrow {
+    position: absolute;
+    top: 50%;
+    width: 0;
+    height: 0;
+    box-sizing: border-box;
+    border: $sp-popover-arrow-height solid black;
+    border-color: transparent transparent white white;
+    transform-origin: 0 0;
+    box-shadow: -3px 3px 3px 0 rgba(15, 27, 39, 0.3);
+
+    &--right {
+      transform: rotate(45deg);
+      left: 1px;
+      margin-top: -$sp-popover-arrow-height;
+    }
+
+    &--left {
+      left: 100%;
+      margin-top: $sp-popover-arrow-height + 8px;
+      margin-left: -1px;
+      transform: rotate(-135deg);
+    }
+  }
+}

@@ -151,4 +151,14 @@
     [forceValidations]="forceValidations"
     label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}">
   </form-list>
+
+  <sp-crossdata-input
+    *ngIf="field.propertyType === 'crossdata'"
+    [qaTag]="field.qa"
+    [label]="(field.propertyName | translate) + ' *'"
+    [forceValidations]="forceValidations"
+    [errorRequiredMessage]="errorsService.errors.selectRequiredError"
+    [required]="field.required"
+    [formControl]="stFormControl"
+    ></sp-crossdata-input>
 </div>

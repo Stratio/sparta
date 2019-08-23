@@ -96,7 +96,6 @@ export class MlChipsComponent implements ControlValueAccessor, Validator, OnInit
 
   private checkErrors(control: FormControl): void {
     this.hasErrors = !!(control.errors && Object.keys(control.errors).length);
-    console.log(control);
   }
 
   ngOnDestroy(): void {

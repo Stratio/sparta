@@ -26,6 +26,7 @@ import * as fromRoot from 'reducers';
 import * as errorsActions from 'actions/errors';
 import * as wizardActions from './../../actions/wizard';
 
+import { WizardAnnotation } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.model';
 import { isMobile } from 'constants/global';
 import {
   WizardNode,
@@ -39,6 +40,7 @@ import { WizardEditorComponent } from './wizard-editor/wizard-editor.component';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
 
 import { takeUntil, take } from 'rxjs/operators';
+import { DraggableElementPosition } from '@app/shared';
 
 @Component({
   selector: 'wizard-editor-container',
@@ -49,6 +51,7 @@ import { takeUntil, take } from 'rxjs/operators';
 export class WizardEditorContainer implements OnInit, OnDestroy {
   @Input() workflowData: WorkflowData;
   @Input() hiddenContent: boolean;
+  @Input() username: string;
 
   @ViewChild(WizardEditorComponent) editor: WizardEditorComponent;
   @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
@@ -59,6 +62,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
   public isMobile = false;
   public workflowEdges: Array<WizardEdgeNodes>;
   public workflowNodes: Array<WizardNode>;
+  public activeAnnotation: WizardAnnotation;
 
   public editorPosition: ZoomTransform;
   public creationMode$: Observable<any>;
@@ -78,12 +82,17 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
   public editorRef: any;
 
   public showForbiddenError$: Observable<any>;
+  public createNote$: Observable<boolean>;
+  public nodeAnnotationsMap$: Observable<{ [nodeName: string]: WizardAnnotation }>;
+  public edgeAnnotationsMap$: Observable<{ [key: string]: WizardAnnotation }>;
+  public draggableAnnotations$: Observable<WizardAnnotation[]>;
+
   private _componentDestroyed = new Subject();
   private _ctrlDown = false;
   @ViewChild('editorArea') editorArea: ElementRef;
   @HostListener('document:keydown', ['$event'])
   onKeydownHandler(event: KeyboardEvent) {
-    if (this.hiddenContent) {
+    if (this.hiddenContent || this.activeAnnotation) {
       return;
     }
     switch (event.keyCode) {
@@ -168,6 +177,17 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     window.addEventListener('blur', this._onBlur);
     this.editorRef = this.editor.getEditorRef();
     this.creationMode$ = this._store.pipe(select(fromWizard.isCreationMode));
+    this.createNote$ = this._store.pipe(select(fromWizard.getCreateNote));
+    this.nodeAnnotationsMap$ = this._store.pipe(select(fromWizard.getNodeAnnotationsMap));
+    this.draggableAnnotations$ = this._store.pipe(select(fromWizard.getDraggableAnnotations));
+    this.edgeAnnotationsMap$ = this._store.pipe(select(fromWizard.getEdgeAnnotationsMap));
+
+    this._store.pipe(select(fromWizard.getActiveAnnotation))
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((activeAnnotation) => {
+        this.activeAnnotation = activeAnnotation;
+        this._cd.markForCheck();
+      });
     this._store
       .pipe(select(fromWizard.getSelectedEntityData))
       .pipe(takeUntil(this._componentDestroyed))
@@ -311,6 +331,17 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     );
   }
 
+  public deleteAnnotationConfirm(event: number) {
+    this.deleteConfirmModal(
+      'Delete annotation',
+      `This action can't be undone.`,
+      () => {
+        this.deleteAnnotation(event);
+      }
+    );
+  }
+
+
   public deleteConfirmModal(
     modalTitle: string,
     modalMessage: string,
@@ -427,6 +458,47 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
 
   selectNodes(event: Array<string>) {
     this._store.dispatch(new wizardActions.SelectMultipleStepsAction(event));
+  }
+
+  public showAnnotation(event) {
+    this._store.dispatch(new wizardActions.SetActiveAnnotation(event));
+  }
+
+  public deselectAnnotation() {
+    this._store.dispatch(new wizardActions.SetActiveAnnotation(null));
+  }
+
+  public configAnnotation(event: WizardAnnotation) {
+    this._store.dispatch(new wizardActions.ConfigNote(event));
+  }
+
+  public postMessage(message: string, annotationNumber: number) {
+    this._store.dispatch(new wizardActions.PostNoteMessage({
+      text: message,
+      date: new Date().getTime(),
+      author: this.username
+    }, annotationNumber));
+ }
+
+  public createMessage({ color, message }: { color: string, message: string }) {
+    this._store.dispatch(new wizardActions.CreateNote({
+      text: message,
+      date: new Date().getTime(),
+      author: this.username
+    }, color));
+  }
+
+  public changeColor(color: string) {
+    this._store.dispatch(new wizardActions.ChangeCreateColor(color));
+  }
+
+  public tipPositionChange(event: { position: DraggableElementPosition, number: number }) {
+    this._store.dispatch(new wizardActions.UpdateDraggableTipPosition(event.position, event.number));
+  }
+
+
+  public deleteAnnotation(event: number) {
+    this._store.dispatch(new wizardActions.DeleteAnnotation(event));
   }
 
   private _onBlur() {

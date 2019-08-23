@@ -188,33 +188,29 @@ perfect-scrollbar.scroll-bar-sql-builder>.ps.ps--active-y>.ps__rail-y {
 }
 
 sparta-sidebar .sidebar-content {
-
-&::-webkit-scrollbar-track {
-	-webkit-box-shadow: inset 0 0 2px rgba(0,0,0,0.2);
-	border-radius: 30px;
-	background-color: #F5F5F5;
-}
-
-&::-webkit-scrollbar
-{
-	width: 6px;
-	background-color: #F5F5F5;
-}
-
-&::-webkit-scrollbar-thumb
-{
-	border-radius: 30px;
-	-webkit-box-shadow: inset 0 0 2px rgba(0,0,0,.3);
-	background-color: #aaa;
-}
-
  * {
   word-wrap: break-word;
   word-break: break-all;
   white-space: normal;
-  
+
+  }
+}
+
+sparta-sidebar .sidebar-content, .custom-scrollbar {
+  &::-webkit-scrollbar-track {
+    border-radius: 30px;
+    border: solid 3px transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 9px;
+    border-radius: 10px !important;
+  }
+  &::-webkit-scrollbar-thumb {
+    box-shadow: inset 0 0 10px 10px #d8d8d8;
+    border-radius: 80px !important;
+    border: solid 2px transparent;
   }
 
-  scrollbar-color: #aaa #F5F5F5;
+  scrollbar-color: #d8d8d8 white;
   scrollbar-width: thin;
 }

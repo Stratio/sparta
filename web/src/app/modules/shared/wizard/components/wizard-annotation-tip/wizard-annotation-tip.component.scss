@@ -1,0 +1,11 @@
+.rocket-annotation-tip {
+  .annotation {
+    &__label-text {
+      text-anchor: middle;
+      font-size: 12px;
+      fill: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  }
+ }

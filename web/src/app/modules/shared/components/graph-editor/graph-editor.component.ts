@@ -71,7 +71,7 @@ export class GraphEditorComponent implements OnDestroy, OnInit {
 
   @Output() createNode = new EventEmitter<any>();
   @Output() setEditorDirty = new EventEmitter();
-  @Output() disableSelection = new EventEmitter<void>();
+  @Output() onClickEditor = new EventEmitter<{x: number; y: number}>();
   @Output() removeConnector = new EventEmitter();
   @Output() editorPositionChange = new EventEmitter<ZoomTransform>();
   @Output() finishSelection = new EventEmitter<any>();
@@ -124,7 +124,6 @@ export class GraphEditorComponent implements OnDestroy, OnInit {
   ngOnInit(): void {
     this._initSelectors();
     // Set initial position
-    this._SVGParent.on('click', this.clickDetected.bind(this));
     this.setDraggableEditor();
     this._setCurrentPosition();
     this.enableDrag = false;
@@ -210,14 +209,14 @@ export class GraphEditorComponent implements OnDestroy, OnInit {
   }
 
   clickDetected($event: any) {
+    const position = {
+      x: ($event.offsetX - this._editorPosition.x) / this._editorPosition.k,
+      y: ($event.offsetY - this._editorPosition.y) / this._editorPosition.k
+    };
     if (this.creationMode && this.creationMode.active) {
-      const position = {
-        x: ($event.offsetX - this._editorPosition.x) / this._editorPosition.k,
-        y: ($event.offsetY - this._editorPosition.y) / this._editorPosition.k
-      };
       this.createNode.emit({ position, creationMode: this.creationMode });
     }
-    this.disableSelection.emit();
+    this.onClickEditor.emit(position);
   }
 
   drawConnector(startPosition: ZoomTransform) {

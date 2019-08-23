@@ -1,0 +1,15 @@
+@import '~@stratio/egeo/theme/constants';
+
+ :host {
+  display: block;
+  margin-bottom: 25px;
+}
+
+ .crossdata-title {
+  margin-top:15px;
+  margin-bottom:10px;
+  display:block;
+  color: $neutral-10;
+  font-weight: 600;
+  font-size: 16px;
+}

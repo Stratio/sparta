@@ -1,0 +1,106 @@
+@import '~@stratio/egeo/theme/constants';
+
+.annotations {
+  margin-top: 20px;
+}
+
+.annotation {
+  margin-top: 22px;
+
+  &__status {
+    width: 25px;
+    height: 25px;
+    float: left;
+    margin-right: 5px;
+    z-index: 1;
+    margin-left: -30px;
+    left: 0;
+  }
+
+  &__author {
+    color: $action-secondary-07;
+    font-weight: bold;
+    font-size: 15px;
+
+    &--response {
+      text-align: right;
+      display: block;
+    }
+  }
+
+  &__messages {
+    padding-left: 30px;
+  }
+
+  &__message {
+    padding: 10px 18px;
+    margin-bottom: 14px;
+    margin-top: 5px;
+    position: relative;
+
+    &:first-child {
+      margin-top:8px;
+    }
+
+    &.message {
+      background-color: $neutral-02;
+      border-radius: 0 5px 5px 5px;
+      &:before {
+        content: ' ';
+        width: 0;
+        height: 0;
+        position: absolute;
+        left: 0;
+        bottom: 100%;
+        border-bottom: 10px solid $neutral-02;
+        border-right: 11px solid transparent;
+      }
+    }
+
+    &.response{
+      background-color: $action-primary-light;
+      border-radius: 5px 0 5px 5px;
+      &:before {
+        content: ' ';
+        width: 0;
+        height: 0;
+        position: absolute;
+        right: 0;
+        bottom: 100%;
+        border-bottom: 10px solid $action-primary-light;
+        border-left: 11px solid transparent;
+      }
+    }
+  }
+
+  &__icon {
+    color: $neutral-07;
+    font-size: 20px;
+    vertical-align: text-bottom;
+    margin-right: 5px;
+  }
+
+  &__step-name {
+    color:$neutral-08;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  &__type {
+    color: $neutral-09;
+    font-size: 10px;
+    margin-left: 5px;
+  }
+
+  &__content {
+    font-size: 14px;
+    color: $neutral-10;
+  }
+
+  &__date{
+    color: $neutral-09;
+    font-size: 11px;
+    text-align: right;
+    margin-top: -11px;
+  }
+}

@@ -8,20 +8,21 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  NgZone,
   Input,
   EventEmitter,
   Output,
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
 import { WizardNode, WizardEdge } from '@app/wizard/models/node';
 import { ZoomTransform, DrawingConnectorStatus } from '@app/wizard/models/drag';
 import { WizardEdgeModel } from '@app/wizard/components/wizard-edge/wizard-edge.model';
 import { GraphEditorComponent } from '@app/shared/components/graph-editor/graph-editor.component';
+import { WizardAnnotation, annotationColors } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.model';
+import { WizardAnnotationService } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.service';
 
 import { ENTITY_BOX } from './../../../wizard.constants';
+import { DraggableElementPosition } from '@app/shared';
 
 @Component({
   selector: 'wizard-editor',
@@ -44,6 +45,10 @@ export class WizardEditorComponent {
   @Input() debugResult: any;
   @Input() disableEvents: boolean;
   @Input() multiDrag: boolean;
+  @Input() isCreatingNoteActive: boolean;
+  @Input() nodeAnnotationsMap: { [nodeName: string]: WizardAnnotation };
+  @Input() edgeAnnotationsMap: { [key: string]: WizardAnnotation };
+  @Input() draggableAnnotations: WizardAnnotation;
 
   @Output() setEditorDirty = new EventEmitter();
   @Output() disableSelection = new EventEmitter();
@@ -55,6 +60,10 @@ export class WizardEditorComponent {
   @Output() selectEdge = new EventEmitter<any>();
   @Output() editorPositionChange = new EventEmitter<ZoomTransform>();
   @Output() selectNodes = new EventEmitter<Array<string>>();
+  @Output() nodePositionChange = new EventEmitter<{ position: DraggableElementPosition, nodeName: string }>();
+  @Output() tipPositionChange = new EventEmitter<{ position: DraggableElementPosition, number: number }>();
+  @Output() showAnnotation = new EventEmitter<WizardAnnotation>();
+  @Output() createAnnotation = new EventEmitter<WizardAnnotation>();
 
   @ViewChild(GraphEditorComponent) editor: GraphEditorComponent;
 
@@ -63,6 +72,7 @@ export class WizardEditorComponent {
     name: ''
   };
 
+  public annotationPosition = { x: 0, y: 0 };
   public connectorOrigin = '';
   public connectorPosition: ZoomTransform = null;
   public initialSelectionCoors: any;
@@ -70,6 +80,7 @@ export class WizardEditorComponent {
   constructor(
     private _cd: ChangeDetectorRef,
     private _el: ElementRef,
+    private _wizardAnnotationService: WizardAnnotationService
   ) { }
 
   createEdge(edgeEvent) {
@@ -121,6 +132,63 @@ export class WizardEditorComponent {
       }
     });
     this.selectNodes.emit(selectedNodes);
+  }
+
+  public onClickEditor(event) {
+    if (this.isCreatingNoteActive) {
+      this.createDraggableNote(event);
+    } else {
+      this.disableSelection.emit();
+    }
+  }
+  public createDraggableNote(event) {
+    this.createAnnotation.emit(this._wizardAnnotationService.createDraggableNote(event));
+  }
+
+   public createEdgeNote(event) {
+    this.createAnnotation.emit(this._wizardAnnotationService.createEdgeNote(event));
+  }
+
+   public clickNode(nodeData: WizardNode) {
+    if (this.isCreatingNoteActive) {
+      this.createAnnotation.emit(this._wizardAnnotationService.createStepNote(nodeData.name));
+    } else {
+      this.selectNode.emit(nodeData);
+    }
+  }
+
+   public onShowAnnotation(position: { x: number; y: number; }, annotation: WizardAnnotation) {
+    this.showAnnotation.emit({
+      ...annotation,
+      tipPosition: position
+    });
+  }
+
+   public showEditorAnnotation(event: any, annotation: WizardAnnotation) {
+    const target = event.currentTarget.getBoundingClientRect();
+    this.onShowAnnotation({
+      x: target.x,
+      y: target.y
+    }, annotation);
+  }
+
+   public changeTipPosition(event, number: number) {
+    this.tipPositionChange.emit({
+      position: event,
+      number
+    });
+  }
+
+   public onEdgeClick(event) {
+    if (this.isCreatingNoteActive) {
+      this.createEdgeNote(event);
+    } else {
+      this.selectEdge.emit(event);
+    }
+  }
+
+   public trackByNoteFn(index: number, annotation: WizardAnnotation) {
+    return annotation.number;
   }
 
 }

@@ -13,11 +13,11 @@
     <wizard-editor-container
       #editorContainer
       [class.disable-events]="editionConfigMode.isEdition || showSettings"
+      [username]="username$ | async"
       [hiddenContent]="editionConfigMode.isEdition || showSettings"
       [workflowData]="workflowData">
     </wizard-editor-container>
   </div>
-  <selected-entity *ngIf="creationMode.active"></selected-entity>
 </section>
 
 <wizard-embedded

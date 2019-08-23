@@ -4,6 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import { Action } from '@ngrx/store';
+import { WizardAnnotation, WizardAnnotationMessage } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.model';
 
 export const RESET_WIZARD = '[Wizard] Reset wizard';
 export const GET_MENU_TEMPLATES = '[Wizard] Get menu templates';
@@ -67,6 +68,18 @@ export const COPY_NODES = '[Wizard] Copy nodes action';
 export const PASTE_NODES = '[Wizard] Paste nodes action';
 export const PASTE_NODES_COMPLETE = '[Wizard] Paste nodes complete action';
 export const SELECT_MULTIPLE_STEPS = '[Wizard] Select multiple steps';
+
+export const SET_ACTIVE_ANNOTATION = '[Wizard] Set active annotation';
+export const POSITION_NOTE = '[Wizard] Position note';
+export const CONFIG_NOTE = '[Wizard] Config note';
+export const CREATE_NOTE = '[Wizard] Create note';
+export const POST_NOTE_MESSAGE = '[Wizard] Post note message';
+export const CHANGE_CREATE_COLOR = '[Wizard] Change create color';
+export const UPDATE_DRAGGABLE_TIP_POSITION = '[Wizard] Update draggable tip position';
+export const DELETE_ANNOTATION = '[Wizard] Delete annotation';
+export const DELETE_ANNOTATION_COMPLETE = '[Wizard] Delete annotation complete';
+export const DELETE_ANNOTATION_CANCEL = '[Wizard] Delete annotation cancel';
+export const TOGGLE_ANNOTATION_ACTIVATION = '[Wizard] Toggle annotation activation';
 
 export class GetMenuTemplatesAction implements Action {
   readonly type = GET_MENU_TEMPLATES;
@@ -346,6 +359,57 @@ export class SetDraggableModeAction implements Action {
   constructor(public active: boolean) { }
 }
 
+export class SetActiveAnnotation implements Action {
+  readonly type = SET_ACTIVE_ANNOTATION;
+  constructor(public annotation: WizardAnnotation) { }
+}
+
+ export class PositionNote implements Action {
+  readonly type = POSITION_NOTE;
+}
+
+ export class ConfigNote implements Action {
+  readonly type = CONFIG_NOTE;
+  constructor(public annotation: WizardAnnotation) { }
+}
+
+ export class CreateNote implements Action {
+  readonly type = CREATE_NOTE;
+  constructor(public message: WizardAnnotationMessage, public color: string) { }
+}
+
+ export class ChangeCreateColor implements Action {
+  readonly type = CHANGE_CREATE_COLOR;
+  constructor(public color: string) { }
+}
+
+ export class PostNoteMessage implements Action {
+  readonly type = POST_NOTE_MESSAGE;
+  constructor(public message: WizardAnnotationMessage, public number: number) { }
+}
+
+ export class UpdateDraggableTipPosition implements Action {
+  readonly type = UPDATE_DRAGGABLE_TIP_POSITION;
+  constructor(public position: { x: number; y: number }, public number: number) { }
+}
+
+ export class DeleteAnnotation implements Action {
+  readonly type = DELETE_ANNOTATION;
+  constructor(public number: number) { }
+}
+
+ export class DeleteAnnotationComplete implements Action {
+  readonly type = DELETE_ANNOTATION_COMPLETE;
+}
+
+ export class DeleteAnnotationCancel implements Action {
+  readonly type = DELETE_ANNOTATION_CANCEL;
+}
+
+ export class ToggleAnnotationActivation implements Action {
+  readonly type = TOGGLE_ANNOTATION_ACTIVATION;
+}
+
 export type Actions =
   ResetWizardAction |
   GetMenuTemplatesAction |
@@ -403,4 +467,15 @@ export type Actions =
   PasteNodesAction |
   PasteNodesCompleteAction |
   SelectMultipleStepsAction |
-  SetDraggableModeAction;
+  SetDraggableModeAction |
+  SetActiveAnnotation |
+  PositionNote |
+  ConfigNote |
+  PostNoteMessage |
+  CreateNote |
+  ChangeCreateColor |
+  UpdateDraggableTipPosition |
+  DeleteAnnotation |
+  DeleteAnnotationComplete |
+  DeleteAnnotationCancel |
+  ToggleAnnotationActivation;

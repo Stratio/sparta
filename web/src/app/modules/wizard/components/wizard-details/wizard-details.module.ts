@@ -7,9 +7,11 @@
 import {CommonModule} from '@angular/common';
 import { NgModule } from '@angular/core';
 import {TranslateModule} from '@ngx-translate/core';
+import { StHorizontalTabsModule } from '@stratio/egeo';
 
 import { WizardDetailsComponent } from './wizard-details.component';
 import {NodeErrorsModule} from '@app/wizard/components/node-errors/node-errors.module';
+import { WizardDetailsNotesModule } from './details-notes/details-notes.module';
 
 @NgModule({
   exports: [
@@ -21,7 +23,9 @@ import {NodeErrorsModule} from '@app/wizard/components/node-errors/node-errors.m
   imports: [
     CommonModule,
     NodeErrorsModule,
-    TranslateModule
+    TranslateModule,
+    StHorizontalTabsModule,
+    WizardDetailsNotesModule
   ]
 })
 

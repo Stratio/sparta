@@ -1,0 +1,24 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host{
+  position:fixed;
+  pointer-events: none;
+  top:0;
+  left:0;
+  z-index:100;
+  margin-top:-20px;
+  margin-right:-20px;
+  cursor: pointer;
+}
+
+.square {
+  width:15px;
+  height:15px;
+  background:white;
+  display: block;
+  border:1px solid $neutral-08;
+}
+
+.icon {
+  font-size: 16px;
+}

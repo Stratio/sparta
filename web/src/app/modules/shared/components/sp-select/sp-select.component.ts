@@ -22,8 +22,8 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'sp-select',
-  templateUrl: './sp-select.template.html',
-  styleUrls: ['./sp-select.styles.scss'],
+  templateUrl: './sp-select.component.html',
+  styleUrls: ['./sp-select.component.scss'],
   host: {
     '(document:click)': 'onClick($event)'
   },
@@ -148,7 +148,7 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, After
 
   // When value is received from outside
   writeValue(newValue: any): void {
-    if (newValue === undefined) {
+    if (!newValue) {
       this.internalControl.setValue({
         label: this.placeholder,
         value: undefined

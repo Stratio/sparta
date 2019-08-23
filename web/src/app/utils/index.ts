@@ -203,3 +203,25 @@ export function getErrorMessage (error: any): string {
   }
   return message;
 }
+
+export function getTimeRemaining(date: number, currendate: number = Date.now(), message: string = ''): string {
+  let dateDiff = '';
+  const diff = currendate - date;
+  let total = 0;
+  if (diff < 1000) {
+    dateDiff = '0 seconds';
+  } else if (diff < 60000) {
+    total = Math.floor(diff / 1000);
+    dateDiff = total + ' second';
+  } else if (diff < 3600000 ) {
+    total = Math.floor(diff / 60000);
+    dateDiff = total + ' minute';
+  } else if (diff < 86400000 ) {
+    total = Math.floor(diff / 3600000);
+    dateDiff = total + ' hour';
+  } else {
+    total = Math.floor(diff / 86400000);
+    dateDiff =  total + ' day';
+  }
+  return message + dateDiff + (total > 1 ? 's' : '') + ' ago';
+}

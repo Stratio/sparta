@@ -13,6 +13,7 @@ import * as fromDebug from './debug';
 import * as fromExternalData from './externalData';
 
 import { WizardEdge, WizardNode } from '@app/wizard/models/node';
+import { WizardAnnotation } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.model';
 
 export interface WizardState {
   wizard: fromWizard.State;
@@ -253,3 +254,69 @@ export const getParameters = createSelector(getExternalDataState, state => ({
   environmentVariables: state.environmentVariables,
   customGroups: state.customGroups
 }));
+
+
+export const getActiveAnnotation = createSelector(getWizardState, state => state.activeAnnotation);
+export const getCreateNote = createSelector(getEntitiesState, state => state.createNote);
+
+/** Annotations selectors */
+
+export const getAnnotations = createSelector(getWizardState, state => state.annotations);
+export const getCreatedAnnotation = createSelector(getWizardState, state => state.createdAnnotation);
+export const showAnnotations = createSelector(getWizardState, state => state.showAnnotations);
+
+ export const getAnnotationsWithNumbers = createSelector(
+  getAnnotations,
+  annotations => annotations.map((annotation: WizardAnnotation, index: number): WizardAnnotation => ({
+    ...annotation,
+    number: index
+  })));
+
+ export const getAnnotationsWithTemporal = createSelector(
+  getAnnotationsWithNumbers,
+  getCreatedAnnotation,
+  showAnnotations,
+  (annotations, createdAnnotation, isShowedAnnoteations) => isShowedAnnoteations ? [...annotations, {
+    ...createdAnnotation,
+    number: annotations.length
+  }] : []
+);
+
+
+ export const getNodeAnnotationsMap = createSelector(
+  getAnnotationsWithTemporal,
+  (annotations: Array<WizardAnnotation>) => annotations
+    .filter(annotation => annotation.stepName && annotation.stepName.length)
+    .reduce(function (map, obj) {
+      map[obj.stepName] = obj;
+      return map;
+    }, {}));
+
+ export const getEdgeAnnotationsMap = createSelector(
+  getAnnotationsWithTemporal,
+  (annotations: Array<WizardAnnotation>) => annotations
+    .filter(annotation => annotation.edge)
+    .reduce(function (map, obj) {
+      map[obj.edge.origin + '////' + obj.edge.destination] = obj;
+      return map;
+    }, {}));
+
+ export const getDraggableAnnotations = createSelector(
+  getAnnotationsWithTemporal,
+  (annotations: Array<WizardAnnotation>) => annotations.length ? annotations
+    .filter(annotation => annotation.position) : []
+);
+
+ export const getSelectedNodeAnnotations = createSelector(
+  getSelectedNodeData,
+  getAnnotationsWithNumbers,
+  (entityData: WizardNode, annotations: WizardAnnotation[]) => entityData ? annotations.filter(annotation => {
+    if (annotation.stepName && annotation.stepName === entityData.name) {
+      return true;
+    }
+    if (annotation.edge && (annotation.edge.origin === entityData.name || annotation.edge.destination === entityData.name)) {
+      return true;
+    }
+    return false;
+  }) : null
+);

@@ -1,0 +1,67 @@
+<sp-popover class="popover"
+  [style.top.px]="position.y"
+  [style.left.px]="position.x"
+  [ngClass]="{'showed': showed}"
+  [active]="true"
+  (activeChange)="activeChange.emit()">
+  <div popover-link>
+    <div class="popover__space"></div>
+  </div>
+  <div popover-content>
+    <div class="annotation">
+      <div class="palette" *ngIf="!annotation.messages.length">
+        <div class="palette__container">
+          <div *ngFor="let color of palette"
+            class="palette__color-border"
+            (click)="onChangeColor(color)"
+            [style.borderColor]="annotation.color === color ? color : 'transparent'">
+            <div class="palette__color" [style.backgroundColor]="color"></div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation__header" *ngIf="annotation.messages.length">
+        <div class="palette__color palette__color--right" [style.backgroundColor]="annotation.color"></div>
+      </div>
+      <div class="annotation__messages custom-scrollbar" #scrollBottom>
+        <ng-container *ngFor="let message of annotation.messages; let i = index;">
+          <div class="annotation__title"
+            *ngIf="i === 0 || annotation.messages[i - 1].author !== message.author"
+            [ngClass]="{'annotation__title--response' : annotation.author !== message.author}">
+            <span class="annotation__title-author">
+              {{message.author}}
+            </span>
+            <span class="annotation__title-time">
+              {{time[i]}}
+            </span>
+          </div>
+          <div class="annotation__message"
+            [ngClass]="{'annotation__message--response' : annotation.author !== message.author}"
+            [innerText]="message.text">
+           </div>
+        </ng-container>
+        <textarea #textareaNote
+          class="annotation__message"
+          autosize
+          *ngIf="!annotation.messages.length || replyActive"
+          [(ngModel)]="currentMessage"
+          placeholder="Type something"></textarea>
+      </div>
+      <div *ngIf="annotation.messages.length && !replyActive">
+        <button class="button button-primary small reply-button" (click)="reply()">Reply</button>
+        <button class="button delete-button"
+          (click)="deleteAnnotation.emit(annotation.number)">
+          <span class="icon-trash"></span>
+        </button>
+
+      </div>
+      <button *ngIf="!annotation.messages.length"
+        class="button button-primary post-button"
+        [disabled]="!currentMessage.length"
+        (click)="save()">Post</button>
+
+      <button *ngIf="annotation.messages.length && replyActive"
+        class="button button-primary small done-button" (click)="done()">Done</button>
+
+    </div>
+  </div>
+</sp-popover>

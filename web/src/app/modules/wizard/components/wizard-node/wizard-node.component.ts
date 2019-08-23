@@ -49,7 +49,6 @@ export class WizardNodeComponent implements OnInit {
     }
   }
 
-
   @Input() get selected(): boolean {
     return this._selectedNode;
   }
@@ -107,7 +106,7 @@ export class WizardNodeComponent implements OnInit {
   ngOnInit(): void {
     this._ngZone.runOutsideAngular(() => {
       const nodeElement = d3Select(this._el);
-      this._containerElement = nodeElement.select('.sparta-node-box');
+      this._containerElement = nodeElement.select('.node-content');
       this._containerElement.classed('active', this.selected);
 
       if (this.createdNew) {

@@ -13,7 +13,7 @@ export interface State {
 }
 
 const initialState: State = {
-    userName: '',
+    userName: 'Sparta',
     editFromMonitoring: false,
     xDSparkUi: '',
     timeout: 20
@@ -22,12 +22,13 @@ const initialState: State = {
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case userActions.GET_USER_PROFILE_COMPLETE: {
-            return {
-                ...state,
-                userName: action.payload.userName,
-                xDSparkUi: action.payload.xDSparkUi,
-                timeout: action.payload.timeout
-            };
+          const username = action.payload.userName;
+          return {
+              ...state,
+              userName: username && username.length ? username : 'Sparta',
+              xDSparkUi: action.payload.xDSparkUi,
+              timeout: action.payload.timeout
+          };
         }
         case userActions.SET_EDIT_MONITORING_MODE: {
             return {

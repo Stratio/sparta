@@ -5,10 +5,27 @@ $cloudy-black: #cdd6df;
     position:relative;
     z-index:7000;
     .loading-bar{
-        position:absolute;
-        z-index:7001;
-        bottom:0;
+      position:absolute;
+      z-index:1;
+      bottom:0;
     }
+}
+
+.header {
+  &__notes-button {
+    button {
+      position: relative;
+      padding-right: 20px;
+    }
+    .icon {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 10px;
+      font-size: 11px;
+    }
+  }
 }
 
 .header-container {

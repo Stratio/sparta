@@ -11,6 +11,7 @@ import * as wizardActions from './../actions/wizard';
 import { settingsTemplate } from 'data-templates/index';
 import { InitializeSchemaService } from 'app/services';
 import { WizardNode, WizardEdge, EdgeOption } from '@app/wizard/models/node';
+import { WizardAnnotation } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.model';
 
 export interface State {
   editionMode: boolean;
@@ -46,6 +47,10 @@ export interface State {
   isShowedCrossdataCatalog: boolean;
   edgeOptions: EdgeOption;
   debugFile: string;
+  createdAnnotation: WizardAnnotation;
+  activeAnnotation: WizardAnnotation;
+  annotations: Array<WizardAnnotation>;
+  showAnnotations: boolean;
 }
 
 const initialState: State = {
@@ -89,7 +94,11 @@ const initialState: State = {
     clientY: 0,
     active: false
   },
-  debugFile: undefined
+  debugFile: undefined,
+  createdAnnotation: null,
+  activeAnnotation: null,
+  annotations: [],
+  showAnnotations: true
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -195,6 +204,10 @@ export function reducer(state: State = initialState, action: any): State {
         pristineWorkflow: false,
         selectedEdge: null,
         redoStates: [],
+        annotations: state.annotations.filter(annotation =>
+          !annotation.edge ||
+          annotation.edge.origin !== action.payload.origin ||
+          annotation.edge.destination !== action.payload.destination),
         edgeOptions: {
           active: false
         }
@@ -208,6 +221,18 @@ export function reducer(state: State = initialState, action: any): State {
         pristineWorkflow: false,
         edges: state.edges.filter((edge: any) => state.selectedEntities.indexOf(edge.origin) === -1 && state.selectedEntities.indexOf(edge.destination) === -1),
         undoStates: getUndoState(state),
+        annotations: state.annotations.filter(annotation => {
+          if (annotation.position) {
+            return true;
+          }
+          if (annotation.stepName && state.selectedEntities.includes(annotation.stepName)) {
+            return false;
+          }
+          if (annotation.edge && (state.selectedEntities.includes(annotation.edge.origin) || state.selectedEntities.includes(annotation.edge.destination))) {
+            return false;
+          }
+          return true;
+        }),
         redoStates: []
       };
     }
@@ -217,7 +242,8 @@ export function reducer(state: State = initialState, action: any): State {
         debugFile: undefined,
         editionConfig: true,
         editionConfigType: action.payload,
-        editionSaved: false
+        editionSaved: false,
+        activeAnnotation: null
       };
     }
     case wizardActions.HIDE_EDITOR_CONFIG: {
@@ -238,13 +264,24 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.SAVE_WORKFLOW_POSITIONS: {
       return {
         ...state,
-        nodes: action.payload
+        nodes: action.payload,
+        activeAnnotation: null,
+        createdAnnotation: null
       };
     }
     case wizardActions.SAVE_EDITOR_POSITION: {
       return {
         ...state,
-        svgPosition: action.payload
+        svgPosition: action.payload,
+        pristineWorkflow: false,
+        activeAnnotation: null,
+        createdAnnotation: null
+      };
+    }
+    case  wizardActions.DESELECTED_CREATION_ENTITY: {
+      return {
+        ...state,
+        createdAnnotation: null
       };
     }
     case wizardActions.SAVE_ENTITY_COMPLETE: {
@@ -328,7 +365,8 @@ export function reducer(state: State = initialState, action: any): State {
             tags: workflow.tags
           },
           advancedSettings: workflow.settings
-        }
+        },
+        annotations: workflow.pipelineGraph.annotations || []
       };
     }
     case wizardActions.SAVE_WORKFLOW: {
@@ -374,6 +412,7 @@ export function reducer(state: State = initialState, action: any): State {
           ...state,
           nodes: _cloneDeep(undoState.nodes),
           edges: _cloneDeep(undoState.edges),
+          annotations: _cloneDeep(undoState.annotations),
           redoStates: getRedoState(state),
           undoStates: state.undoStates.slice(1)
         };
@@ -394,6 +433,7 @@ export function reducer(state: State = initialState, action: any): State {
           ...state,
           nodes: _cloneDeep(redoState.nodes),
           edges: _cloneDeep(redoState.edges),
+          annotations: _cloneDeep(redoState.annotations),
           undoStates: getUndoState(state),
           redoStates: state.redoStates.slice(1)
         };
@@ -446,7 +486,8 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.SHOW_SETTINGS: {
       return {
         ...state,
-        showSettings: true
+        showSettings: true,
+        activeAnnotation: null
       };
     }
     case wizardActions.HIDE_SETTINGS: {
@@ -524,6 +565,89 @@ export function reducer(state: State = initialState, action: any): State {
         selectedEntities: action.payload.nodes.map(pastedNodes => pastedNodes.name)
       };
     }
+    case wizardActions.SET_ACTIVE_ANNOTATION: {
+      return {
+        ...state,
+        activeAnnotation: action.annotation
+      };
+    }
+    case wizardActions.CONFIG_NOTE: {
+      const annotation = action.annotation;
+      let repeated = false;
+      // prevent two annotations on the same step or edge
+      if (annotation.stepName) {
+        repeated = !!state.annotations.find(note => note.stepName && note.stepName === annotation.stepName);
+      } else if (annotation.edge) {
+        repeated = !!state.annotations.find(note =>
+          note.edge &&
+          note.edge.origin === annotation.edge.origin &&
+          note.edge.destination === annotation.edge.destination);
+      }
+      return {
+        ...state,
+        createdAnnotation: repeated ? null : action.annotation
+      };
+    }
+    case wizardActions.CREATE_NOTE: {
+      return {
+        ...state,
+        activeAnnotation: null,
+        createdAnnotation: null,
+        undoStates: getUndoState(state),
+        pristineWorkflow: false,
+        annotations: [...state.annotations, {
+          ...state.createdAnnotation,
+          color: action.color,
+          openOnCreate: false,
+          messages: [action.message]
+        }]
+      };
+    }
+    case wizardActions.CHANGE_CREATE_COLOR: {
+      return {
+        ...state,
+        createdAnnotation: {
+          ...state.createdAnnotation,
+          color: action.color
+        }
+      };
+    }
+    case wizardActions.POST_NOTE_MESSAGE: {
+      return {
+        ...state,
+        activeAnnotation: null,
+        pristineWorkflow: false,
+        annotations: state.annotations.map((annotation, index) => index === action.number ? {
+          ...annotation,
+          messages: [...annotation.messages, action.message]
+        } : annotation)
+      };
+    }
+    case wizardActions.UPDATE_DRAGGABLE_TIP_POSITION: {
+      return {
+        ...state,
+        pristineWorkflow: false,
+        annotations: state.annotations.map((annotation, index) => index === action.number ? {
+          ...annotation,
+          position: action.position
+        } : annotation)
+      };
+    }
+    case wizardActions.DELETE_ANNOTATION: {
+      return {
+        ...state,
+        undoStates: getUndoState(state),
+        pristineWorkflow: false,
+        annotations: state.annotations.filter((annotation, index) => action.number !== index),
+        activeAnnotation: null
+      };
+    }
+    case wizardActions.TOGGLE_ANNOTATION_ACTIVATION: {
+      return {
+        ...state,
+        showAnnotations: !state.showAnnotations
+      };
+    }
     default:
       return state;
   }
@@ -532,7 +656,8 @@ export function reducer(state: State = initialState, action: any): State {
 function getUndoState(state: any) {
   const newUndoState = {
     nodes: _cloneDeep(state.nodes),
-    edges: _cloneDeep(state.edges)
+    edges: _cloneDeep(state.edges),
+    annotations: _cloneDeep(state.annotations)
   };
   return [newUndoState, ...state.undoStates.filter((value: any, index: number) => index < 4)];
 }
@@ -540,7 +665,8 @@ function getUndoState(state: any) {
 function getRedoState(state: any) {
   const newRedoState = {
     nodes: _cloneDeep(state.nodes),
-    edges: _cloneDeep(state.edges)
+    edges: _cloneDeep(state.edges),
+    annotations: _cloneDeep(state.annotations)
   };
   return [newRedoState, ...state.redoStates.filter((value: any, index: number) => index < 4)];
 }
@@ -548,7 +674,7 @@ function getRedoState(state: any) {
 export const getSelectedEntityData = (state: State) => {
   const editedEntity = state.selectedEntities[state.selectedEntities.length - 1];
   return editedEntity ?
-    state.nodes.find((node: any) => node.name === editedEntity) : undefined;
+    state.nodes.find((node: WizardNode) => node.name === editedEntity) : null;
 };
 
 export const getWorkflowHeaderData = (state: State) => ({

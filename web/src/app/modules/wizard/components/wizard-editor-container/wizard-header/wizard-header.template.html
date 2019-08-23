@@ -93,6 +93,20 @@
               -->
               </div>
             </div>
+            <menu-options-list class="header__notes-button"
+              [options]="annotationOptions"
+              topPosition="10" rightPosition="0"
+              (selectedOption)="onSelectNoteOption($event)">
+              <div id="create-node-menu" menu-action>
+                <button spTitle="Notes options"
+                  (mousedown)="getAnnotationOptions()"
+                  class="button button-toolbar"
+                  id="create-note">
+                  <i class="icon-message-circle"></i>
+                  <span class="icon icon-arrow2_down"></span>
+                </button>
+              </div>
+            </menu-options-list>
             <button spTitle="Show node info" [ngClass]="{'selected-button': isShowedEntityDetails$ | async, 'errors' : (!validations.valid && validations.messages && validations.messages.length) || genericError}"
               class="button button-toolbar" id="show-info-button" (click)="toggleEntityInfo()">
               <i class="icon-info1"></i>

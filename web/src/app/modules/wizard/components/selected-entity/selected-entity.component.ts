@@ -5,44 +5,61 @@
  */
 
 import {
-   ChangeDetectionStrategy,
-   ChangeDetectorRef,
-   Component,
-   ElementRef,
-   NgZone,
-   OnDestroy,
-   OnInit
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  Input,
+  AfterViewInit
 } from '@angular/core';
 
 @Component({
-   selector: 'selected-entity',
-   styleUrls: ['selected-entity.styles.scss'],
-   templateUrl: 'selected-entity.template.html',
-   changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'selected-entity',
+  styleUrls: ['selected-entity.component.scss'],
+  template: `<span [className]="icon && icon.length ? ('icon ' + icon) : 'square'"></span>`,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class SelectedEntityComponent implements OnInit, OnDestroy {
+export class WizardSelectedEntityComponent implements OnInit, AfterViewInit, OnDestroy {
 
+  @Input() icon: string;
 
-   private _nativeElement: HTMLElement;
+  private _nativeElement: HTMLElement;
 
-   constructor(private zone: NgZone, private _cd: ChangeDetectorRef, private _el: ElementRef) {
-      this._nativeElement = _el.nativeElement;
-   }
+  constructor(private zone: NgZone,
+    private _cd: ChangeDetectorRef,
+    private _renderer: Renderer2,
+    _el: ElementRef) {
+    this._nativeElement = _el.nativeElement;
+    this._mouseMove = this._mouseMove.bind(this);
+    this._mouseEnter = this._mouseEnter.bind(this);
+  }
 
-   ngOnInit(): void {
-      this._cd.detach();
-      this.zone.runOutsideAngular(() => {
-         this.mouseMove = this.mouseMove.bind(this);
-         window.document.addEventListener('mousemove', this.mouseMove);
-      });
-   }
+  ngOnInit(): void {
+    this.zone.runOutsideAngular(() => {
+      document.addEventListener('mousemove', this._mouseMove);
+      document.addEventListener('mouseenter', this._mouseEnter, false);
+    });
+  }
 
-   mouseMove(event: any): void {
-      this._nativeElement.style.cssText = `transform: translate(${event.clientX}px,${event.clientY}px)`;
-   }
+  ngAfterViewInit(): void {
+    this._cd.detach();
+  }
 
-   ngOnDestroy(): void {
-      window.document.removeEventListener('mousemove', this.mouseMove, false);
-   }
+  private _mouseMove(event: MouseEvent): void {
+    this._renderer.setStyle(this._nativeElement, 'transform', `translate(${event.clientX}px,${event.clientY}px`);
+  }
+
+  private _mouseEnter(event: MouseEvent): void {
+    document.removeEventListener('mouseenter', this._mouseEnter, false);
+    this._mouseMove(event);
+  }
+
+  ngOnDestroy(): void {
+    document.removeEventListener('mousemove', this._mouseMove, false);
+  }
 }

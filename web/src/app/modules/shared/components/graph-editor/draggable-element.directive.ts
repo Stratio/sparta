@@ -10,17 +10,15 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  NgZone,
   OnInit,
   Output,
-  OnDestroy
+  OnDestroy,
+  Renderer2
 } from '@angular/core';
-import * as d3 from 'd3';
 
 import { event as d3Event } from 'd3-selection';
 import { drag as d3Drag } from 'd3-drag';
 import { select as d3Select } from 'd3-selection';
-
 import { DraggableElementPosition } from './graph-editor.models';
 
 const selectedDraggableElements = {};
@@ -41,29 +39,34 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
   set selected(value: boolean) {
     if (this._draggableGroup) {
       if (value) {
-        this._draggableGroup.set(this, this);
+        this._draggableGroup.set(this._draggableSymbol, this);
       } else {
-        this._draggableGroup.delete(this);
+        this._draggableGroup.delete(this._draggableSymbol);
       }
     }
-
     this._selected = value;
   }
 
   @Output() positionChange = new EventEmitter<DraggableElementPosition>();
-  @Output() onClickEvent = new EventEmitter();
-  @Output() onDoubleClickEvent = new EventEmitter();
-  @Output() setEditorDirty = new EventEmitter();
+  @Output() onFinishPositionChange = new EventEmitter<DraggableElementPosition>();
+  @Output() onClickEvent = new EventEmitter<any>();
+  @Output() onDoubleClickEvent = new EventEmitter<any>();
+  @Output() setEditorDirty = new EventEmitter<void>();
 
   private _clicks = 0;
-  private _element: d3.Selection<any>;
-  private _lastUpdateCall: number;
+  private _element: any;
+  private _nativeElement: SVGElement;
 
   private _selected: boolean;
-  private _draggableGroup: Map<any, any>;
+  private _draggableGroup: Map<Symbol, DraggableElementDirective>;
+  /* Key of the map instance */
+  private _draggableSymbol = Symbol();
+  private _initialPosition: { x: number, y: number };
 
-  constructor(private elementRef: ElementRef<SVGElement>, private _ngZone: NgZone) {
-    this._element = d3Select(this.elementRef.nativeElement);
+  constructor(_elementRef: ElementRef<SVGElement>,
+    private _renderer: Renderer2) {
+    this._nativeElement = _elementRef.nativeElement;
+    this._element = d3Select(_elementRef.nativeElement);
     this._setPosition = this._setPosition.bind(this);
   }
 
@@ -74,73 +77,83 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
     }
     this._draggableGroup = selectedDraggableElements[this.draggableGroupName];
     if (this._selected) {
-      this._draggableGroup.set(this, this);
+      this._draggableGroup.set(this._draggableSymbol, this);
     } else {
-      this._draggableGroup.delete(this);
+      this._draggableGroup.delete(this._draggableSymbol);
     }
-    this._setPosition();
+    this._setPosition(this.position);
   }
 
   ngAfterContentInit() {
     this._element.on('click', this._onClick.bind(this));
+    let firstDrag = true;
     if (!this.readonlyMode) {
       this._element.call(d3Drag()
-        .on('drag', this._onDrag.bind(this))
         .on('start', () => {
           d3Event.sourceEvent.stopPropagation();
-          this.setEditorDirty.emit();
           document.body.classList.add('dragging');
-        }).on('end', () => document.body.classList.remove('dragging')));
+          this._initialPosition = this.position;
+        })
+        .on('drag', () => {
+          if (firstDrag) {
+            this.setEditorDirty.emit();
+            firstDrag = false;
+          }
+          this._onDrag.call(this);
+        })
+        .on('end', () => {
+          if (this.position !== this._initialPosition) {
+            this.onFinishPositionChange.emit(this.position);
+          }
+          document.body.classList.remove('dragging');
+          firstDrag = true;
+        }));
     }
   }
 
   ngOnDestroy(): void {
-    this._draggableGroup.delete(this);
+    this._draggableGroup.delete(this._draggableSymbol);
   }
-  /** lifecycle methods */
+  /** end lifecycle methods */
 
-  private _onDrag(e) {
+  private _onDrag() {
     const event = d3Event;
     event.sourceEvent.preventDefault();
     if (this.selected) {
       this._draggableGroup.forEach(ref => {
         ref._dragmove(event);
       });
-     } else {
+    } else {
       this._dragmove(event);
     }
   }
 
-  private _dragmove(event) {
+  private _dragmove(event): void {
     this.position = {
       x: this.position.x + event.dx,
       y: this.position.y + event.dy
     };
-    if (this._lastUpdateCall) {
-      cancelAnimationFrame(this._lastUpdateCall);
-      this._lastUpdateCall = null;
-    }
-    this.positionChange.emit(this.position);
-    this._lastUpdateCall = requestAnimationFrame(this._setPosition);
+    const pos: DraggableElementPosition = this.position;
+    this.positionChange.emit(pos);
+    this._setPosition(pos);
   }
 
-  private _setPosition() {
-    const value = `translate(${this.position.x},${this.position.y})`;
-    this._element.attr('transform', value);
+  private _setPosition(position: DraggableElementPosition): void {
+    const value = `translate(${position.x},${position.y})`;
+    this._renderer.setAttribute(this._nativeElement, 'transform', value);
   }
 
-  private _onClick() {
+  private _onClick(): void {
     d3Event.stopPropagation();
     this._clicks++;
     if (this._clicks === 1) {
-      this.onClickEvent.emit();
+      this.onClickEvent.emit(d3Event);
       setTimeout(() => {
         if (this._clicks !== 1) {
-          this.onDoubleClickEvent.emit();
+          this.onDoubleClickEvent.emit(d3Event);
         }
         this._clicks = 0;
       }, 200);
     }
-
   }
 }
