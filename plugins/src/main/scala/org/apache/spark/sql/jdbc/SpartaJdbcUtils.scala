@@ -534,9 +534,10 @@ object SpartaJdbcUtils extends SLF4JLogging {
               if (supportsTransactions) conn.commit()
             } catch {
               case e: SQLException =>
-                if (supportsTransactions && !conn.getAutoCommit)
+                if (supportsTransactions && !conn.getAutoCommit) {
                   log.warn(s"Transaction ${TransactionTypes.SINGLE_STATEMENT} on table ${properties.table} not succeeded, rollback it")
-                conn.rollback()
+                  conn.rollback()
+                }
                 if (txSaveMode.failFast)
                   throw e
                 else
@@ -1177,9 +1178,10 @@ object SpartaJdbcUtils extends SLF4JLogging {
               if (supportsTransactions) conn.commit()
             } catch {
               case e: SQLException =>
-                if (supportsTransactions && !conn.getAutoCommit)
+                if (supportsTransactions && !conn.getAutoCommit) {
                   log.warn(s"Delete ${TransactionTypes.SINGLE_STATEMENT} on table ${properties.table} not succeeded, rollback it")
-                conn.rollback()
+                  conn.rollback()
+                }
                 if (txSaveMode.failFast)
                   throw e
                 else
