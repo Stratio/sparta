@@ -162,7 +162,6 @@ abstract class CaseTransformStep[Underlying[Row]](
               }
               val colWithAlias = colOther.alias(columnName)
               val newDf = df.withColumn(columnName, colWithAlias)
-              newDf.rdd.foreach(row => println(row.toString()))
               newDf
             }
           }
