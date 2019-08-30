@@ -20,6 +20,7 @@ import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.models.MetadataPath
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
 import com.stratio.sparta.serving.core.helpers.GraphHelper.createGraph
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -54,7 +55,9 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
     .getOrElse("v1/quality/quality/searchByMetadataPathLike?metadataPathLike=")
   lazy val getXDEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.get.crossdata.endpoint"))
     .getOrElse("v1/quality/quality/searchFederationByMetadataPathLike?metadataPathLike=")
-  lazy val rawHeaders = Seq(RawHeader("X-TenantID", LineageUtils.currentTenant.getOrElse("NONE")))
+  lazy val noTenant = Some("NONE")
+  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
+  lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))
 
   override def receive: Receive = {
     case RetrieveQualityRules(workflow) =>
@@ -209,7 +212,7 @@ object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSeria
 
   def retrievePredecessorsMetadataPaths(graphOutputPredecessorsWithTableNameAndProperties: Seq[(String, (String, String, Map[String, String]))],
                                         workflow: Workflow): Seq[Map[String, (String, String)]] =
-  // Step, Out, Metadata0
+  // Step, Out, Metadata
   {
     graphOutputPredecessorsWithTableNameAndProperties
       .filter { case ((_, (_, nodePrettyName, _))) => AllowedDataGovernanceOutputs.contains(nodePrettyName) }

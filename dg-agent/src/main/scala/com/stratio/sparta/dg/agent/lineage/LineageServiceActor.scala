@@ -16,6 +16,7 @@ import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.models.LineageWorkflow
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangeListenerActor.OnExecutionStatusesChangeDo
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import com.stratio.sparta.serving.core.utils.{HttpRequestUtils, SpartaClusterUtils}
@@ -45,7 +46,11 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
   lazy val getEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("lineage.http.get.endpoint"))
     .getOrElse("v1/lineage/actor/searchByTransactionId?transactionId=")
 
-  lazy val rawHeaders = Seq(RawHeader("X-TenantID", LineageUtils.currentTenant.getOrElse("NONE")))
+  lazy val actorTypeKey = "SPARTA"
+
+  lazy val noTenant = Some("NONE")
+  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
+  lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))
 
   override def preStart(): Unit = {
     extractStatusChanges()

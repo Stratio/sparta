@@ -44,10 +44,10 @@ object LineageUtils extends ContextBuilderImplicits {
   val UrlKey = "link"
   val PublicSchema = "public"
   val ActorTypeKey = "SPARTA"
-  val NoTenant = Some("NONE")
+  lazy val noTenant = Some("NONE")
+  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
 
   lazy val spartaVHost = AppConstant.virtualHost.getOrElse("localhost")
-  lazy val currentTenant = AppConstant.EosTenant.orElse(NoTenant)
 
 
   def checkIfProcessableWorkflow(executionStatusChange: WorkflowExecutionStatusChange): Boolean = {
@@ -158,7 +158,7 @@ object LineageUtils extends ContextBuilderImplicits {
             `type` = mapSparta2GovernanceStepType(stepType),
             metaDataPath = metaDataPath,
             dataStoreType = mapSparta2GovernanceDataStoreType(dataStoreType),
-            tenant = currentTenant,
+            tenant = current_tenant,
             properties = Map.empty
           )
         }
@@ -168,7 +168,7 @@ object LineageUtils extends ContextBuilderImplicits {
         id = -1,
         name = workflow.name,
         description = workflow.description,
-        tenant = currentTenant,
+        tenant = current_tenant,
         properties = executionProperties,
         transactionId = executionId,
         actorType = ActorTypeKey,

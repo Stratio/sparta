@@ -11,6 +11,6 @@ import java.nio.charset.Charset
 trait CsvBase {
 
   def isCharsetSupported (name: String): Boolean = {
-    return Charset.availableCharsets().keySet().contains(name)
+    Charset.availableCharsets().keySet().contains(name)
   }
 }
