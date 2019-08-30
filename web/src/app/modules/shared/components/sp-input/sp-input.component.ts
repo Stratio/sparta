@@ -176,6 +176,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
     }
     this._internalInputModel = value;
     this._value = value;
+
     if (this._internalInputModel !== value && this.value !== value) {
       setTimeout(() => this.internalControl.setValue(value));
     }
@@ -197,6 +198,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
       this.internalControl.disable();
     } else if (!this.disabled && this.internalControl && this.internalControl.disabled) {
       this.internalControl.enable();
+      setTimeout(() => this.internalControl.setValue(this.value));
     }
     this._cd.markForCheck();
   }

@@ -6,7 +6,8 @@
 
 import { Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef, OnDestroy, OnChanges } from '@angular/core';
 import { ControlValueAccessor, FormGroup, FormControl, NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'form-generator',
@@ -45,6 +46,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
   public formDataValues: any = [];
   public categories = [];
 
+  private _componentDestroyed = new Subject();
 
   writeValue(value: any): void {
     if (value) {
@@ -94,6 +96,12 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
           formControl: formControl,
           field: prop
         });
+
+        formControl.statusChanges.pipe(takeUntil(this._componentDestroyed)).subscribe(status => {
+          if (status === 'DISABLED' && formControl.value === null) {
+            formControl.setValue(prop.default);
+          }
+        });
       }
     }
   }
@@ -102,6 +110,8 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     if (this.stFormGroupSubcription) {
       this.stFormGroupSubcription.unsubscribe();
     }
+    this._componentDestroyed.next();
+    this._componentDestroyed.unsubscribe();
   }
 
   setDisabledState(isDisabled: boolean) {
