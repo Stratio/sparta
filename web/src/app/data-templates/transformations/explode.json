@@ -87,40 +87,6 @@
                "qa": "fragment-details-field-query"
             }
          ]
-      },
-      {
-         "propertyId": "whenRowError",
-         "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
-         "propertyType": "select",
-         "values": [
-            {
-               "label": "Error",
-               "value": "RowError"
-            },
-            {
-               "label": "Discard",
-               "value": "RowDiscard"
-            }
-         ],
-         "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
-         "qa": "workflow-transformation-whenRowError"
-      },
-      {
-         "propertyId": "whenFieldError",
-         "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
-         "propertyType": "select",
-         "values": [
-            {
-               "label": "Error",
-               "value": "FieldError"
-            },
-            {
-               "label": "Null",
-               "value": "Null"
-            }
-         ],
-         "tooltip": "Specifies which policy to follow when a field-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Null' is chosen, no error will be prompted and the field value will be set to null.",
-         "qa": "workflow-transformation-whenFieldError"
       }
    ]
 }

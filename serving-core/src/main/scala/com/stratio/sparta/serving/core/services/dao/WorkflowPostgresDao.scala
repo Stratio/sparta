@@ -161,10 +161,15 @@ class WorkflowPostgresDao extends WorkflowDao {
     }).flatMap(f => f)
   }
 
-  def rename(workflowRename: WorkflowRename) = Try {
+  def rename(workflowRename: WorkflowRename): Future[Seq[Workflow]] = {
     log.debug(s"Renaming workflow versions for group: ${workflowRename.groupId} and name: ${workflowRename.oldName}")
     (for {
-      oldWorkflow <- db.run(table.filter(w => w.name === workflowRename.oldName && w.groupId.isDefined && w.groupId === workflowRename.groupId).result)
+      exists <- db.run(table.filter(w => w.name === workflowRename.newName && w.groupId === workflowRename.groupId).result)
+      oldWorkflow <- {
+        if (exists.nonEmpty)
+          throw ServerException("Right now exists a workflow with the new name in the destination folder")
+        else db.run(table.filter(w => w.name === workflowRename.oldName && w.groupId.isDefined && w.groupId === workflowRename.groupId).result)
+      }
       _ <- db.run(DBIO.sequence(oldWorkflow.map(w =>
         table.filter(_.id === w.id.get).map(_.name).update(workflowRename.newName))).transactionally) //Update after filter by id
     } yield {
