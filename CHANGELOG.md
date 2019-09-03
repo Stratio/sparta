@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.11.0 (upcoming)
+Improvements and new features:
+    - @TODO
+    - @TODO
+
+
 ## 2.10.0 (upcoming)
 Improvements and new features:
     - @TODO
