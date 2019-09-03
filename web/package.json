@@ -41,6 +41,7 @@
     "@ngx-translate/core": "10.0.2",
     "@ngx-translate/http-loader": "3.0.1",
     "@stratio/egeo": "13.4.0",
+    "@tweenjs/tween.js": "^18.1.2",
     "@types/tween.js": "^16.6.1",
     "@types/underscore": "^1.8.7",
     "codemirror": "^5.31.0",
