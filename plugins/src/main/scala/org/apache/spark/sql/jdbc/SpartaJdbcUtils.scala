@@ -121,14 +121,17 @@ object SpartaJdbcUtils extends SLF4JLogging {
       conn.setAutoCommit(true)
       val statement = conn.createStatement
       val tableToTruncate = tableName.getOrElse(connectionProperties.table)
-      Try(statement.executeUpdate(s"TRUNCATE TABLE $tableToTruncate")) match {
-        case Success(_) =>
-          log.debug(s"Table $tableToTruncate has been properly truncated")
-          statement.close()
-        case Failure(e) =>
-          statement.close()
-          log.error(s"Error truncating table $tableToTruncate ${e.getLocalizedMessage} and output $outputName", e)
-          throw e
+
+      if (spartaTableExists(conn, connectionProperties)) {
+        Try(statement.executeUpdate(s"TRUNCATE TABLE $tableToTruncate")) match {
+          case Success(_) =>
+            log.debug(s"Table $tableToTruncate has been properly truncated")
+            statement.close()
+          case Failure(e) =>
+            statement.close()
+            log.error(s"Error truncating table $tableToTruncate ${e.getLocalizedMessage} and output $outputName", e)
+            throw e
+        }
       }
     }
   }
