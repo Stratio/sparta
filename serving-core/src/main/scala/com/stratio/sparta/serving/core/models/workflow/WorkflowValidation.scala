@@ -21,8 +21,13 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngin
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.services.dao.WorkflowPostgresDao
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.dstream.DStream
+
+import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 import scala.util.Try
 import scalax.collection.Graph
@@ -165,24 +170,14 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
   }
 
   def validatePlugins(implicit workflow: Workflow): WorkflowValidation = {
+    val plugins = WorkflowHelper.localWorkflowPlugins(workflow)
+    val errorManager = PostgresNotificationManagerImpl(workflow)
     val pluginsValidations = if (workflow.executionEngine == Streaming) {
-      val plugins = {
-        if(workflowHasPlugins)
-          JarsHelper.localUserPluginJars(workflow)
-        else Seq.empty
-      }
-      val errorManager = PostgresNotificationManagerImpl(workflow)
       val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else if (workflow.executionEngine == Batch) {
-      val plugins = {
-        if(workflowHasPlugins)
-          JarsHelper.localUserPluginJars(workflow)
-        else Seq.empty
-      }
-      val errorManager = PostgresNotificationManagerImpl(workflow)
-      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager, plugins)
+      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else Seq.empty
@@ -425,7 +420,4 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
 
   case class InvalidMessage(nodeName: String, relationType: String)
 
-  private def workflowHasPlugins(implicit workflow: Workflow) : Boolean =
-    workflow.settings.global.addAllUploadedPlugins || workflow.settings.global.userPluginsJars.nonEmpty
-  
 }

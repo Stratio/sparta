@@ -9,13 +9,16 @@ import java.io.Serializable
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.utils.ClasspathUtils
-import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
-import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowExecution}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Properties, Success, Try}
 
 object WorkflowHelper extends SLF4JLogging {
@@ -138,4 +141,26 @@ object WorkflowHelper extends SLF4JLogging {
     val calicoNetwork = Properties.envOrNone(CalicoNetworkEnv).notBlank
     if (calicoEnabled.isDefined && calicoEnabled.get.equals("true") && calicoNetwork.isDefined) true else false
   }
+
+  def workflowHasPlugins(workflow: Workflow): Boolean =
+    workflow.settings.global.addAllUploadedPlugins || workflow.settings.global.userPluginsJars.nonEmpty
+
+  def localWorkflowPlugins(workflow: Workflow): Seq[String] = {
+    if (WorkflowHelper.workflowHasPlugins(workflow)) {
+      val loadTimeout = AppConstant.DefaultApiTimeout / 2
+      Try {
+        Await.result(
+          awaitable = Future {
+            JarsHelper.localUserPluginJars(workflow)
+          },
+          atMost = loadTimeout seconds
+        )
+      }.getOrElse {
+        log.warn(s"The workflow has plugins configured and the HDFS client generates a timeout exception" +
+          s" after $loadTimeout seconds. Please review the HDFS connection.")
+        Seq.empty[String]
+      }
+    } else Seq.empty[String]
+  }
+
 }

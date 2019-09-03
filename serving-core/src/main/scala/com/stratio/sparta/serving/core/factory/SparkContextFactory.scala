@@ -115,7 +115,9 @@ object SparkContextFactory extends SLF4JLogging {
               new File(getClass.getResource(refFile).getPath)
           }
 
-          JarsHelper.addJdbcDriversToClassPath()
+          if (!withStandAloneExtraConf) {
+            JarsHelper.addJdbcDriversToClassPath()
+          }
 
           sc match {
             case Some(sparkContext) =>

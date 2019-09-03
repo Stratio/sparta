@@ -123,7 +123,7 @@ This software – including all its source code – contains proprietary informa
         <akka-kryo.version>0.5.0</akka-kryo.version>
         <leveldb.version>0.7</leveldb.version>
         <leveldbjni.version>1.8</leveldbjni.version>
-        <slick.version>3.3.0</slick.version>
+        <slick.version>3.3.1</slick.version>
         <junit.version>4.12</junit.version>
         <ignite.version>2.6.0</ignite.version>
         <license.header>LICENSE.txt</license.header>

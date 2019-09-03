@@ -15,7 +15,7 @@ import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
-import com.stratio.sparta.serving.core.helpers.JarsHelper
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
@@ -37,7 +37,7 @@ class LocalLauncherActor() extends Actor with SLF4JLogging {
         ExecutionStatus(
           state = NotStarted
         )))
-      val jars = JarsHelper.localUserPluginJars(workflow)
+      val jars = WorkflowHelper.localWorkflowPlugins(workflow)
       val startedInformation = s"Starting workflow in local mode"
       log.info(startedInformation)
       executionService.updateStatus(ExecutionStatusUpdate(
