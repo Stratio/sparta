@@ -20,48 +20,6 @@ declare module '*';
 // Definitions by: jordan <https://github.com/Amos47>, sunetos <https://github.com/sunetos>, jzarnikov <https://github.com/jzarnikov>, alexburner <https://github.com/alexburner>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-declare namespace TWEEN {
-    export function getAll(): Tween[];
-    export function removeAll(): void;
-    export function add(tween: Tween): void;
-    export function remove(tween: Tween): void;
-    export function update(time?: number, preserve?: boolean): boolean;
-    export function now(): number;
-
-    export class Tween {
-        constructor(object?: any, group?: Group);
-        to(properties: any, duration: number): Tween;
-        start(time?: number): Tween;
-        stop(): Tween;
-        end(): Tween;
-        stopChainedTweens(): Tween;
-        delay(amount: number): Tween;
-        repeat(times: number): Tween;
-        repeatDelay(times: number): Tween;
-        yoyo(enable: boolean): Tween;
-        easing(easing: (k: number) => number): Tween;
-        interpolation(interpolation: (v: number[], k: number) => number): Tween;
-        chain(...tweens: Tween[]): Tween;
-        onStart(callback: (object?: any) => void): Tween;
-        onStop(callback: (object?: any) => void): Tween;
-        onUpdate(callback: (object?: any) => void): Tween;
-        onComplete(callback: (object?: any) => void): Tween;
-        update(time: number): boolean;
-    }
-
-    export class Group {
-        constructor();
-        getAll(): Tween[];
-        removeAll(): void;
-        add(tween: Tween): void;
-        remove(tween: Tween): void;
-        update(time?: number, preserve?: boolean): boolean;
-    }
-
-    export var Easing: Easing;
-    export var Interpolation: Interpolation;
-}
-
 interface Easing {
     Linear: {
         None(k: number): number;
@@ -129,8 +87,4 @@ interface Interpolation {
         Factorial(n: number): number;
         CatmullRom(p0: number, p1: number, p2: number, p3: number, t: number): number;
     };
-}
-
-declare module "@tweenjs/tween.js" {
-    export = TWEEN;
 }
