@@ -13,27 +13,26 @@ import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
-import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.utils.Utils
 import com.stratio.sparta.core.workflow.step.{InputStep, OneTransactionOffsetManager}
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
-import com.stratio.sparta.plugin.enumerations.ConsumerStrategyEnum
 import com.stratio.sparta.plugin.enumerations.ConsumerStrategyEnum.ConsumerStrategyEnum
-import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper, SparkStepHelper}
+import com.stratio.sparta.plugin.enumerations.{ConsumerStrategyEnum, FieldsSchemaPolicy}
+import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
 import com.stratio.sparta.plugin.models.{TopicModel, TopicPartitionModel}
 import org.apache.kafka.clients.consumer.ConsumerConfig._
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
-import org.apache.kafka.common.serialization._
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.kafka010.{HasOffsetRanges, _}
 import org.json4s.jackson.Serialization._
-import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.Try
 
@@ -52,8 +51,11 @@ class KafkaInputStepStreaming(
   lazy val consumerPollMsKey = "spark.streaming.kafka.consumer.poll.ms"
   lazy val maxRatePerPartitionKey = "spark.streaming.kafka.maxRatePerPartition"
 
-  var inputData : Option[Any] = None
-  lazy val outputField = properties.getString("outputField", DefaultRawDataField)
+  var inputData: Option[Any] = None
+  lazy val keyOutputField = properties.getString("keyOutputField", "key")
+  lazy val valueOutputField = properties.getString("outputField", "value")
+  lazy val fieldsSchemaPolicy = Try(FieldsSchemaPolicy.withName(properties.getString("fieldsSchemaPolicy", "Value")))
+    .getOrElse(FieldsSchemaPolicy.VALUE)
   lazy val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
   lazy val tlsSchemaRegistryEnabled = Try(properties.getString("tlsSchemaRegistryEnabled", "false").toBoolean).getOrElse(false)
   lazy val brokerList = getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG)
@@ -166,15 +168,52 @@ class KafkaInputStepStreaming(
       partitionStrategy ++ kafkaSecurityOptions ++ consumerProperties
     val strategy = consumerStrategy match {
       case ConsumerStrategyEnum.ASSIGN =>
-        ConsumerStrategies.Assign[String, Row](topicPartitions, kafkaConsumerParams, offsets)
+        ConsumerStrategies.Assign[Row, Row](topicPartitions, kafkaConsumerParams, offsets)
       case _ =>
-        ConsumerStrategies.Subscribe[String, Row](topics, kafkaConsumerParams, offsets)
+        ConsumerStrategies.Subscribe[Row, Row](topics, kafkaConsumerParams, offsets)
     }
-    val inputDStream = KafkaUtils.createDirectStream[String, Row](ssc.get, locationStrategy, strategy)
+    val inputDStream = KafkaUtils.createDirectStream[Row, Row](ssc.get, locationStrategy, strategy)
     inputData = Option(inputDStream)
     val outputDStream = inputDStream.transform { rdd =>
-      val newRdd = rdd.map(data => data.value())
-      val schema = SchemaHelper.getSchemaFromSessionOrRdd(xDSession, name, newRdd)
+      val (newRdd, schema) = fieldsSchemaPolicy match {
+        case FieldsSchemaPolicy.VALUE =>
+          val valueRdd = rdd.map(data => data.value())
+          (valueRdd, SchemaHelper.getSchemaFromSessionOrRdd(xDSession, name, valueRdd))
+        case FieldsSchemaPolicy.KEY =>
+          val valueRdd = rdd.map(data => data.key())
+          (valueRdd, SchemaHelper.getSchemaFromSessionOrRdd(xDSession, name, valueRdd))
+        case FieldsSchemaPolicy.KEYVALUE =>
+          val valueRdd = rdd.map { data =>
+            val key = Option(data.key())
+            val value = Option(data.value())
+            val (values, fieldsSchema) = (key, value) match {
+              case (Some(k), Some(v)) =>
+                (k.toSeq ++ v.toSeq, k.schema.fields ++ v.schema.fields)
+              case (Some(k), None) =>
+                (k.toSeq, k.schema.fields)
+              case (None, Some(v)) =>
+                (v.toSeq, v.schema.fields)
+              case (None, None) =>
+                (Seq.empty[Any], Array.empty[StructField])
+            }
+
+            new GenericRowWithSchema(values.toArray, StructType(fieldsSchema)).asInstanceOf[Row]
+          }
+          (valueRdd, SchemaHelper.getSchemaFromSessionOrRdd(xDSession, name, valueRdd))
+        case FieldsSchemaPolicy.KEYVALUEEMBEDDED =>
+          val valueRdd = rdd.map { data =>
+            val key = Option(data.key())
+            val value = Option(data.value())
+            new GenericRowWithSchema(
+              Array(key, value).flatten,
+              StructType(Array(
+                key.map(k => StructField("key", k.schema)),
+                value.map(v => StructField("value", v.schema))
+              ).flatten)
+            ).asInstanceOf[Row]
+          }
+          (valueRdd, SchemaHelper.getSchemaFromSessionOrRdd(xDSession, name, valueRdd))
+      }
 
       schema.foreach(schema => xDSession.createDataFrame(newRdd, schema).createOrReplaceTempView(name))
       newRdd
@@ -187,15 +226,15 @@ class KafkaInputStepStreaming(
     if (
       executeOffsetCommit &&
         inputData.isDefined &&
-        inputData.get.isInstanceOf[InputDStream[ConsumerRecord[String, Row]]] &&
+        inputData.get.isInstanceOf[InputDStream[ConsumerRecord[Row, Row]]] &&
         inputData.get.isInstanceOf[CanCommitOffsets]
     ) {
-      val inputDStream = inputData.get.asInstanceOf[InputDStream[ConsumerRecord[String, Row]]]
+      val inputDStream = inputData.get.asInstanceOf[InputDStream[ConsumerRecord[Row, Row]]]
       inputDStream.foreachRDD { rdd =>
         rdd match {
           case offsets: HasOffsetRanges =>
             val offsetRanges = offsets.offsetRanges
-            Utils.retry(commitOffsetRetries, commitOffsetWait){
+            Utils.retry(commitOffsetRetries, commitOffsetWait) {
               inputDStream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges, new DisplayOffsetCommits)
             }
           case _ =>
@@ -280,27 +319,33 @@ class KafkaInputStepStreaming(
   /** SERIALIZERS **/
 
   //scalastyle:off
-  private[kafka] def
-  getSerializers = Map(
-    "key.deserializer" -> classOf[StringDeserializer],
+  private[kafka] def getSerializers = Map(
+    "key.deserializer" -> classOf[RowDeserializer],
     "value.deserializer" -> classOf[RowDeserializer]
   )
 
   private[kafka] def getRowSerializerProperties: Map[String, String] = {
+    val schemaRegistryUrl = properties.mapValues(_.toString).getString("value.deserializer.schema.registry.url", None)
+      .map(url => Map("key.deserializer.schema.registry.url" -> url, "value.deserializer.schema.registry.url" -> url))
+      .getOrElse(Map.empty)
     val inputDeserializerProperties = properties.mapValues(_.toString).filterKeys(key => key.contains("key.deserializer.") || key.contains("value.deserializer."))
-    val deserializerProperties = Map(
-      "value.deserializer.inputFormat" -> properties.getString("value.deserializer.inputFormat", "STRING"),
-      "value.deserializer.json.schema.fromRow" -> properties.getBoolean("value.deserializer.json.schema.fromRow", true).toString,
-      "value.deserializer.json.schema.inputMode" -> properties.getString("value.deserializer.json.schema.inputMode", "SPARKFORMAT"),
-      "value.deserializer.json.schema.provided" -> properties.getString("value.deserializer.json.schema.provided", ""),
-      "value.deserializer.avro.schema" -> properties.getString("value.deserializer.avro.schema", ""),
-      "value.deserializer.outputField" -> outputField
-    )
-    val allProperties = inputDeserializerProperties ++ deserializerProperties
+    val keyDeserializerProperties = deSerializerProperties("key") + ("key.deserializer.outputField" -> keyOutputField)
+    val valueDeserializerProperties = deSerializerProperties("value") + ("value.deserializer.outputField" -> valueOutputField)
+    val allProperties = inputDeserializerProperties ++ keyDeserializerProperties ++ valueDeserializerProperties ++ schemaRegistryUrl
 
-    allProperties.map{case (key, value) =>
+    allProperties.map { case (key, value) =>
       key.replaceAll(s"value.deserializer.", "").replaceAll(s"key.deserializer.", "") -> value
     } ++ allProperties
+  }
+
+  private[kafka] def deSerializerProperties(prefix: String): Map[String, String] = {
+    Map(
+      s"$prefix.deserializer.inputFormat" -> properties.getString(s"$prefix.deserializer.inputFormat", "STRING"),
+      s"$prefix.deserializer.json.schema.fromRow" -> properties.getBoolean(s"$prefix.deserializer.json.schema.fromRow", true).toString,
+      s"$prefix.deserializer.json.schema.inputMode" -> properties.getString(s"$prefix.deserializer.json.schema.inputMode", "SPARKFORMAT"),
+      s"$prefix.deserializer.json.schema.provided" -> properties.getString(s"$prefix.deserializer.json.schema.provided", ""),
+      s"$prefix.deserializer.avro.schema" -> properties.getString(s"$prefix.deserializer.avro.schema", "")
+    )
   }
 
   //scalastyle:on

@@ -20,14 +20,14 @@ class KafkaOutputStepTest extends TemporalSparkContext with Matchers {
 
   val mandatoryOptions: Map[String, Serializable] = Map(
     "bootstrap.servers" -> """[{"host":"localhost","port":"9092"}]""",
-    "key.serializer" -> "org.apache.kafka.common.serialization.StringSerializer",
+    "key.serializer" -> "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer",
     "value.serializer" -> "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer",
     "acks" -> "1",
     "batch.size" -> "200")
 
   val validProperties: Map[String, Serializable] = Map(
     "bootstrap.servers" -> """[{"host":"localhost","port":"9092"},{"host":"localhost2","port":"90922"}]""",
-    "key.serializer" -> "org.apache.kafka.common.serialization.StringSerializer",
+    "key.serializer" -> "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer",
     "value.serializer" -> "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer",
     "acks" -> "all",
     "batch.size" -> 200
@@ -46,7 +46,7 @@ class KafkaOutputStepTest extends TemporalSparkContext with Matchers {
     val options = kafkatest.mandatoryOptions
     options.size shouldBe 5
     options("bootstrap.servers") shouldBe "localhost:9092"
-    options("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
+    options("key.serializer") shouldBe "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer"
     options("value.serializer") shouldBe "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer"
     options("acks") shouldBe "1"
     options("batch.size") shouldBe "200"
@@ -58,7 +58,7 @@ class KafkaOutputStepTest extends TemporalSparkContext with Matchers {
 
     val options = kafkatest.mandatoryOptions
     options.size shouldBe 4
-    options("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
+    options("key.serializer") shouldBe "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer"
     options("value.serializer") shouldBe "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer"
     options("acks") shouldBe "1"
     options("batch.size") shouldBe "16384"
@@ -71,7 +71,7 @@ class KafkaOutputStepTest extends TemporalSparkContext with Matchers {
       kafkatest.mandatoryOptions ++ kafkatest.getCustomProperties )
     options.size shouldBe 5
     options.get("bootstrap.servers") shouldBe "localhost:9092"
-    options.get("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
+    options.get("key.serializer") shouldBe "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer"
     options.get("value.serializer") shouldBe "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer"
     options.get("acks") shouldBe "1"
     options.get("batch.size") shouldBe "200"

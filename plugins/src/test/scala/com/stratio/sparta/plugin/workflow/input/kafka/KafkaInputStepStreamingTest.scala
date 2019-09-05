@@ -91,33 +91,6 @@ class KafkaInputStepStreamingTest extends WordSpec with Matchers with MockitoSug
       result should be(Map.empty[TopicPartition, Long])
     }
 
-    "return row serializer properties" in {
-      val properties = Map("value.deserializer.inputFormat" -> "JSON",
-        "value.deserializer.json.schema.fromRow" -> "true",
-        "value.deserializer.json.schema.inputMode" -> "SPARKFORMAT",
-        "value.deserializer.json.schema.provided" -> "",
-        "value.deserializer.avro.schema" -> "",
-        "outputField" -> "rawTest",
-        "key.deserializer.json.foo" -> "var",
-        "test" -> "notinclude")
-      val input = new KafkaInputStepStreaming("name", outputOptions, Option(ssc), xdSession, properties)
-      val result = input.getRowSerializerProperties
-      result should be(Map("outputField" -> "rawTest",
-        "value.deserializer.outputField" -> "rawTest",
-        "value.deserializer.json.schema.inputMode" -> "SPARKFORMAT",
-        "value.deserializer.avro.schema" -> "",
-        "value.deserializer.inputFormat" -> "JSON",
-        "json.foo" -> "var",
-        "json.schema.fromRow" -> "true",
-        "key.deserializer.json.foo" -> "var",
-        "inputFormat" -> "JSON", "avro.schema" -> "",
-        "json.schema.inputMode" -> "SPARKFORMAT",
-        "value.deserializer.json.schema.fromRow" -> "true",
-        "value.deserializer.json.schema.provided" -> "",
-        "json.schema.provided" -> ""
-      ))
-    }
-
     "return AutoOffset" in {
       val properties = Map("auto.offset.reset" -> "smalest")
       val input = new KafkaInputStepStreaming("name", outputOptions, Option(ssc), xdSession, properties)

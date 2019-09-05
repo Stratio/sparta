@@ -38,7 +38,6 @@ class RowSerializer extends Serializer[Row] with SLF4JLogging{
   private val recordInjection: Option[Injection[GenericRecord, Array[Byte]]] = None
   private var avroConverter: Option[Any => Any] = None
   private var jsonConf: Map[String, String] = Map.empty[String, String]
-  private var schemaRegistryClient: Option[CachedSchemaRegistryClient] = None
   private var kafkaAvroSerializer: Option[KafkaAvroSerializer] = None
 
   //scalastyle:off
@@ -100,54 +99,56 @@ class RowSerializer extends Serializer[Row] with SLF4JLogging{
   }
 
   override def serialize(topic: String, data: Row): Array[Byte] = {
-    outputFormat match {
-      case OutputFormatEnum.AVRO =>
-        val record = avroConverter match {
-          case Some(converter) =>
-            converter(data).asInstanceOf[GenericRecord]
-          case None =>
-            val converter = RowAvroHelper.createConverterToAvro(data.schema, recordName, recordNamespace)
-            converter(data).asInstanceOf[GenericRecord]
-        }
-        val injection = recordInjection
-          .getOrElse(GenericAvroCodecs.toBinary[GenericRecord](avroSchema.getOrElse(record.getSchema)))
+    if(data != null) {
+      outputFormat match {
+        case OutputFormatEnum.AVRO =>
+          val record = avroConverter match {
+            case Some(converter) =>
+              converter(data).asInstanceOf[GenericRecord]
+            case None =>
+              val converter = RowAvroHelper.createConverterToAvro(data.schema, recordName, recordNamespace)
+              converter(data).asInstanceOf[GenericRecord]
+          }
+          val injection = recordInjection
+            .getOrElse(GenericAvroCodecs.toBinary[GenericRecord](avroSchema.getOrElse(record.getSchema)))
 
-        byteArraySerializer match {
-          case Some(bArraySerializer) =>
-            bArraySerializer.serialize(topic, injection.apply(record))
-          case None =>
-            throw new RuntimeException("Fail when trying to serialize with Avro serializer")
-        }
-      case OutputFormatEnum.SCHEMAREGISTRY =>
+          byteArraySerializer match {
+            case Some(bArraySerializer) =>
+              bArraySerializer.serialize(topic, injection.apply(record))
+            case None =>
+              throw new RuntimeException("Fail when trying to serialize with Avro serializer")
+          }
+        case OutputFormatEnum.SCHEMAREGISTRY =>
 
-        val record = avroConverter match {
-          case Some(converter) =>
-            converter(data).asInstanceOf[GenericRecord]
-          case None =>
-            val converter = RowAvroHelper.createConverterToAvro(data.schema, recordName, recordNamespace)
-            converter(data).asInstanceOf[GenericRecord]
-        }
+          val record = avroConverter match {
+            case Some(converter) =>
+              converter(data).asInstanceOf[GenericRecord]
+            case None =>
+              val converter = RowAvroHelper.createConverterToAvro(data.schema, recordName, recordNamespace)
+              converter(data).asInstanceOf[GenericRecord]
+          }
 
-        kafkaAvroSerializer match {
-          case Some(schemaRegistrySerializer) =>
-            schemaRegistrySerializer.serialize(topic, record)
-          case None =>
-            throw new RuntimeException("Fail when trying to serialize Schema Registry client")
-        }
-      case OutputFormatEnum.ROW =>
-        stringSerializer.serialize(topic, data.mkString(delimiter))
-      case OutputFormatEnum.BINARY =>
-        byteArraySerializer match {
-          case Some(bArraySerializer) =>
-            bArraySerializer.serialize(topic, data.toString().getBytes)
-          case None =>
-            throw new RuntimeException("Fail when trying to serialize with Avro serializer")
-        }
-      case OutputFormatEnum.JSON =>
-        stringSerializer.serialize(topic, RowJsonHelper.toJSON(data, jsonConf))
-      case _ =>
-        stringSerializer.serialize(topic, data.toString())
-    }
+          kafkaAvroSerializer match {
+            case Some(schemaRegistrySerializer) =>
+              schemaRegistrySerializer.serialize(topic, record)
+            case None =>
+              throw new RuntimeException("Fail when trying to serialize Schema Registry client")
+          }
+        case OutputFormatEnum.ROW =>
+          stringSerializer.serialize(topic, data.mkString(delimiter))
+        case OutputFormatEnum.BINARY =>
+          byteArraySerializer match {
+            case Some(bArraySerializer) =>
+              bArraySerializer.serialize(topic, data.toString().getBytes)
+            case None =>
+              throw new RuntimeException("Fail when trying to serialize with Avro serializer")
+          }
+        case OutputFormatEnum.JSON =>
+          stringSerializer.serialize(topic, RowJsonHelper.toJSON(data, jsonConf))
+        case _ =>
+          stringSerializer.serialize(topic, data.toString())
+      }
+    } else null
   }
 
   override def close(): Unit = {

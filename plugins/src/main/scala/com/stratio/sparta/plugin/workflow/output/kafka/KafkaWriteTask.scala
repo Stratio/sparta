@@ -8,6 +8,8 @@ package com.stratio.sparta.plugin.workflow.output.kafka
 
 import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.types.StructType
 
 import scala.util.Try
 
@@ -16,10 +18,9 @@ import scala.util.Try
   * Adapted from [[KafkaWriteTask]]
   */
 class KafkaWriteTask(
-                      var producer: KafkaProducer[String, Row],
+                      var producer: KafkaProducer[Row, Row],
                       tableName: String,
-                      partitionKey: Option[String],
-                      keySeparator: String
+                      partitionKey: Option[String]
                     ) {
 
   // used to synchronize with Kafka callbacks
@@ -31,10 +32,12 @@ class KafkaWriteTask(
   def execute(iterator: Iterator[Row]): Unit =
     while (iterator.hasNext && failedWrite == null) {
       val row = iterator.next()
-
       val recordToSend = partitionKey.map(_ => extractKeyValues(row, partitionKey))
-        .map(new ProducerRecord[String, Row](tableName, _, row))
-        .getOrElse(new ProducerRecord[String, Row](tableName, row))
+        .map { keyRow =>
+          new ProducerRecord[Row, Row](tableName, keyRow, row)
+        }.getOrElse {
+        new ProducerRecord[Row, Row](tableName, row)
+      }
 
       val callback = new Callback() {
         override def onCompletion(recordMetadata: RecordMetadata, e: Exception): Unit = {
@@ -61,10 +64,18 @@ class KafkaWriteTask(
     }
   }
 
-  private[kafka] def extractKeyValues(row: Row, partitionKey: Option[String]): String =
-    partitionKey.get.split(",").flatMap { key =>
-      Try(row.get(row.fieldIndex(key)).toString).toOption
-    }.mkString(keySeparator)
+  private[kafka] def extractKeyValues(row: Row, partitionKey: Option[String]): Row = {
+    val values = partitionKey.get.split(",").flatMap { key =>
+      Try(row.get(row.fieldIndex(key))).toOption
+    }
+    val inputSchema = row.schema
+    val fieldsSchema = partitionKey.get.split(",").flatMap { key =>
+      inputSchema.find(field => field.name == key)
+    }
+    val schema = StructType(fieldsSchema)
+
+    new GenericRowWithSchema(values, schema).asInstanceOf[Row]
+  }
 
 
 }

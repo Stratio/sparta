@@ -170,19 +170,23 @@
        },
       {
           "propertyId": "outputField",
-          "propertyName": "_OUTPUT_FIELD_",
+          "propertyName": "_DESERIALIZER_OUTPUT_FIELD_",
           "propertyType": "text",
-          "default": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
+          "default": "value",
           "required": false,
-          "visible": [
+          "visibleOR": [
              [
                 {
                    "propertyId": "value.deserializer.inputFormat",
                    "value": "STRING"
-                }
+                },
+               {
+                 "propertyId": "value.deserializer.inputFormat",
+                 "value": "BINARY"
+               }
              ]
           ],
-          "tooltip": "Name assigned to the output field generated",
+          "tooltip": "Name assigned to the value output field generated",
           "qa": "fragment-details-kafka-outputField"
        },
       {
@@ -276,6 +280,148 @@
           "qa": "fragment-details-kafka-deserializer-avro-schema"
        },
       {
+        "propertyId": "key.deserializer.inputFormat",
+        "propertyName": "_KEY_DESERIALIZER_INPUT_FORMAT_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "STRING"
+          },
+          {
+            "label": "Json",
+            "value": "JSON"
+          },
+          {
+            "label": "Avro",
+            "value": "AVRO"
+          },
+          {
+            "label": "Binary",
+            "value": "BINARY"
+          },
+          {
+            "label": "SchemaRegistry",
+            "value": "SCHEMAREGISTRY"
+          }
+        ],
+        "default": "STRING",
+        "required": true,
+        "tooltip": "Key deserializer format given to all the incoming messages.",
+        "qa": "fragment-details-kafka-key-deserializer-input-format"
+      },
+      {
+        "propertyId": "keyOutputField",
+        "propertyName": "_KEY_DESERIALIZER_OUTPUT_FIELD_",
+        "propertyType": "text",
+        "default": "key",
+        "required": false,
+        "visibleOR": [
+          [
+            {
+              "propertyId": "key.deserializer.inputFormat",
+              "value": "STRING"
+            },
+            {
+              "propertyId": "key.deserializer.inputFormat",
+              "value": "BINARY"
+            }
+          ]
+        ],
+        "tooltip": "Name assigned to the key output field generated",
+        "qa": "fragment-details-kafka-outputField"
+      },
+      {
+        "propertyId": "key.deserializer.json.schema.fromRow",
+        "propertyName": "_KEY_SCHEMA_FROM_ROW_",
+        "propertyType": "boolean",
+        "required": true,
+        "visible": [
+          [
+            {
+              "propertyId": "key.deserializer.inputFormat",
+              "value": "JSON"
+            }
+          ]
+        ],
+        "default": true,
+        "tooltip": "If checked, each key row schema will be inferred from its content. Feature only available choosing JSON as deserializer format.",
+        "qa": "workflow-transformation-kafka-key-schema-fromRow"
+      },
+      {
+        "propertyId": "key.deserializer.json.schema.inputMode",
+        "propertyName": "_KEY_INPUT_SCHEMA_FROM_",
+        "propertyType": "select",
+        "visible": [
+          [
+            {
+              "propertyId": "key.deserializer.inputFormat",
+              "value": "JSON"
+            },
+            {
+              "propertyId": "key.deserializer.json.schema.fromRow",
+              "value": false
+            }
+          ]
+        ],
+        "values": [
+          {
+            "label": "Spark format",
+            "value": "SPARKFORMAT"
+          },
+          {
+            "label": "Example",
+            "value": "EXAMPLE"
+          }
+        ],
+        "default": "SPARKFORMAT",
+        "required": true,
+        "tooltip": "Option that allows you to paste a valid schema or an event example where to retrieve the key schema from. If Spark format is chosen then the user is able to pick between pasting a JSON schem or a Spark schema. Only available with JSON as deserializer format.",
+        "qa": "workflow-transformation-kafka-key-schema-mode"
+      },
+      {
+        "propertyId": "key.deserializer.json.schema.provided",
+        "propertyName": "_KEY_DESERIALIZER_JSON_SCHEMA_",
+        "propertyType": "textarea",
+        "contentType": "JSON",
+        "width": 12,
+        "tooltip": "Key schema in json/Spark format or from example",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "key.deserializer.inputFormat",
+              "value": "JSON"
+            },
+            {
+              "propertyId": "key.deserializer.json.schema.fromRow",
+              "value": false
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-key-deserializer-json"
+      },
+      {
+        "propertyId": "key.deserializer.avro.schema",
+        "propertyName": "_KEY_DESERIALIZER_AVRO_SCHEMA_",
+        "propertyType": "textarea",
+        "contentType": "JSON",
+        "width": 12,
+        "tooltip": "Parses an Apache Avro schema for key.",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "key.deserializer.inputFormat",
+              "value": "AVRO"
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-deserializer-key-avro-schema"
+      },
+      {
         "propertyId": "value.deserializer.schema.registry.url",
         "propertyName": "_DESERIALIZER_SCHEMAREGISTRY_SCHEMA_URL_",
         "propertyType": "text",
@@ -283,15 +429,19 @@
         "width": 12,
         "tooltip": "Get the Schema Registry schema. E.g 'https://schemaNameinEos.marathon.mesos:8089'",
         "default": "",
-        "visible": [
+        "visibleOR": [
           [
             {
               "propertyId": "value.deserializer.inputFormat",
               "value": "SCHEMAREGISTRY"
+            },
+            {
+              "propertyId": "key.deserializer.inputFormat",
+              "value": "SCHEMAREGISTRY"
             }
           ]
         ],
-        "required": true,
+        "required": false,
         "qa": "fragment-details-kafka-deserializer-schemaRegistry-schema"
       },
       {
@@ -300,15 +450,46 @@
         "propertyType": "boolean",
         "tooltip": "Enable TLS connection to connect to Kafka schema registry",
         "default": false,
-        "visible": [
+        "visibleOR": [
           [
             {
               "propertyId": "value.deserializer.inputFormat",
+              "value": "SCHEMAREGISTRY"
+            },
+            {
+              "propertyId": "key.deserializer.inputFormat",
               "value": "SCHEMAREGISTRY"
             }
           ]
         ],
         "qa": "fragment-details-kafka-tls-registry"
+      },
+      {
+        "propertyId": "fieldsSchemaPolicy",
+        "propertyName": "_FIELDS_SCHEMA_POLICY_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "Value field",
+            "value": "VALUE"
+          },
+          {
+            "label": "Key field",
+            "value": "KEY"
+          },
+          {
+            "label": "Key and value fields",
+            "value": "KEYVALUE"
+          },
+          {
+            "label": "Key and value fields embedded",
+            "value": "KEYVALUEEMBEDDED"
+          }
+        ],
+        "default": "VALUE",
+        "tooltip": "Select output schema policy in order to serialize key and value fields.",
+        "required": true,
+        "qa": "fragment-details-stratiokafkadirect-fields-schema-policy"
       },
       {
         "propertyId": "partition.assignment.strategy",

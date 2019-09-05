@@ -33,12 +33,11 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
   lazy val tlsEnabled: Boolean = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
   lazy val tlsSchemaRegistryEnabled: Boolean = Try(properties.getString("tlsSchemaRegistryEnabled", "false").toBoolean).getOrElse(false)
   lazy val brokerList: Map[String, String] = getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG)
-  lazy val keySeparator: String = properties.getString("keySeparator", ",")
   lazy val producerConnectionKey: String = name + brokerList
   lazy val mandatoryOptions: Map[String, String] = {
     getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG) ++
       Map(
-        KEY_SERIALIZER_CLASS_CONFIG -> classOf[StringSerializer].getName,
+        KEY_SERIALIZER_CLASS_CONFIG -> classOf[RowSerializer].getName,
         VALUE_SERIALIZER_CLASS_CONFIG -> classOf[RowSerializer].getName,
         ACKS_CONFIG -> properties.getString(ACKS_CONFIG, "1"),
         BATCH_SIZE_CONFIG -> properties.getString(BATCH_SIZE_CONFIG, "16384")
@@ -87,10 +86,10 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
         producerConnectionKey,
         properties,
         securityOpts,
-        mandatoryOptions ++ getCustomProperties
+        mandatoryOptions ++ getSchemaRegistryProperties ++ getCustomProperties
       )
 
-      val writeTask = new KafkaWriteTask(producer, tableName, partitionKey, keySeparator)
+      val writeTask = new KafkaWriteTask(producer, tableName, partitionKey)
       SparkUtils.tryWithSafeFinally(block = writeTask.execute(rows))(finallyBlock = writeTask.close())
 
     }
@@ -101,12 +100,17 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
     KafkaOutput.closeProducers()
   }
 
+  private def getSchemaRegistryProperties: Map[String, String] = {
+    properties.mapValues(_.toString).getString("value.serializer.schema.registry.url", None)
+      .map(url => Map("key.serializer.schema.registry.url" -> url, "value.serializer.schema.registry.url" -> url))
+      .getOrElse(Map.empty)
+  }
 
 }
 
 object KafkaOutput extends SLF4JLogging {
 
-  private val producers: scala.collection.concurrent.TrieMap[String, KafkaProducer[String, Row]] =
+  private val producers: scala.collection.concurrent.TrieMap[String, KafkaProducer[Row, Row]] =
     scala.collection.concurrent.TrieMap.empty
 
 
@@ -117,7 +121,7 @@ object KafkaOutput extends SLF4JLogging {
                    properties: Map[String, JSerializable],
                    securityOptions: Map[String, AnyRef],
                    additionalProperties: Map[String, String]
-                 ): KafkaProducer[String, Row] =
+                 ): KafkaProducer[Row, Row] =
   synchronized(getInstance(producerKey, securityOptions, properties, additionalProperties))
 
   def closeProducers(): Unit = {
@@ -151,12 +155,12 @@ object KafkaOutput extends SLF4JLogging {
                                   securityOptions: Map[String, AnyRef],
                                   properties: Map[String, JSerializable],
                                   additionalProperties: Map[String, String]
-                                ): KafkaProducer[String, Row] =
+                                ): KafkaProducer[Row, Row] =
     producers.getOrElse(key, {
       val propertiesProducer = createProducerProps(properties,
         additionalProperties ++ securityOptions.mapValues(_.toString))
       log.debug(s"Creating Kafka Producer with properties:\t$propertiesProducer")
-      val producer = new KafkaProducer[String, Row](propertiesProducer)
+      val producer = new KafkaProducer[Row, Row](propertiesProducer)
       producers.put(key, producer)
       producer
     })

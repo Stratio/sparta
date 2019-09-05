@@ -165,6 +165,133 @@
           "qa": "workflow-transformation-json-schema-provided"
        },
       {
+        "propertyId": "key.serializer.outputFormat",
+        "propertyName": "_KEY_KAFKA_OUTPUT_FORMAT_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "Row",
+            "value": "ROW"
+          },
+          {
+            "label": "Json",
+            "value": "JSON"
+          },
+          {
+            "label": "Avro",
+            "value": "AVRO"
+          },
+          {
+            "label": "Binary",
+            "value": "BINARY"
+          },
+          {
+            "label": "SchemaRegistry",
+            "value": "SCHEMAREGISTRY"
+          }
+        ],
+        "default": "ROW",
+        "required": true,
+        "qa": "fragment-details-kafka-key-outputFormat"
+      },
+      {
+        "propertyId": "key.serializer.row.delimiter",
+        "propertyName": "_KEY_KAFKA_ROW_SEPARATOR_",
+        "propertyType": "text",
+        "default": "{{{Global.DEFAULT_DELIMITER}}}",
+        "required": false,
+        "visible": [
+          [
+            {
+              "propertyId": "key.serializer.outputFormat",
+              "value": "ROW"
+            }
+          ]
+        ],
+        "tooltip": "Valid only with 'Row' as serializing format. Character used to parse the data being sent to Kafka for key.",
+        "qa": "fragment-details-kafka-key-row-separator"
+      },
+      {
+        "propertyId": "key.serializer.avro.schema.recordNamespace",
+        "propertyName": "_KEY_KAFKA_AVRO_SCHEMA_RECORD_NAMESPACE_",
+        "propertyType": "text",
+        "required": false,
+        "visibleOR": [
+          [
+            {
+              "propertyId": "key.serializer.outputFormat",
+              "value": "AVRO"
+            },
+            {
+              "propertyId": "key.serializer.outputFormat",
+              "value": "SCHEMAREGISTRY"
+            }
+          ]
+        ],
+        "tooltip": "Character located in-between records for key. Default value set to comma.",
+        "qa": "fragment-details-kafka-key-avro-recordNamespace"
+      },
+      {
+        "propertyId": "key.serializer.avro.schema.recordName",
+        "propertyName": "_KEY_KAFKA_AVRO_SCHEMA_RECORD_NAME",
+        "propertyType": "text",
+        "required": false,
+        "visibleOR": [
+          [
+            {
+              "propertyId": "key.serializer.outputFormat",
+              "value": "AVRO"
+            },
+            {
+              "propertyId": "key.serializer.outputFormat",
+              "value": "SCHEMAREGISTRY"
+            }
+          ]
+        ],
+        "tooltip": "Name given to the record.",
+        "qa": "fragment-details-kafka-key-avro-topLevelRecord"
+      },
+      {
+        "propertyId": "key.serializer.avro.schema.fromRow",
+        "propertyName": "_KEY_KAFKA_AVRO_SCHEMA_FROM_ROW_",
+        "propertyType": "boolean",
+        "default": false,
+        "required": false,
+        "tooltip": "The schema will be automatically retrieved by the application from the output data for key.",
+        "visible": [
+          [
+            {
+              "propertyId": "key.serializer.outputFormat",
+              "value": "AVRO"
+            }
+          ]
+        ],
+
+        "qa": "fragment-details-kafka-key-avro-fromRow"
+      },
+      {
+        "propertyId": "key.serializer.avro.schema.provided",
+        "propertyName": "_KEY_DESERIALIZER_AVRO_SCHEMA_",
+        "propertyType": "textarea",
+        "contentType": "JSON",
+        "width": 12,
+        "tooltip": "Avro schema expressed in JSON format for key.",
+        "visible": [
+          [
+            {
+              "propertyId": "key.serializer.outputFormat",
+              "value": "AVRO"
+            },
+            {
+              "propertyId": "key.serializer.avro.schema.fromRow",
+              "value": false
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "workflow-transformation-json-schema-key-provided"
+      },
+      {
         "propertyId": "value.serializer.schema.registry.url",
         "propertyName": "_SERIALIZER_SCHEMAREGISTRY_SCHEMA_URL_",
         "propertyType": "text",
@@ -189,10 +316,14 @@
         "propertyType": "boolean",
         "tooltip": "Specify if the Serializer should attempt to register the Schema with Schema Registry\n",
         "default": true,
-        "visible": [
+        "visibleOR": [
           [
             {
               "propertyId": "value.serializer.outputFormat",
+              "value": "SCHEMAREGISTRY"
+            },
+            {
+              "propertyId": "key.serializer.outputFormat",
               "value": "SCHEMAREGISTRY"
             }
           ]
@@ -205,25 +336,20 @@
         "propertyType": "boolean",
         "tooltip": "Enable TLS connection to connect to Kafka schema registry",
         "default": false,
-        "visible": [
+        "visibleOR": [
           [
             {
               "propertyId": "value.serializer.outputFormat",
+              "value": "SCHEMAREGISTRY"
+            },
+            {
+              "propertyId": "key.serializer.outputFormat",
               "value": "SCHEMAREGISTRY"
             }
           ]
         ],
         "qa": "fragment-details-kafka-tls-registry"
       },
-       {
-          "propertyId": "keySeparator",
-          "propertyName": "_KEY_SEPARATOR_",
-          "propertyType": "text",
-          "default": "{{{Global.DEFAULT_DELIMITER}}}",
-          "required": false,
-          "tooltip": "Specifies the separator when a key or keys are used as partitioning values.",
-          "qa": "fragment-details-kafka-keySeparator"
-       },
       {
         "propertyId": "acks",
         "propertyName": "_ACKS_",

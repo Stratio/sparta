@@ -101,11 +101,11 @@ class RowDeserializer extends Deserializer[Row] {
 
 
       case InputFormatEnum.STRING =>
-        val outputFieldName = configs.getOrElse(s"$configPrefix.deserializer.outputField", "raw").toString
+        val outputFieldName = configs.getOrElse(s"$configPrefix.deserializer.outputField", configPrefix).toString
 
         stringSchema = Option(StructType(Seq(StructField(outputFieldName, StringType))))
       case InputFormatEnum.BINARY =>
-        val outputFieldName = configs.getOrElse(s"$configPrefix.deserializer.outputField", "raw").toString
+        val outputFieldName = configs.getOrElse(s"$configPrefix.deserializer.outputField", configPrefix).toString
 
         byteDeserializer = Option(new ByteArrayDeserializer)
         binarySchema = Option(StructType(Seq(StructField(outputFieldName, BinaryType))))
@@ -117,52 +117,54 @@ class RowDeserializer extends Deserializer[Row] {
   }
 
   override def deserialize(topic: String, data: Array[Byte]): Row = {
-    inputFormat match {
-      case InputFormatEnum.JSON =>
-        stringDeserializer match {
-          case Some(strDeserializer) =>
-            val stringData = strDeserializer.deserialize(topic, data)
-            val jSchema = jsonSchema.getOrElse(extractSchemaFromJson(stringData, jsonConf))
-            toRow(stringData, jsonConf, jSchema)
-          case None =>
-            throw new Exception("Impossible to parse Json data without string deserializer")
-        }
-      case InputFormatEnum.AVRO =>
-        (avroSparkSchema, avroSchema, avroRecordInjection) match {
-          case (Some(sparkSchema), Some(schema), Some(recordInjection)) =>
-            val record = recordInjection.invert(data).get
-            val converter = RowAvroHelper.getAvroConverter(schema, sparkSchema)
+    if(data != null) {
+      inputFormat match {
+        case InputFormatEnum.JSON =>
+          stringDeserializer match {
+            case Some(strDeserializer) =>
+              val stringData = strDeserializer.deserialize(topic, data)
+              val jSchema = jsonSchema.getOrElse(extractSchemaFromJson(stringData, jsonConf))
+              toRow(stringData, jsonConf, jSchema)
+            case None =>
+              throw new Exception("Impossible to parse Json data without string deserializer")
+          }
+        case InputFormatEnum.AVRO =>
+          (avroSparkSchema, avroSchema, avroRecordInjection) match {
+            case (Some(sparkSchema), Some(schema), Some(recordInjection)) =>
+              val record = recordInjection.invert(data).get
+              val converter = RowAvroHelper.getAvroConverter(schema, sparkSchema)
 
-            new GenericRowWithSchema(converter(record).asInstanceOf[GenericRow].toSeq.toArray, sparkSchema)
-          case _ =>
-            throw new Exception("Impossible to parse Avro data without schema and converter")
-        }
-      case InputFormatEnum.SCHEMAREGISTRY =>
-        kafkaAvroDeserializer match {
-          case Some(schemaRegistryDeserializer) =>
-            val record = schemaRegistryDeserializer.deserialize(topic, data).asInstanceOf[GenericRecord]
-            val sparkSchema = SchemaHelper.getSparkSchemaFromAvroSchema(record.getSchema)
-            val converter = RowAvroHelper.getAvroConverter(record.getSchema, sparkSchema)
+              new GenericRowWithSchema(converter(record).asInstanceOf[GenericRow].toSeq.toArray, sparkSchema)
+            case _ =>
+              throw new Exception("Impossible to parse Avro data without schema and converter")
+          }
+        case InputFormatEnum.SCHEMAREGISTRY =>
+          kafkaAvroDeserializer match {
+            case Some(schemaRegistryDeserializer) =>
+              val record = schemaRegistryDeserializer.deserialize(topic, data).asInstanceOf[GenericRecord]
+              val sparkSchema = SchemaHelper.getSparkSchemaFromAvroSchema(record.getSchema)
+              val converter = RowAvroHelper.getAvroConverter(record.getSchema, sparkSchema)
 
-            new GenericRowWithSchema(converter(record).asInstanceOf[GenericRow].toSeq.toArray, sparkSchema)
-          case None =>
-            throw new Exception("Impossible to parse Avro data without schema registry client")
-        }
-      case InputFormatEnum.BINARY =>
-        byteDeserializer match {
-          case Some(bDeserializer) =>
-            new GenericRowWithSchema(Array(bDeserializer.deserialize(topic, data)), binarySchema.get)
-          case None =>
-            throw new Exception("Impossible to parse Binary data without binary deserializer")
-        }
-      case _ =>
-        stringDeserializer match {
-          case Some(strDeserializer) =>
-            new GenericRowWithSchema(Array(strDeserializer.deserialize(topic, data)), stringSchema.get)
-          case None =>
-            throw new Exception("Impossible to parse String data without string deserializer")
-        }
-    }
+              new GenericRowWithSchema(converter(record).asInstanceOf[GenericRow].toSeq.toArray, sparkSchema)
+            case None =>
+              throw new Exception("Impossible to parse Avro data without schema registry client")
+          }
+        case InputFormatEnum.BINARY =>
+          byteDeserializer match {
+            case Some(bDeserializer) =>
+              new GenericRowWithSchema(Array(bDeserializer.deserialize(topic, data)), binarySchema.get)
+            case None =>
+              throw new Exception("Impossible to parse Binary data without binary deserializer")
+          }
+        case _ =>
+          stringDeserializer match {
+            case Some(strDeserializer) =>
+              new GenericRowWithSchema(Array(strDeserializer.deserialize(topic, data)), stringSchema.get)
+            case None =>
+              throw new Exception("Impossible to parse String data without string deserializer")
+          }
+      }
+    } else null
   }
 
   override def close(): Unit = {
