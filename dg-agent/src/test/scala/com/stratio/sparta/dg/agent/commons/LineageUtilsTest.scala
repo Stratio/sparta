@@ -170,7 +170,7 @@ class LineageUtilsTest extends WordSpec with Matchers {
     "return a valid string" in {
       val stepType = statusEvent.newExecution.getWorkflowToExecute.pipelineGraph.nodes.head.stepType
 
-      LineageUtils.mapSparta2GovernanceStepType(stepType) should be("IN")
+      LineageUtils.mapSparta2GovernanceStepType(stepType) should be(Some("IN"))
     }
   }
 
@@ -178,10 +178,10 @@ class LineageUtilsTest extends WordSpec with Matchers {
     "return a valid string" in {
       val status: WorkflowStatusEnum.Value = statusEvent.newExecution.lastStatus.state
 
-      LineageUtils.mapSparta2GovernanceStatuses(status) should be("FINISHED")
-      LineageUtils.mapSparta2GovernanceStatuses(StoppedByUser) should be("FINISHED")
-      LineageUtils.mapSparta2GovernanceStatuses(Started) should be("RUNNING")
-      LineageUtils.mapSparta2GovernanceStatuses(Failed) should be("ERROR")
+      LineageUtils.mapSparta2GovernanceStatuses(status) should be(Some("FINISHED"))
+      LineageUtils.mapSparta2GovernanceStatuses(StoppedByUser) should be(Some("FINISHED"))
+      LineageUtils.mapSparta2GovernanceStatuses(Started) should be(Some("RUNNING"))
+      LineageUtils.mapSparta2GovernanceStatuses(Failed) should be(Some("ERROR"))
     }
   }
 
@@ -189,12 +189,12 @@ class LineageUtilsTest extends WordSpec with Matchers {
     "return a valid string" in {
       val dsType = statusEvent.newExecution.getWorkflowToExecute.pipelineGraph.nodes.head.classPrettyName
 
-      LineageUtils.mapSparta2GovernanceDataStoreType(dsType) should be("HDFS")
-      LineageUtils.mapSparta2GovernanceDataStoreType("Parquet") should be("HDFS")
-      LineageUtils.mapSparta2GovernanceDataStoreType("Jdbc") should be("SQL")
-      LineageUtils.mapSparta2GovernanceDataStoreType("Postgres") should be("SQL")
-      LineageUtils.mapSparta2GovernanceDataStoreType("Trigger") should be("XD")
-      LineageUtils.mapSparta2GovernanceDataStoreType("Crossdata") should be("XD")
+      LineageUtils.mapSparta2GovernanceDataStoreType(dsType) should be(Some("HDFS"))
+      LineageUtils.mapSparta2GovernanceDataStoreType("Parquet") should be(Some("HDFS"))
+      LineageUtils.mapSparta2GovernanceDataStoreType("Jdbc") should be(Some("SQL"))
+      LineageUtils.mapSparta2GovernanceDataStoreType("Postgres") should be(Some("SQL"))
+      LineageUtils.mapSparta2GovernanceDataStoreType("Trigger") should be(Some("XD"))
+      LineageUtils.mapSparta2GovernanceDataStoreType("Crossdata") should be(Some("XD"))
     }
   }
 }

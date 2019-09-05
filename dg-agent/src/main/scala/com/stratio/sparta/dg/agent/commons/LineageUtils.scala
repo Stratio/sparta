@@ -37,18 +37,16 @@ object LineageUtils extends ContextBuilderImplicits {
                                      outputStepType: String,
                                      transformationName: Option[String] = None)
 
-  val StartKey = "startedAt"
-  val FinishedKey = "finishedAt"
-  val TypeFinishedKey = "detailedStatus"
-  val ErrorKey = "error"
-  val UrlKey = "link"
-  val PublicSchema = "public"
-  val ActorTypeKey = "SPARTA"
+  lazy val StartKey = "startedAt"
+  lazy val FinishedKey = "finishedAt"
+  lazy val TypeFinishedKey = "detailedStatus"
+  lazy val ErrorKey = "error"
+  lazy val UrlKey = "link"
+  lazy val PublicSchema = "public"
+  lazy val ActorTypeKey = "SPARTA"
   lazy val noTenant = Some("NONE")
-  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
-
+  lazy val current_tenant = AppConstant.EosTenant.orElse(noTenant)
   lazy val spartaVHost = AppConstant.virtualHost.getOrElse("localhost")
-
 
   def checkIfProcessableWorkflow(executionStatusChange: WorkflowExecutionStatusChange): Boolean = {
     val eventStatus = executionStatusChange.newExecution.lastStatus.state
@@ -106,7 +104,7 @@ object LineageUtils extends ContextBuilderImplicits {
 
   /**
     *
-    * @param workflow Entity workflow built by the user
+    * @param workflow             Entity workflow built by the user
     * @param xdOutNodesWithWriter Seq(outputName, tableName, Option(transformationName))
     * @return A collection Seq(stepName, Map(metadataKey -> Seq(metadataPaths))) resulting from all the Crossdata input
     *         and outputs and also the transformation steps in which a table from the catalog is being used.
@@ -114,7 +112,7 @@ object LineageUtils extends ContextBuilderImplicits {
     *         multiple tables, resulting in multiple metadataPaths.
     */
   def getAllXDStepsProperties(workflow: Workflow,
-                              xdOutNodesWithWriter: Seq[(String, String, Option[String])]):Seq[(String, Map[String, Seq[String]])] = {
+                              xdOutNodesWithWriter: Seq[(String, String, Option[String])]): Seq[(String, Map[String, Seq[String]])] = {
     val errorManager = PostgresNotificationManagerImpl(workflow)
 
     if (workflow.executionEngine == Streaming) {
@@ -128,8 +126,8 @@ object LineageUtils extends ContextBuilderImplicits {
     } else Seq.empty
   }
 
-  def getXDOutputNodesWithWriter(workflow: Workflow, nodesOutGraph: Seq[OutputNodeLineageEntity]): Seq[(String,String, Option[String])] = {
-    nodesOutGraph.filter(n => isCrossdataStepType(n.outputClassPrettyName)).map{ node =>
+  def getXDOutputNodesWithWriter(workflow: Workflow, nodesOutGraph: Seq[OutputNodeLineageEntity]): Seq[(String, String, Option[String])] = {
+    nodesOutGraph.filter(n => isCrossdataStepType(n.outputClassPrettyName)).map { node =>
       (node.outputName, node.nodeTableName, node.transformationName)
     }
   }
@@ -144,39 +142,47 @@ object LineageUtils extends ContextBuilderImplicits {
       val nodesOutGraph = getOutputNodeLineageEntities(workflow)
       val inputNodes = workflow.pipelineGraph.nodes.filter(_.stepType.toLowerCase == InputStep.StepType).map(_.name).toSet
       val inputNodesProperties = lineageProperties.filterKeys(inputNodes).toSeq
-      val parsedLineageProperties =
-        addTableNameFromWriterToOutput(nodesOutGraph, lineageProperties) ++ inputNodesProperties
+      val parsedLineageProperties = addTableNameFromWriterToOutput(nodesOutGraph, lineageProperties) ++ inputNodesProperties
 
       val listStepsMetadata: Seq[ActorMetadata] = parsedLineageProperties.flatMap { case (pluginName, props) =>
-        props.get(ServiceKey).map { serviceName =>
+        props.get(ServiceKey).flatMap { serviceName =>
           val stepType = workflow.pipelineGraph.nodes.find(_.name == pluginName).map(_.stepType).getOrElse("").toLowerCase
           val dataStoreType = workflow.pipelineGraph.nodes.find(_.name == pluginName).map(_.classPrettyName).getOrElse("")
           val extraPath = props.get(PathKey).map(_ ++ LineageUtils.extraPathFromFilesystemOutput(stepType, dataStoreType, props.get(PathKey), props.get(ResourceKey)))
           val metaDataPath = MetadataPath(serviceName, extraPath, props.get(ResourceKey)).toString
+          val govMetadataType = mapSparta2GovernanceStepType(stepType)
+          val govDataStoreType = mapSparta2GovernanceDataStoreType(dataStoreType)
 
-          ActorMetadata(
-            `type` = mapSparta2GovernanceStepType(stepType),
-            metaDataPath = metaDataPath,
-            dataStoreType = mapSparta2GovernanceDataStoreType(dataStoreType),
-            tenant = current_tenant,
-            properties = Map.empty
-          )
+          for {
+            govMetaType <- govMetadataType
+            govDataStType <- govDataStoreType
+          } yield {
+            ActorMetadata(
+              `type` = govMetaType,
+              metaDataPath = metaDataPath,
+              dataStoreType = govDataStType,
+              tenant = current_tenant,
+              properties = Map.empty
+            )
+          }
         }
       }
 
-      Option(LineageWorkflow(
-        id = -1,
-        name = workflow.name,
-        description = workflow.description,
-        tenant = current_tenant,
-        properties = executionProperties,
-        transactionId = executionId,
-        actorType = ActorTypeKey,
-        jobType = mapSparta2GovernanceJobType(workflow.executionEngine),
-        statusCode = mapSparta2GovernanceStatuses(executionStatusChange.newExecution.lastStatus.state),
-        version = AppConstant.version,
-        listActorMetaData = listStepsMetadata.toList ++ getAllDataAssetsFromXDSteps(workflow)
-      ))
+      mapSparta2GovernanceStatuses(executionStatusChange.newExecution.lastStatus.state).map { govStatus =>
+        LineageWorkflow(
+          id = -1,
+          name = workflow.name,
+          description = workflow.description,
+          tenant = current_tenant,
+          properties = executionProperties,
+          transactionId = executionId,
+          actorType = ActorTypeKey,
+          jobType = mapSparta2GovernanceJobType(workflow.executionEngine),
+          statusCode = govStatus,
+          version = AppConstant.version,
+          listActorMetaData = listStepsMetadata.toList ++ getAllDataAssetsFromXDSteps(workflow)
+        )
+      }
 
     } else None
   }
@@ -185,22 +191,29 @@ object LineageUtils extends ContextBuilderImplicits {
     val xdOutNodesWithWriter = getXDOutputNodesWithWriter(workflow, getOutputNodeLineageEntities(workflow))
     val xdStepsLineageProperties = getAllXDStepsProperties(workflow, xdOutNodesWithWriter)
 
-    xdStepsLineageProperties.flatMap{ case(step, xdProps) =>
+    xdStepsLineageProperties.flatMap { case (step, xdProps) =>
       val metadataPaths = xdProps.getOrElse(ProvidedMetadatapathKey, Seq.empty[String])
 
-      metadataPaths.map{ xdMetaDataPath =>
-              val stepType = workflow.pipelineGraph.nodes.find(_.name == step).map(_.stepType).getOrElse("").toLowerCase
-              val dataStoreType = workflow.pipelineGraph.nodes.find(_.name == step).map(_.classPrettyName).getOrElse("")
-              val metaDataPath = xdMetaDataPath
+      metadataPaths.flatMap { xdMetaDataPath =>
+        val stepType = workflow.pipelineGraph.nodes.find(_.name == step).map(_.stepType).getOrElse("").toLowerCase
+        val dataStoreType = workflow.pipelineGraph.nodes.find(_.name == step).map(_.classPrettyName).getOrElse("")
+        val metaDataPath = xdMetaDataPath
+        val govMetadataType = mapSparta2GovernanceStepType(stepType)
+        val govDataStoreType = mapSparta2GovernanceDataStoreType(dataStoreType)
 
-              ActorMetadata(
-                `type` = mapSparta2GovernanceStepType(stepType),
-                metaDataPath = metaDataPath,
-                dataStoreType = mapSparta2GovernanceDataStoreType(dataStoreType),
-                tenant = AppConstant.EosTenant,
-                properties = Map.empty
-              )
-          }
+        for {
+          govMetaType <- govMetadataType
+          govDataStType <- govDataStoreType
+        } yield {
+          ActorMetadata(
+            `type` = govMetaType,
+            metaDataPath = metaDataPath,
+            dataStoreType = govDataStType,
+            tenant = AppConstant.EosTenant,
+            properties = Map.empty
+          )
+        }
+      }
     }.toList
   }
 
@@ -237,21 +250,21 @@ object LineageUtils extends ContextBuilderImplicits {
                                      lineageProperties: Map[String, Map[String, String]]): Seq[(String, Map[String, String])] = {
     nodesOutGraph.map { outputNodeLineageRelation =>
       import outputNodeLineageRelation._
-       val newProperties = {
-         val outputProperties = lineageProperties.getOrElse(outputName, Map.empty)
-         val sourceProperty = outputProperties.get(SourceKey)
-         val schema = outputProperties.getOrElse(DefaultSchemaKey, PublicSchema)
+      val newProperties = {
+        val outputProperties = lineageProperties.getOrElse(outputName, Map.empty)
+        val sourceProperty = outputProperties.get(SourceKey)
+        val schema = outputProperties.getOrElse(DefaultSchemaKey, PublicSchema)
 
-         outputProperties.map { case property@(key, value) =>
-           if (key.equals(ResourceKey) && isFileSystemStepType(outputClassPrettyName))
-             (ResourceKey, nodeTableName)
-           else if (key.equals(ResourceKey) && isJdbcStepType(outputClassPrettyName))
-             if(!nodeTableName.contains(".") && sourceProperty.isDefined && sourceProperty.get.toLowerCase.contains("postgres")) {
-               (ResourceKey, s"$schema.$nodeTableName")
-             } else (ResourceKey, nodeTableName)
-           else property
-         }
-       }
+        outputProperties.map { case property@(key, value) =>
+          if (key.equals(ResourceKey) && isFileSystemStepType(outputClassPrettyName))
+            (ResourceKey, nodeTableName)
+          else if (key.equals(ResourceKey) && isJdbcStepType(outputClassPrettyName))
+            if (!nodeTableName.contains(".") && sourceProperty.isDefined && sourceProperty.get.toLowerCase.contains("postgres")) {
+              (ResourceKey, s"$schema.$nodeTableName")
+            } else (ResourceKey, nodeTableName)
+          else property
+        }
+      }
 
       outputName -> newProperties
     }
@@ -270,18 +283,20 @@ object LineageUtils extends ContextBuilderImplicits {
       case Batch => "BATCH"
     }
 
-  def mapSparta2GovernanceStepType(stepType: String): String =
+  def mapSparta2GovernanceStepType(stepType: String): Option[String] =
     stepType match {
-      case InputStep.StepType | TransformStep.StepType => "IN"
-      case OutputStep.StepType => "OUT"
+      case InputStep.StepType | TransformStep.StepType => Some("IN")
+      case OutputStep.StepType => Some("OUT")
+      case _ => None
     }
 
-  def mapSparta2GovernanceStatuses(spartaStatus: WorkflowStatusEnum.Value): String =
+  def mapSparta2GovernanceStatuses(spartaStatus: WorkflowStatusEnum.Value): Option[String] =
     spartaStatus match {
-      case Started => "RUNNING"
-      case Finished => "FINISHED"
-      case Failed => "ERROR"
-      case StoppedByUser => "FINISHED"
+      case Started => Some("RUNNING")
+      case Finished => Some("FINISHED")
+      case Failed => Some("ERROR")
+      case StoppedByUser => Some("FINISHED")
+      case _ => None
     }
 
   def isFileSystemStepType(stepClassType: String): Boolean =
@@ -302,10 +317,11 @@ object LineageUtils extends ContextBuilderImplicits {
       case _ => false
     }
 
-  def mapSparta2GovernanceDataStoreType(stepClassType: String): String =
+  def mapSparta2GovernanceDataStoreType(stepClassType: String): Option[String] =
     stepClassType match {
-      case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" | "Text" => "HDFS"
-      case "Jdbc" | "Postgres" => "SQL"
-      case "Crossdata" | "Trigger" => "XD"
+      case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" | "Text" => Some("HDFS")
+      case "Jdbc" | "Postgres" => Some("SQL")
+      case "Crossdata" | "Trigger" => Some("XD")
+      case _ => None
     }
 }

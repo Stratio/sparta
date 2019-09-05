@@ -19,6 +19,8 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow.WorkflowExecutionStatusChange
 import com.stratio.sparta.serving.core.utils.{HttpRequestUtils, SpartaClusterUtils}
 import org.json4s.jackson.Serialization._
 
@@ -45,12 +47,11 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
     .getOrElse("v1/lineage/actor")
   lazy val getEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("lineage.http.get.endpoint"))
     .getOrElse("v1/lineage/actor/searchByTransactionId?transactionId=")
-
   lazy val actorTypeKey = "SPARTA"
-
   lazy val noTenant = Some("NONE")
-  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
+  lazy val current_tenant = AppConstant.EosTenant.orElse(noTenant)
   lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))
+  lazy val lineageStates = Seq(Started, Finished, Failed, StoppedByUser)
 
   override def preStart(): Unit = {
     extractStatusChanges()
@@ -90,51 +91,52 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
   //scalastyle:off
   def extractStatusChanges(): Unit =
     executionStatusChangeListenerActor ! OnExecutionStatusesChangeDo(ExecutionStatusLineageKey) { executionStatusChange =>
-      Try {
-        val lineageWorkflow = LineageUtils.generateLineageEventFromWfExecution(executionStatusChange)
-        val exEngine = executionStatusChange.newExecution.executionEngine.get
-        val executionId = executionStatusChange.newExecution.getExecutionId
+      if (lineageStates.contains(executionStatusChange.newExecution.lastStatus.state)) {
+        try {
+          val lineageWorkflow = LineageUtils.generateLineageEventFromWfExecution(executionStatusChange)
+          val exEngine = executionStatusChange.newExecution.executionEngine.get
+          val executionId = executionStatusChange.newExecution.getExecutionId
 
-        lineageWorkflow match {
-          case Some(wf) if exEngine == Streaming  =>
-            val resultGet = doRequest(
-              uri = uri,
-              resource = getEndpoint + executionId,
-              method = HttpMethods.GET,
-              body = None,
-              cookies = Seq.empty,
-              headers = rawHeaders
-            )
+          lineageWorkflow match {
+            case Some(wf) if exEngine == Streaming =>
+              val resultGet = doRequest(
+                uri = uri,
+                resource = getEndpoint + executionId,
+                method = HttpMethods.GET,
+                body = None,
+                cookies = Seq.empty,
+                headers = rawHeaders
+              )
 
-            resultGet.onComplete { completedAction: Try[(StatusCode, String)] =>
-              completedAction match {
-                case Success((statusCode, response)) =>
-                  log.debug(s"Status: ${statusCode.value} and response: $response")
+              resultGet.onComplete { completedAction: Try[(StatusCode, String)] =>
+                completedAction match {
+                  case Success((statusCode, response)) =>
+                    log.debug(s"Status: ${statusCode.value} and response: $response")
 
-                  if(statusCode == StatusCodes.OK) {
-                    val responseWorkflow = read[LineageWorkflow](response)
-                    val newWorkflow = write(LineageUtils.updateLineageWorkflow(responseWorkflow, wf))
-                    doPostPutRequest(HttpMethods.PUT, Option(responseWorkflow.id), newWorkflow, executionId)
-                  }
-                  else{
-                    val wfStreamingJson = write(wf)
-                    doPostPutRequest(HttpMethods.POST, None, wfStreamingJson, executionId)
-                  }
-                case Failure(e) =>
-                  log.error(s"Error execution GET method to lineage API for workflow with executionId: $executionId", e)
+                    if (statusCode == StatusCodes.OK) {
+                      val responseWorkflow = read[LineageWorkflow](response)
+                      val newWorkflow = write(LineageUtils.updateLineageWorkflow(responseWorkflow, wf))
+                      doPostPutRequest(HttpMethods.PUT, Option(responseWorkflow.id), newWorkflow, executionId)
+                    }
+                    else {
+                      val wfStreamingJson = write(wf)
+                      doPostPutRequest(HttpMethods.POST, None, wfStreamingJson, executionId)
+                    }
+                  case Failure(e) =>
+                    log.error(s"Error execution GET method to lineage API for workflow with executionId: $executionId", e)
+                }
               }
-            }
 
-          case Some(wf) if exEngine == Batch =>
-            val wfBatchJson = write(wf)
-            doPostPutRequest(HttpMethods.POST, None, wfBatchJson, executionId)
+            case Some(wf) if exEngine == Batch =>
+              val wfBatchJson = write(wf)
+              doPostPutRequest(HttpMethods.POST, None, wfBatchJson, executionId)
 
-          case _ =>
+            case _ =>
+          }
+        } catch {
+          case e: Exception =>
+            log.error("Error sending data to lineage API", e)
         }
-      } match {
-        case Success(_) =>
-        case Failure(e) =>
-          log.error("Error sending data to lineage API", e)
       }
     }
 }
