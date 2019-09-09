@@ -26,15 +26,6 @@
          "qa": "fragment-details-websocket-outputField"
       },
       {
-         "propertyId": "newFilesOnly",
-         "propertyName": "_NEW_FILES_ONLY_",
-         "propertyType": "boolean",
-         "default": false,
-         "required": true,
-         "tooltip": "Whether or not avoid reading previously existing files",
-         "qa": "fragment-details-filesystem-url"
-      },
-      {
          "propertyId": "filterString",
          "propertyName": "_FILTER_OUT_FILES_",
          "propertyType": "text",

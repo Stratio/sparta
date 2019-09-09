@@ -80,7 +80,7 @@ class FileSystemInputStepStreaming(
     require(path.nonEmpty, "Input path can not be empty")
 
     val filters = properties.getString("filterString", None).notBlank
-    val flagNewFiles = properties.getBoolean("newFilesOnly")
+    val flagNewFiles = false
     val outputField = properties.getString("outputField", DefaultRawDataField)
     val outputSchema = StructType(Seq(StructField(outputField, StringType)))
     val applyFilters = (path: Path) =>
