@@ -9,12 +9,12 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.services.HdfsService
 import com.stratio.sparta.serving.core.helpers.StringHelper._
+import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.hadoop.fs.{FileSystem, Path}
 
-import scala.util.control.NonFatal
 import scala.util.{Properties, Try}
+import scala.util.control.NonFatal
 import scala.xml.XML
 
 object HdfsLineage extends SLF4JLogging {
@@ -55,7 +55,7 @@ trait HdfsLineage {
           .stripSuffix("/")
 
       Map(
-        ServiceKey -> getHDFSServiceName.getOrElse(""),
+        ServiceKey -> currentHdfs,
         PathKey -> finalPath,
         ResourceKey -> resource,
         SourceKey -> lineagePath
@@ -93,17 +93,43 @@ trait HdfsLineage {
     }
   }
 
-  private def getHDFSServiceName: Option[String] = {
-    val hadoopConfDir = Properties.envOrElse("SPARTA_CLASSPATH_DIR","/etc/sds/sparta")
-    val hdfsConfFileOpt = Option(XML.loadFile(s"$hadoopConfDir/core-site.xml"))
+  private[lineage] lazy val hdfsConfig: Map[String, String] = {
+    val hadoopConfDir = Properties.envOrElse("SPARTA_CLASSPATH_DIR", "/etc/sds/sparta")
+    val coreSite = Option(XML.loadFile(s"$hadoopConfDir/core-site.xml"))
+    val hdfsSite = Option(XML.loadFile(s"$hadoopConfDir/hdfs-site.xml"))
 
-    hdfsConfFileOpt.flatMap { hdfsConfFile =>
-      val propNames = (hdfsConfFile \\ "property" \ "name").map(_.toString.stripPrefix("<name>").stripSuffix("</name>"))
-      val propValues = (hdfsConfFile \\ "property" \ "value").map(_.toString.stripPrefix("<value>").stripSuffix("</value>"))
-      val mapOfProps = propNames.zip(propValues).toMap
+    Seq(coreSite, hdfsSite).foldLeft(Map.empty[String, String]) { (mergedConf, maybeFile) =>
+      val maybeConf = maybeFile.map { file =>
+        val propNames = (file \\ "property" \ "name").map(_.toString.stripPrefix("<name>").stripSuffix("</name>"))
+        val propValues = (file \\ "property" \ "value").map(_.toString.stripPrefix("<value>").stripSuffix("</value>"))
+        propNames.zip(propValues).toMap
+      }
+      maybeConf.fold(Map.empty[String, String])(_ ++ mergedConf)
+    }
 
-      mapOfProps.get("fs.defaultFS")
-        .flatMap(_.stripPrefixWithIgnoreCase("hdfs://").split(":").headOption)
+  }
+
+  private[lineage] lazy val currentHdfs = {
+    val maybeDefaultFs = hdfsConfig.get("fs.defaultFS")
+      .flatMap(_.stripPrefixWithIgnoreCase("hdfs://").split(":").headOption)
+
+    val pattern = "hdfs://([\\w-]+)/.*".r
+    val maybeCapturedHdfs = pattern.findFirstMatchIn(lineagePath).map(_.group(1))
+
+    val maybeAllHdfs = hdfsConfig.get("dfs.nameservices").map(_.split(",", -1))
+
+    val maybeCurrentHdfs = for {
+      currentHdfs <- maybeCapturedHdfs
+      allHdfs <- maybeAllHdfs
+    } yield {
+      (currentHdfs, allHdfs.contains(currentHdfs))
+    }
+
+    (maybeCurrentHdfs, maybeDefaultFs) match {
+      case (Some((capturedHdfs, true)), _) => capturedHdfs
+      case (Some((_, false)), _) => ""
+      case (_, Some(default)) => default
+      case _ => ""
     }
   }
 

@@ -9,14 +9,12 @@ import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.AggregationTimeHelper
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.utils.ClasspathUtils
 import com.stratio.sparta.sdk.lite.common.{SpartaUDAF, SpartaUDF}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.services.{HdfsService, SparkSubmitService}
-import org.apache.spark.scheduler.KerberosUser
 import org.apache.spark.security.ConfigSecurity
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.{Duration, StreamingContext}
@@ -41,10 +39,9 @@ object SparkContextFactory extends SLF4JLogging {
   private lazy val jdbcDriverVariables: Seq[(String, String)] =
     SparkSubmitService.getJarsSparkConfigurations(JarsHelper.getJdbcDriverPaths, true).toSeq
   private lazy val kerberosYarnDefaultVariables: Seq[(String, String)] = {
-    val hdfsConfig = SpartaConfig.getHdfsConfig()
-    (HdfsService.getPrincipalName(hdfsConfig).notBlank, HdfsService.getKeyTabPath(hdfsConfig).notBlank) match {
-      case (Some(principal), Some(keyTabPath)) =>
-        KerberosUser.securize(principal, keyTabPath)
+    val hdfsConfig = HdfsService.hdfsConfig
+    (HdfsService.getPrincipalName(hdfsConfig), HdfsService.getKeyTabPath(hdfsConfig)) match {
+      case (Some(principal), Some(_)) =>
         Seq(
           ("spark.yarn.principal", principal),
           ("spark.hadoop.yarn.resourcemanager.principal", principal)
@@ -261,13 +258,13 @@ object SparkContextFactory extends SLF4JLogging {
   def stopStreamingContext(stopGracefully: Boolean = false, stopSparkContext: Boolean = false): Unit = synchronized {
     ssc.orElse(StreamingContext.getActive()).fold(log.debug("Spark Streaming Context is empty")) { streamingContext =>
       try {
-          log.debug(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
-          Try(streamingContext.stop(stopSparkContext, stopGracefully)) match {
-            case Success(_) =>
-              log.debug("Streaming Context has been stopped")
-            case Failure(error) =>
-              log.debug("Streaming Context not properly stopped", error)
-          }
+        log.debug(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
+        Try(streamingContext.stop(stopSparkContext, stopGracefully)) match {
+          case Success(_) =>
+            log.debug("Streaming Context has been stopped")
+          case Failure(error) =>
+            log.debug("Streaming Context not properly stopped", error)
+        }
       } finally {
         ssc = None
       }

@@ -102,7 +102,7 @@ This software – including all its source code – contains proprietary informa
         <scalaj.version>2.4.1</scalaj.version>
         <commons-configuration.version>1.6</commons-configuration.version>
         <apache.spark.version>2.2.0</apache.spark.version>
-        <stratio.spark.version>2.4.0-70f0925</stratio.spark.version>
+        <stratio.spark.version>2.5.0-84c385f</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <crossdata.dyplon.legacy.version>0.19.1-e67b2ab</crossdata.dyplon.legacy.version>
         <crossdata.dyplon.facade.version>1.2.0-801c1c2</crossdata.dyplon.facade.version>
