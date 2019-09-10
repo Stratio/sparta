@@ -153,7 +153,7 @@ hose {
             | -DHDFS_IP=10.200.0.74
             | -DHDFS_PORT=8020
             | -DHDFS_REALM=DEMO.STRATIO.COM
-            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.4.0
+            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.5.0-84c385f
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0

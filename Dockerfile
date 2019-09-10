@@ -1,4 +1,4 @@
-FROM qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.4.0
+FROM qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.5.0-84c385f
 MAINTAINER Stratio "jenkins@stratio.com"
 
 COPY docker/* /
