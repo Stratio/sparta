@@ -56,6 +56,16 @@
                         </configuration>
                     </execution>
                     <execution>
+                      <id>npm rebuild nose-sass</id>
+                      <goals>
+                        <goal>npm</goal>
+                      </goals>
+                      <phase>compile</phase>
+                      <configuration>
+                        <arguments>rebuild node-sass</arguments>
+                      </configuration>
+                    </execution>
+                    <execution>
                         <id>webpack build</id>
                         <goals>
                             <goal>npm</goal>

@@ -10,6 +10,7 @@ import avroTemplate from './inputs/avro.json';
 import binaryTemplate from './inputs/binary.json';
 import cassandraBatchTemplate from './inputs/cassandraBatch.json';
 import csvTemplate from './inputs/csv.json';
+import xlsTemplate from './inputs/xls.json';
 import elasticSearchBatchTemplate from './inputs/elasticSearchBatch.json';
 import genericDatasourceBatchTemplate from './inputs/genericDatasourceBatch.json';
 import jsonTemplate from './inputs/json.json';
@@ -47,6 +48,7 @@ export const inputs = [
     cassandraBatchTemplate,
     crossdataBatchTemplate,
     csvTemplate,
+    xlsTemplate,
     customTemplate,
     customLiteTemplate,
     customLiteXdTemplate,

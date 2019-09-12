@@ -79,6 +79,11 @@ This software – including all its source code – contains proprietary informa
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.crealytics</groupId>
+            <artifactId>spark-excel_2.11</artifactId>
+            <version>0.8.2</version>
+        </dependency>
+        <dependency>
             <groupId>com.stratio.crossdata</groupId>
             <artifactId>crossdata-core_${scala.binary.version}</artifactId>
         </dependency>

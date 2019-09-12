@@ -1,0 +1,106 @@
+  {
+     "name": "Xls",
+     "icon": "Xls",
+     "className": "XlsInputStep",
+     "classPrettyName": "Xls",
+     "arity": ["NullaryToNary"],
+     "supportedEngines": ["Batch"],
+     "supportedDataRelations": ["ValidData"],
+     "description": "Allows you to load data from Xls files",
+     "properties": [
+        {
+           "propertyId": "path",
+           "propertyName": "_PATH_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Path to an Xls file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
+           "qa": "fragment-details-xls-path"
+        },
+       {
+         "propertyId": "location",
+         "propertyName": "_LOCATION_",
+         "propertyType": "text",
+         "tooltip": "Location of file",
+         "required": true,
+         "qa": "fragment-details-xls-location"
+       },
+       {
+         "propertyId": "sheetName",
+         "propertyName": "_SHEET_NAME_",
+         "propertyType": "text",
+         "tooltip": "Location of file",
+         "required": false,
+         "qa": "fragment-details-xls-sheet-name"
+       },
+        {
+           "propertyId": "useHeader",
+           "propertyName": "_HEADER_",
+           "propertyType": "boolean",
+           "required": true,
+           "default": false,
+           "tooltip": "If checked, the first row must contain the header which will be used later to construct the data schema.",
+           "qa": "workflow-transformation-xls-header"
+        },
+       {
+         "propertyId": "treatEmptyValuesAsNulls",
+         "propertyName": "TREAT_EMPTY_VALUES_AS_NULLS",
+         "propertyType": "boolean",
+         "tooltip": "Treat nulls as empty value",
+         "default": true,
+         "required": false,
+         "qa": "fragment-details-xls-treat-nulls"
+       },
+       {
+         "propertyId": "inferSchema",
+         "propertyName": "INFER_SCHEMA",
+         "propertyType": "boolean",
+         "tooltip": "Infer type of fields",
+         "default": false,
+         "required": false,
+         "qa": "fragment-details-xls-infer-schema"
+       },
+       {
+         "propertyId": "addColorColumns",
+         "propertyName": "ADD_COLOR_COLUMNS",
+         "propertyType": "boolean",
+         "tooltip": "Add color columns",
+         "default": false,
+         "required": false,
+         "qa": "fragment-details-xls-color-columns"
+       },
+        {
+           "propertyId": "delimiter",
+           "propertyName": "_DELIMITER_",
+           "propertyType": "text",
+           "tooltip": "Delimiter character for input rows.",
+           "default": "{{{Global.DEFAULT_DELIMITER}}}",
+           "required": false,
+           "qa": "fragment-details-xls-delimiter"
+        },
+        {
+           "propertyId": "inputOptions",
+           "propertyName": "_OPTION_PROPERTIES_",
+           "propertyType": "list",
+           "required": false,
+           "qa": "custom-input-properties",
+           "fields": [
+              {
+                 "propertyId": "inputOptionsKey",
+                 "propertyName": "_OPTION_KEY_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-key"
+              },
+              {
+                 "propertyId": "inputOptionsValue",
+                 "propertyName": "_OPTION_VALUE_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-value"
+              }
+           ]
+        }
+     ]
+  }
