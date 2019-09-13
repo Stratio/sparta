@@ -40,7 +40,6 @@ object ErrorValidationsHelper {
     }
   }
 
-  //scalastyle:on
-
+  def errorWhenEmpty(str: String): String = ???
 
 }

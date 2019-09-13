@@ -8,19 +8,12 @@
      "supportedDataRelations": ["ValidData"],
      "description": "Allows you to load data from Xls files",
      "properties": [
-        {
-           "propertyId": "path",
-           "propertyName": "_PATH_",
-           "propertyType": "text",
-           "required": true,
-           "tooltip": "Path to an Xls file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
-           "qa": "fragment-details-xls-path"
-        },
+
        {
          "propertyId": "location",
          "propertyName": "_LOCATION_",
          "propertyType": "text",
-         "tooltip": "Location of file",
+         "tooltip": "Path to an Xls file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
          "required": true,
          "qa": "fragment-details-xls-location"
        },
@@ -43,7 +36,7 @@
         },
        {
          "propertyId": "treatEmptyValuesAsNulls",
-         "propertyName": "TREAT_EMPTY_VALUES_AS_NULLS",
+         "propertyName": "_TREAT_EMPTY_VALUES_AS_NULLS_",
          "propertyType": "boolean",
          "tooltip": "Treat nulls as empty value",
          "default": true,
@@ -52,7 +45,7 @@
        },
        {
          "propertyId": "inferSchema",
-         "propertyName": "INFER_SCHEMA",
+         "propertyName": "_INFER_SCHEMA_",
          "propertyType": "boolean",
          "tooltip": "Infer type of fields",
          "default": false,
@@ -61,7 +54,7 @@
        },
        {
          "propertyId": "addColorColumns",
-         "propertyName": "ADD_COLOR_COLUMNS",
+         "propertyName": "_ADD_COLOR_COLUMNS_",
          "propertyType": "boolean",
          "tooltip": "Add color columns",
          "default": false,

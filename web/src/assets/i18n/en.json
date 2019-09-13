@@ -816,6 +816,13 @@
   "_LENGTH_DECIMAL_": "Decimal length",
   "_SEPARATOR_DECIMAL_": "Decimal separator",
   "_STORE_OFFSET_AFTER_WRITING_OUTPUTS_": "Store offsets after outputs write",
+  "_LOCATION_": "Location",
+  "_SHEET_NAME_": "Sheet name",
+  "_TREAT_EMPTY_VALUES_AS_NULLS_":"Treat empty values as nulls" ,
+  "_INFER_SCHEMA_":"Infer schema" ,
+  "_ADD_COLOR_COLUMNS_":"Add color columns" ,
+  "_DATA_ADDRESS_":"Location of data to read or write" ,
+
   "FORM_TABS": {
     "STREAMINGSETTINGS": "Streaming",
     "SPARKSETTINGS": "Spark",

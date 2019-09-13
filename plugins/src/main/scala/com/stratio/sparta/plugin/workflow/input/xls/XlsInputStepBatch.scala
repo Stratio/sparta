@@ -6,7 +6,7 @@
 
 package com.stratio.sparta.plugin.workflow.input.xls
 import java.io.{Serializable => JSerializable}
-
+import com.crealytics.spark.excel._
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
@@ -30,14 +30,13 @@ class XlsInputStepBatch(
                        )
   extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with HdfsLineage {
 
-  lazy val pathKey = "path"
-  lazy val path: Option[String] = properties.getString(pathKey, None).notBlank
-  lazy val delimiter: Option[String] = properties.getString("delimiter", None).notBlank
   lazy val treatEmptyValuesAsNulls: Option[String] = properties.getString("treatEmptyValuesAsNulls",None).notBlank
-  lazy val charset: Option[String] = propertiesWithCustom.getString("charset", None).notBlank
   lazy val location: Option[String] = properties.getString("location",None).notBlank
   lazy val sheetName:  Option[String] = properties.getString("sheetName", None).notBlank
-  override lazy val lineagePath: String = path.getOrElse("")
+  lazy val useHeader:  Option[String] = properties.getString("useHeader", None).notBlank
+  val sheetKey="sheetName"
+  val locationKey="location"
+  override lazy val lineagePath: String = location.getOrElse("")
 
   override lazy val lineageResourceSuffix: Option[String] = Option(".xls")
 
@@ -50,17 +49,11 @@ class XlsInputStepBatch(
         messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid.", name)
       )
 
-    if (path.isEmpty)
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"The input path cannot be empty.", name)
-      )
-
-    if (delimiter.isEmpty)
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"delimiter cannot be empty", name)
-      )
+//    if (delimiter.isEmpty)
+//      validation = ErrorValidations(
+//        valid = false,
+//        messages = validation.messages :+ WorkflowValidationMessage(s"delimiter cannot be empty", name)
+//      )
 
     if (location.isEmpty)
       validation = ErrorValidations(
@@ -96,15 +89,18 @@ class XlsInputStepBatch(
   override def lineageProperties(): Map[String, String] = getHdfsLineageProperties(InputStep.StepType)
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
-    require(path.nonEmpty, "The input path cannot be empty")
+    require(location.nonEmpty, "The input path cannot be empty")
 
     val userOptions = propertiesWithCustom.flatMap { case (key, value) =>
-      if (key != pathKey)
+      if (key == sheetKey && sheetName.isEmpty)
+        None
+      else if(key==locationKey)
+        None
+      else
         Option(key -> value.toString)
-      else None
     }
-
-    val df = xDSession.read.format("com.crealytics.spark.excel").options(userOptions).load() //options(userOptions).load(path.get) //https://stackoverflow.com/questions/44196741/how-to-construct-dataframe-from-a-excel-xls-xlsx-file-in-scala-spark
+    print(userOptions.toString())
+    val df = xDSession.read.format("com.crealytics.spark.excel").options(userOptions).load(location.get) //options(userOptions).load(path.get) //https://stackoverflow.com/questions/44196741/how-to-construct-dataframe-from-a-excel-xls-xlsx-file-in-scala-spark
 
     (df.rdd, Option(df.schema))
   }
