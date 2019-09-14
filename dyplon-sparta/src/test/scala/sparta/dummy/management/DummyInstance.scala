@@ -4,13 +4,9 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-package com.stratio.gosec.dyplon.plugins.sparta.dummy.management
+package sparta.dummy.management
 
 import java.time.LocalDateTime
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.io.StdIn.readLine
-import scala.util.Try
 
 import com.stratio.gosec.api.Systems.{AnnouncementSystem, InstanceSystem}
 import com.stratio.gosec.api.audit.repository.{AuditRepositoryComponent, AuditRepositoryComponentImpl}
@@ -21,6 +17,11 @@ import com.stratio.gosec.dyplon.facade.DyplonFacadeAuthorizerSystem
 import com.stratio.gosec.dyplon.model.announcement.{AnnouncementID, PluginAnnouncement}
 import com.stratio.gosec.dyplon.model.metadata.Scope
 import com.stratio.gosec.dyplon.model.{Acl, _}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.io.StdIn.readLine
+import scala.util.Try
 
 //scalastyle:off
 class DummyInstance(userId: String, manifestType: String, manifestVersion: String, instanceArg: Seq[String])

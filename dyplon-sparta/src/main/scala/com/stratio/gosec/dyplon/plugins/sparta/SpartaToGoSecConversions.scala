@@ -12,9 +12,10 @@ import scala.language.implicitConversions
 import scala.util.Try
 
 import com.stratio.gosec.api.Systems.UserSystem
-import com.stratio.gosec.api.config.{ConfigComponentImpl, Constant}
+import com.stratio.gosec.api.config.ConfigComponentImpl
 import com.stratio.gosec.dyplon.model._
 import com.stratio.sparta.security.{AuditResult, FailAR, SuccessAR, Select => SpartaSelect, Action => SpartaAction, AuditEvent => SpartaAuditEvent, Create => SpartaCreate, Delete => SpartaDelete, Describe => SpartaDescribe, Download => SpartaDownload, Edit => SpartaEdit, Resource => SpartaResource, Status => SpartaStatus, Upload => SpartaUpload, View => SpartaView}
+
 
 object SpartaToGoSecConversions {
 
@@ -75,6 +76,6 @@ object SpartaToGoSecConversions {
 
 object RetrieveSpartaInstance extends ConfigComponentImpl {
 
-  val SpartaInstanceName = config.getString(Constant.PluginInstance)
-  val localHostNameConfig = Try(config.getString("local.hostname"))
+  val SpartaInstanceName = config.getString("api.instance")
+  val localHostNameConfig = Try(config.getString("api.local.hostname"))
 }

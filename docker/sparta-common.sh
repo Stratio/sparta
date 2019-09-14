@@ -171,6 +171,7 @@ function logLevelOptions() {
       CROSSDATA_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.logger.com.stratio.crossdata.*|log4j.logger.com.stratio.crossdata= ${CROSSDATA_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  sed -i "s|log4j.logger.org.apache.spark.sql.crossdata.*|log4j.logger.org.apache.spark.sql.crossdata= ${CROSSDATA_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
   echo "export CROSSDATA_LOG_LEVEL=${CROSSDATA_LOG_LEVEL}" >> ${VARIABLES}
   echo "export CROSSDATA_LOG_LEVEL=${CROSSDATA_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 

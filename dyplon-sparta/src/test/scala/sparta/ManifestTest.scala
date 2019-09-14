@@ -3,13 +3,13 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.gosec.dyplon.plugins.sparta
+package sparta
 
 import com.stratio.gosec.dyplon.model._
 import com.stratio.gosec.dyplon.model.metadata.Scope
 import org.junit.runner.RunWith
-import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Source
 

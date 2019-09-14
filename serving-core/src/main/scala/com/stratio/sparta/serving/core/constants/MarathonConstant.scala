@@ -115,6 +115,8 @@ object MarathonConstant {
   val ProductLabelEnv = "PRODUCT"
   val ApplicationLabelEnv = "APPLICATION"
   val SpartaPluginInstance = "SPARTA_PLUGIN_INSTANCE"
+  val SpartaDyplonPluginInstance = "SPARTA_PLUGIN_DYPLON_INSTANCE"
   val SpartaWorkflowsPluginInstance = "SPARTA_WORKFLOWS_PLUGIN_INSTANCE"
+  val SpartaDyplonTenantName = "DYPLON_TENANT_NAME"
 
 }

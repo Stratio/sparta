@@ -9,7 +9,6 @@ package com.stratio.sparta.serving.core.helpers
 import scala.util.{Failure, Success, Try}
 import spray.http.StatusCodes
 import com.stratio.crossdata.security.CrossdataSecurityManager
-import com.stratio.gosec.dyplon.plugins.sparta.{GoSecSpartaSecurityManager, GoSecSpartaSecurityManagerFacade}
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.config.SpartaConfig._
@@ -33,12 +32,15 @@ object SecurityManagerHelper {
     } else if (spartaSecurityManagerPool.nonEmpty) {
       log.info("Sparta security manager was already initialized")
     } else {
+      JarsHelper.addDyplonSpartaPluginsToClassPath()
       log.info(s"Starting Sparta Dyplon security managers with a pool size of $spartaSecurityManagerPoolSize instances")
       for (instanceNumber <- 0 until spartaSecurityManagerPoolSize) {
-        val newSecManager = if (dyplonFacadeEnabled) {
-          new GoSecSpartaSecurityManagerFacade().asInstanceOf[SpartaSecurityManager]
-        } else new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]
-
+        val finalClazzToInstance = if (dyplonFacadeEnabled) {
+          "com.stratio.gosec.dyplon.plugins.sparta.GoSecSpartaSecurityManagerFacade"
+        } else "com.stratio.gosec.dyplon.plugins.sparta.GoSecSpartaSecurityManager"
+        val securityManagerClass = Class.forName(finalClazzToInstance, true, Thread.currentThread().getContextClassLoader)
+        val constructor = securityManagerClass.getConstructor()
+        val newSecManager = constructor.newInstance().asInstanceOf[SpartaSecurityManager]
         newSecManager.start()
         spartaSecurityManagerPool += newSecManager
 

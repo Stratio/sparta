@@ -6,11 +6,28 @@
 
 package com.stratio.sparta.security
 
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.typesafe.config.ConfigFactory
+
+import scala.util.{Properties, Try}
 
 trait SpartaSecurityManager {
 
-  lazy val dyplonConfig = ConfigFactory.load().getConfig("api")
+  lazy val spartaVersion = AppConstant.version
+  lazy val serviceName = AppConstant.ConfigAppName
+  lazy val spartaAuthorizer = AppConstant.ConfigAppName
+  lazy val spartaInstance = Try(dyplonApiConfig.getString("instance")).getOrElse {
+    Properties.envOrElse(SpartaDyplonPluginInstance, AppConstant.spartaServerMarathonAppId)
+  }
+  lazy val spartaTenant = Try(dyplonPluginConfig.getString("tenant")).toOption.orElse {
+    Properties.envOrNone(SpartaDyplonTenantName)
+  }
+
+  lazy val dyplonApiConfig = ConfigFactory.load().getConfig("api")
+  lazy val dyplonPluginConfig = ConfigFactory.load().getConfig("plugin")
+  lazy val dyplonFacadeConfig = ConfigFactory.load().getConfig("facade")
+  lazy val dyplonConfig = ConfigFactory.load().getConfig("dyplon")
 
   def start(): Unit
 

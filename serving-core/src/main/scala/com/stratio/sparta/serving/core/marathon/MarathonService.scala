@@ -327,7 +327,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       "SPARTA_PLUGIN_LOCAL_HOSTNAME",
       "SPARTA_PLUGIN_LDAP_CREDENTIALS",
       "SPARTA_PLUGIN_LDAP_PRINCIPAL",
-      "SPARTA_PLUGIN_INSTANCE"
+      SpartaPluginInstance
     )
 
     sys.env.filterKeys(key => key.startsWith("SPARTA_PLUGIN") && !invalid.contains(key))

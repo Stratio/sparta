@@ -10,12 +10,10 @@ import java.io.InputStream
 import java.net.InetAddress
 
 import com.stratio.gosec.facade.DyplonFacadeAuthorizer
-import com.stratio.sparta.security.{Action, AuditEvent, Resource, SpartaSecurityManager}
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.security._
 
 import scala.io.Source
 import scala.util.Try
-//scalastyle:off
 import com.stratio.sparta.security.{Action => SpartaAction, Create => SpartaCreate, Delete => SpartaDelete, Describe => SpartaDescribe, Download => SpartaDownload, Edit => SpartaEdit, Select => SpartaSelect, Status => SpartaStatus, Upload => SpartaUpload, View => SpartaView}
 import org.json4s.ext.DateTimeSerializer
 import org.json4s.jackson.Serialization._
@@ -51,20 +49,26 @@ class GoSecSpartaSecurityManagerFacade extends SpartaSecurityManager {
 
   lazy val logger = LoggerFactory.getLogger(classOf[GoSecSpartaSecurityManagerFacade])
 
-  lazy val spartaVersion = AppConstant.version
-  lazy val serviceName = Try(dyplonConfig.getString("service.name")).getOrElse(AppConstant.ConfigAppName)
-  lazy val spartaInstance = AppConstant.spartaServerMarathonAppId
-  val spartaAuthorizer = AppConstant.ConfigAppName
-
   override def start: Unit = {
 
     logger.info(s"Starting Sparta $spartaInstance plugin")
-    logger.info(s"Plugin registration parameters: serviceName=$serviceName, version=$spartaVersion")
+    logger.info(s"Plugin registration parameters: serviceName=$serviceName, version=$spartaVersion, authorizer=$spartaAuthorizer")
 
     val spartaPlugin = parseSpartaPlugin.scope.flatMap(s => Map(s.`type` -> s.actions)).toMap
+    val registerPluginResponse = DyplonFacadeAuthorizer.registerPlugin(
+      serviceName,
+      spartaVersion,
+      spartaInstance,
+      spartaPlugin,
+      serviceUrl = None,
+      spartaAuthorizer,
+      posix = true,
+      authorizationMode = Some("resource")
+    )
 
-    if ( DyplonFacadeAuthorizer.registerPlugin(serviceName, spartaVersion, spartaInstance, spartaPlugin, None, spartaAuthorizer, true ))
-      logger.info(s"Sparta plugin instance $spartaInstance is already registered")
+    if (registerPluginResponse)
+      logger.info(s"Sparta plugin instance [$spartaInstance], version [$spartaVersion]," +
+        s" service $serviceName with authorizer [$spartaAuthorizer] is already registered")
     else
       throw new RuntimeException("Sparta plugin registration failed")
 
@@ -77,7 +81,17 @@ class GoSecSpartaSecurityManagerFacade extends SpartaSecurityManager {
                           hierarchy: Boolean
                         ): Boolean =
 
-    DyplonFacadeAuthorizer.authorize(userId, action, serviceName, spartaVersion, spartaInstance, resource.resourceType.name(), resource.name, getLocalIp, false)
+    DyplonFacadeAuthorizer.authorize(
+      userId,
+      action,
+      serviceName,
+      spartaVersion,
+      spartaInstance,
+      resource.resourceType.name(),
+      resource.name,
+      getLocalIp,
+      false
+    )
 
   /** PRIVATE METHODS */
 
@@ -88,8 +102,8 @@ class GoSecSpartaSecurityManagerFacade extends SpartaSecurityManager {
   }
 
   private def getLocalIp: String = {
-    if (Try(dyplonConfig.getString("local.hostname")).isSuccess)
-      dyplonConfig.getString("local.hostname")
+    if (Try(dyplonApiConfig.getString("local.hostname")).isSuccess)
+      dyplonApiConfig.getString("local.hostname")
     else
       InetAddress.getLocalHost.getHostAddress
   }

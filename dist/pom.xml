@@ -68,6 +68,24 @@ This software – including all its source code – contains proprietary informa
                                                 <exclude name="**/*original*"/>
                                             </fileset>
                                         </copy>
+                                        <copy todir="target/appassembler/dyplon-sparta">
+                                            <fileset dir="../dyplon-sparta/target">
+                                                <include name="*.jar"/>
+                                                <exclude name="**/*-javadoc*"/>
+                                                <exclude name="**/*-tests*"/>
+                                                <exclude name="*-tests*"/>
+                                                <exclude name="**/*original*"/>
+                                            </fileset>
+                                        </copy>
+                                        <copy todir="target/appassembler/dyplon-sparta">
+                                            <fileset dir="../dyplon-sparta-facade/target">
+                                                <include name="*.jar"/>
+                                                <exclude name="**/*-javadoc*"/>
+                                                <exclude name="**/*-tests*"/>
+                                                <exclude name="*-tests*"/>
+                                                <exclude name="**/*original*"/>
+                                            </fileset>
+                                        </copy>
                                         <copy todir="target/appassembler/repo/serving-api">
                                             <fileset dir="../serving-api" includes="**/*.jar" excludes="**/*-javadoc*"/>
                                             <mapper type="flatten" />
@@ -277,6 +295,9 @@ This software – including all its source code – contains proprietary informa
                                 <mkdirs>
                                     <path>/opt/sds/sparta/crossdata</path>
                                 </mkdirs>
+                                <mkdirs>
+                                    <path>/opt/sds/sparta/dyplon-sparta</path>
+                                </mkdirs>
                                 <copyDirectory>
                                     <from>target/appassembler/bin</from>
                                     <to>/opt/sds/sparta/bin</to>
@@ -304,6 +325,10 @@ This software – including all its source code – contains proprietary informa
                                 <copyDirectory>
                                     <from>target/appassembler/crossdata</from>
                                     <to>/opt/sds/sparta/crossdata</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/dyplon-sparta</from>
+                                    <to>/opt/sds/sparta/dyplon-sparta</to>
                                 </copyDirectory>
                             </assembly>
                         </configuration>

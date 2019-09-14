@@ -101,7 +101,10 @@ trait JarsHelper extends SLF4JLogging {
   def addDyplonCrossdataPluginsToClassPath(): Unit =
     addJarsToClassPath(getDyplonCrossdataPluginsPaths)
 
-  def getDyplonCrossdataPluginsPaths(): Seq[String] = {
+  def addDyplonSpartaPluginsToClassPath(): Unit =
+    addJarsToClassPath(getDyplonSpartaPluginsPaths(SecurityManagerHelper.dyplonFacadeEnabled))
+
+  def getDyplonCrossdataPluginsPaths: Seq[String] = {
     val xdDrivers = new File(Try(SpartaConfig.getCrossdataConfig().get.getString("session.sparkjars-path"))
       .getOrElse("/opt/sds/sparta/repo"))
     if (xdDrivers.exists && xdDrivers.isDirectory) {
@@ -109,6 +112,19 @@ trait JarsHelper extends SLF4JLogging {
         .filter(file => file.isFile && file.getName.startsWith("dyplon-crossdata") && file.getName.endsWith("jar")
           && file.getName.contains(SpartaConfig.getCrossdataConfig().get.getString("security.plugin.version")))
         .map(file => file.getAbsolutePath)
+    } else Seq.empty[String]
+  }
+
+  def getDyplonSpartaPluginsPaths(facade: Boolean): Seq[String] = {
+    val dyplonJars = new File("/opt/sds/sparta/dyplon-sparta")
+    if (dyplonJars.exists && dyplonJars.isDirectory) {
+      val filteredJars = {
+        if(facade)
+          dyplonJars.listFiles().filter(file => file.isFile && file.getName == "dyplon-sparta-facade.jar")
+        else dyplonJars.listFiles().filter(file => file.isFile && file.getName == "dyplon-sparta.jar")
+      }
+
+      filteredJars.map(file => file.getAbsolutePath)
     } else Seq.empty[String]
   }
 

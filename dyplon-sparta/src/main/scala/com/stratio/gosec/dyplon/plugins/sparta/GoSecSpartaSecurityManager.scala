@@ -10,7 +10,7 @@ import java.io.InputStream
 import com.stratio.gosec.api.Systems._
 import com.stratio.gosec.api.audit.repository.{AuditRepositoryComponentImpl, LogAuditRepositoryComponentImpl}
 import com.stratio.gosec.api.audit.service.AuditServiceComponentImpl
-import com.stratio.gosec.api.config.{ConfigComponentImpl, PluginConfig}
+import com.stratio.gosec.api.config.ConfigComponentImpl
 import com.stratio.gosec.dyplon.audit.Authorizer
 import com.stratio.gosec.dyplon.core.ZkRegisterCheckerComponentImpl
 import com.stratio.gosec.dyplon.model._
@@ -19,7 +19,6 @@ import com.stratio.sparta.security.{Action, AuditEvent, Resource, SpartaSecurity
 import com.typesafe.config.ConfigRenderOptions
 
 import scala.io.Source
-import scala.util.Try
 
 class GoSecSpartaSecurityManager extends ConfigComponentImpl
   with SpartaSecurityManager
@@ -37,7 +36,12 @@ class GoSecSpartaSecurityManager extends ConfigComponentImpl
 
   import com.stratio.gosec.dyplon.model.dsl.PluginInstanceDsl._
 
-  logger.debug(s"Sparta properties: ${config.root().render(ConfigRenderOptions.concise())}")
+  logger.debug(s"Sparta dyplon properties: " +
+    s"Dyplon api: ${dyplonApiConfig.root().render(ConfigRenderOptions.concise())}\n" +
+    s"Plugin: ${dyplonPluginConfig.root().render(ConfigRenderOptions.concise())}\n" +
+    s"Facade: ${dyplonFacadeConfig.root().render(ConfigRenderOptions.concise())}\n" +
+    s"Dyplon: ${dyplonConfig.root().render(ConfigRenderOptions.concise())}"
+  )
 
   override lazy val instance = parseSpartaPlugin
 
@@ -45,8 +49,18 @@ class GoSecSpartaSecurityManager extends ConfigComponentImpl
     val stream: InputStream = getClass.getResourceAsStream("/manifest-sparta.json")
     val json: String = Source.fromInputStream(stream).mkString
     val plugin = json.toPlugin
-    val tenantName = Try(config.getString(PluginConfig.Tenant)).toOption
-    plugin.copy(instance = Some(config.getString(PluginConfig.PluginInstance)), tenant = tenantName)
+    val instanceParsed = {
+      if(spartaInstance.startsWith("/"))
+        spartaInstance.drop(1)
+      else spartaInstance
+    }
+
+    plugin.copy(
+      `type` = serviceName,
+      version = spartaVersion,
+      instance = Some(instanceParsed),
+      tenant = spartaTenant
+    )
   }
 
   override def start: Unit = {

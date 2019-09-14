@@ -32,6 +32,8 @@ This software – including all its source code – contains proprietary informa
         <module>plugins</module>
         <module>serving-core</module>
         <module>driver</module>
+        <module>dyplon-sparta</module>
+        <module>dyplon-sparta-facade</module>
         <module>web</module>
         <module>serving-api</module>
         <module>dist</module>
@@ -105,14 +107,14 @@ This software – including all its source code – contains proprietary informa
         <stratio.spark.version>2.5.0-84c385f</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <crossdata.dyplon.legacy.version>0.19.1-e67b2ab</crossdata.dyplon.legacy.version>
-        <crossdata.dyplon.facade.version>1.2.0-801c1c2</crossdata.dyplon.facade.version>
+        <crossdata.dyplon.facade.version>1.3.0-8eedf02</crossdata.dyplon.facade.version>
         <crossdata-auth-iface.version>0.5.0-4a78288</crossdata-auth-iface.version>
         <gosec.dyplon.version>0.16.1-d69cf95</gosec.dyplon.version>
-        <gosec.dyplon.facade.version>0.2.0-26f5681</gosec.dyplon.facade.version>
+        <gosec.dyplon.facade.version>0.2.0-713c131</gosec.dyplon.facade.version>
         <dg.commons.version>1.0.0-0c72260</dg.commons.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.17.0-M4</crossdata.version>
+        <crossdata.version>2.17.0-37178fc</crossdata.version>
         <postgres.version>42.2.5</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>
@@ -208,6 +210,16 @@ This software – including all its source code – contains proprietary informa
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.stratio.sparta</groupId>
+                <artifactId>dyplon-sparta</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.sparta</groupId>
+                <artifactId>dyplon-sparta-facade</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.github.nscala-time</groupId>
                 <artifactId>nscala-time_${scala.binary.version}</artifactId>
                 <version>${nscala.time.version}</version>
@@ -253,12 +265,6 @@ This software – including all its source code – contains proprietary informa
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
-            </dependency>
-            <!-- Dyplon -->
-            <dependency>
-                <groupId>com.stratio.gosec</groupId>
-                <artifactId>dyplon-facade</artifactId>
-                <version>${gosec.dyplon.facade.version}</version>
             </dependency>
 
             <!-- Spark -->

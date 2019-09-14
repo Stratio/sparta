@@ -95,6 +95,7 @@
         <Logger name="com.stratio.sparta" level="INFO"/>
         <Logger name="org.apache.spark.launcher.SpartaOutputRedirector" level="INFO"/>
         <Logger name="com.stratio.crossdata" level="ERROR"/>
+        <Logger name="org.apache.spark.sql.crossdata" level="ERROR"/>
         <Logger name="org.apache.zookeeper" level="ERROR"/>
         <Logger name="org.I0Itec.zkclient" level="ERROR"/>
         <Logger name="org.apache.spark" level="ERROR"/>
