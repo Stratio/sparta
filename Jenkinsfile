@@ -13,6 +13,7 @@ hose {
     MAVEN_THREADSPERCORE = 4
     EXPOSED_PORTS = [9090,10000,11000]
     NEW_VERSIONING = 'true'
+    LABEL_CONTROL = 'true'
 
     ITSERVICES = [
             ['ARANGODB': [
