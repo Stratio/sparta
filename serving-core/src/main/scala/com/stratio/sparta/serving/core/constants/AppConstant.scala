@@ -58,11 +58,9 @@ object AppConstant extends ZookeeperUtils {
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
   val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
   val DefaultApiTimeout = 20
-  val DefaultVersion = "2.10.0"
+  val DefaultVersion = "2.11.0"
   lazy val version = Try(SpartaConfig.getDetailConfig().get.getString("version"))
     .toOption.notBlank.getOrElse(DefaultVersion)
-  val AndromedaVersion = "2.2.6"
-  val OrionVersion = "2.4.1"
 
   //Debug Options
   val DebugSparkWindow = 1000

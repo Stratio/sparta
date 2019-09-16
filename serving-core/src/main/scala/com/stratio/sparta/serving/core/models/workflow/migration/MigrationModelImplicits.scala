@@ -5,63 +5,16 @@
  */
 package com.stratio.sparta.serving.core.models.workflow.migration
 
+import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.enumerators.DataType
 import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 object MigrationModelImplicits {
 
-  implicit def cassiopeaWorkflowToAndromeda(workflowCassiopeia: WorkflowCassiopeia): WorkflowAndromeda =
-    WorkflowAndromeda(
-      id = workflowCassiopeia.id,
-      name = workflowCassiopeia.name,
-      description = workflowCassiopeia.description,
-      settings = workflowCassiopeia.settings,
-      pipelineGraph = workflowCassiopeia.pipelineGraph,
-      executionEngine = workflowCassiopeia.executionEngine,
-      uiSettings = workflowCassiopeia.uiSettings,
-      creationDate = workflowCassiopeia.creationDate,
-      lastUpdateDate = workflowCassiopeia.lastUpdateDate,
-      version = workflowCassiopeia.version,
-      group = workflowCassiopeia.group,
-      tags = workflowCassiopeia.tags,
-      status = None,
-      execution = None,
-      debugMode = None,
-      versionSparta = Option(AppConstant.AndromedaVersion)
-    )
-
-  implicit def cassiopeaSettingsToAndromeda(cassiopeaSettings: SettingsCassiopea): SettingsAndromeda =
-    SettingsAndromeda(
-      global = cassiopeaSettings.global,
-      streamingSettings = cassiopeaSettings.streamingSettings,
-      sparkSettings = cassiopeaSettings.sparkSettings,
-      errorsManagement = cassiopeaSettings.errorsManagement
-    )
-
-  implicit def andromedaWorkflowToOrion(workflowAndromeda: WorkflowAndromeda): WorkflowOrion =
-    WorkflowOrion(
-      id = workflowAndromeda.id,
-      name = workflowAndromeda.name,
-      description = workflowAndromeda.description,
-      settings = workflowAndromeda.settings,
-      pipelineGraph = workflowAndromeda.pipelineGraph,
-      executionEngine = workflowAndromeda.executionEngine,
-      uiSettings = workflowAndromeda.uiSettings,
-      creationDate = workflowAndromeda.creationDate,
-      lastUpdateDate = workflowAndromeda.lastUpdateDate,
-      version = workflowAndromeda.version,
-      group = workflowAndromeda.group,
-      tags = workflowAndromeda.tags,
-      debugMode = None,
-      versionSparta = Option(AppConstant.OrionVersion),
-      parametersUsedInExecution = None,
-      executionId = None,
-      groupId = workflowAndromeda.group.id
-    )
-
-  implicit def orionWorkflowToHydra(workflowOrion: WorkflowOrion): Workflow =
-    Workflow(
+  implicit def orionWorkflowToHydra(workflowOrion: WorkflowOrion): WorkflowHydraPegaso =
+    WorkflowHydraPegaso(
       id = workflowOrion.id,
       name = workflowOrion.name,
       description = workflowOrion.description,
@@ -81,12 +34,71 @@ object MigrationModelImplicits {
       groupId = workflowOrion.group.id
     )
 
-  implicit def andromedaSettingsToOrion(andromedaSettings: SettingsAndromeda): SettingsOrion =
-    SettingsOrion(
-      global = andromedaSettings.global,
-      streamingSettings = andromedaSettings.streamingSettings,
-      sparkSettings = andromedaSettings.sparkSettings,
-      errorsManagement = andromedaSettings.errorsManagement
+  implicit def hydraPipelineGraphToR9(pipelineGraph: PipelineGraphHydraPegaso): PipelineGraph = {
+    val outputsWriters = pipelineGraph.edges.filter { edge =>
+      pipelineGraph.nodes.exists(node => node.name == edge.destination && node.stepType == OutputStep.StepType)
+    }.flatMap { edge =>
+      pipelineGraph.nodes.find(node => node.name == edge.origin).map { node =>
+        (node.name, OutputWriter(
+          saveMode = node.writer.saveMode,
+          outputStepName = edge.destination,
+          tableName = node.writer.tableName.map(_.toString),
+          discardTableName = node.writer.discardTableName.map(_.toString),
+          extraOptions = Map(
+            OutputStep.PrimaryKey -> node.writer.primaryKey.map(_.toString),
+            OutputStep.PartitionByKey -> node.writer.partitionBy.map(_.toString),
+            OutputStep.UniqueConstraintName -> node.writer.uniqueConstraintName.map(_.toString),
+            OutputStep.UniqueConstraintFields -> node.writer.uniqueConstraintFields.map(_.toString),
+            OutputStep.UpdateFields -> node.writer.updateFields.map(_.toString)
+          ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap
+        ))
+      }
+    }
+
+    PipelineGraph(
+      edges = pipelineGraph.edges,
+      nodes = pipelineGraph.nodes.map { node =>
+        NodeGraph(
+          name = node.name,
+          stepType = node.stepType,
+          className = node.className,
+          classPrettyName = node.classPrettyName,
+          arity = node.arity,
+          writer = None,
+          description = node.description,
+          uiConfiguration = node.uiConfiguration,
+          configuration = node.configuration,
+          nodeTemplate = node.nodeTemplate,
+          supportedEngines = node.supportedEngines,
+          executionEngine = node.executionEngine,
+          supportedDataRelations = node.supportedDataRelations,
+          lineageProperties = node.lineageProperties,
+          outputsWriter = outputsWriters.filter { case (nodeName, _) => nodeName == node.name }.map(_._2),
+          errorTableName = node.writer.errorTableName.map(_.toString)
+        )
+      }
+    )
+  }
+
+  implicit def hydraWorkflowToR9(workflowPegason: WorkflowHydraPegaso): Workflow =
+    Workflow(
+      id = workflowPegason.id,
+      name = workflowPegason.name,
+      description = workflowPegason.description,
+      settings = workflowPegason.settings,
+      pipelineGraph = workflowPegason.pipelineGraph,
+      executionEngine = workflowPegason.executionEngine,
+      uiSettings = workflowPegason.uiSettings,
+      creationDate = workflowPegason.creationDate,
+      lastUpdateDate = workflowPegason.lastUpdateDate,
+      version = workflowPegason.version,
+      group = workflowPegason.group,
+      tags = workflowPegason.tags,
+      debugMode = None,
+      versionSparta = Option(AppConstant.version),
+      parametersUsedInExecution = None,
+      executionId = None,
+      groupId = workflowPegason.group.id
     )
 
   implicit def orionSettingsToHydra(orionSettings: SettingsOrion): Settings =
@@ -123,21 +135,6 @@ object MigrationModelImplicits {
       executorExtraJavaOptions = orionSparkConf.executorExtraJavaOptions
     )
 
-  implicit def cassiopeaGlobalSettingsToOrion(cassiopeaGlobalSettings: GlobalSettingsCassiopea): GlobalSettings =
-    GlobalSettings(
-      executionMode = cassiopeaGlobalSettings.executionMode,
-      userPluginsJars = cassiopeaGlobalSettings.userPluginsJars,
-      preExecutionSqlSentences = cassiopeaGlobalSettings.initSqlSentences,
-      postExecutionSqlSentences = Seq.empty,
-      addAllUploadedPlugins = cassiopeaGlobalSettings.addAllUploadedPlugins,
-      mesosConstraint = cassiopeaGlobalSettings.mesosConstraint,
-      mesosConstraintOperator = cassiopeaGlobalSettings.mesosConstraintOperator,
-      parametersLists = Seq(AppConstant.EnvironmentParameterListName),
-      parametersUsed = Seq.empty,
-      udafsToRegister = Seq.empty,
-      udfsToRegister = Seq.empty
-    )
-
   implicit def templateOrionToHydra(templateOrion: TemplateElementOrion): TemplateElement =
     TemplateElement(
       id = templateOrion.id,
@@ -154,6 +151,5 @@ object MigrationModelImplicits {
       supportedDataRelations = Option(Seq(DataType.ValidData, DataType.ValidData)),
       versionSparta = Option(AppConstant.version)
     )
-
 
 }

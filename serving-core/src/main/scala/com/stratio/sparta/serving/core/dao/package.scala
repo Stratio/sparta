@@ -24,9 +24,8 @@ import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.Sch
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.governance.QualityRuleResult
-import com.stratio.sparta.serving.core.models.workflow.migration.{SettingsOrion, TemplateElementOrion, WorkflowOrion}
 import com.stratio.sparta.serving.core.models.orchestrator.ScheduledWorkflowTask
-import com.stratio.sparta.serving.core.models.workflow.migration.{SettingsOrion, TemplateElementOrion, WorkflowOrion}
+import com.stratio.sparta.serving.core.models.workflow.migration._
 //scalastyle:off
 package object daoTables {
 
@@ -123,6 +122,56 @@ package object daoTables {
     def groupIndex = index(s"idx_${tableName}_group", groupId)
   }
 
+  class WorkflowHydraPegasoTable(tag: Tag) extends Table[WorkflowHydraPegaso](tag, dbSchemaName, WorkflowTableName) {
+
+    import CustomColumnTypes._
+
+    def id = column[String]("workflow_id")
+
+    def name = column[String]("name")
+
+    def description = column[String]("description")
+
+    def settings = column[Settings]("settings")
+
+    def pipelineGraph = column[PipelineGraphHydraPegaso]("pipeline_graph")
+
+    def executionEngine = column[ExecutionEngine]("execution_engine")
+
+    def uiSettings = column[Option[UiSettings]]("ui_settings")
+
+    def creationDate = column[Option[DateTime]]("creation_date")
+
+    def lastUpdateDate = column[Option[DateTime]]("last_update_date")
+
+    def version = column[Long]("version")
+
+    def group = column[Group]("group")
+
+    def tags = column[Option[Seq[String]]]("tags")
+
+    def debugMode = column[Option[Boolean]]("debug_mode")
+
+    def versionSparta = column[Option[String]]("version_sparta")
+
+    def parametersUsedInExecution = column[Option[Map[String, String]]]("parameters_used_in_execution")
+
+    def executionId = column[Option[String]]("execution_id")
+
+    def groupId = column[Option[String]]("group_id")
+
+    def * = (id.?, name, description, settings, pipelineGraph, executionEngine, uiSettings, creationDate, lastUpdateDate,
+      version, group, tags, debugMode, versionSparta, parametersUsedInExecution, executionId, groupId) <> ((WorkflowHydraPegaso.apply _).tupled, WorkflowHydraPegaso.unapply _)
+
+    def pk = primaryKey(s"pk_$tableName", id)
+
+    def uniqueWorkflowIndex = index(s"pk_${tableName}_uniqueWorkflow", (name, groupId, version), unique = true)
+
+    def fk = foreignKey(s"fk_${tableName}_group", groupId.get, TableQuery[GroupTable])(_.groupId, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.Cascade)
+
+    def groupIndex = index(s"idx_${tableName}_group", groupId)
+  }
+
   class WorkflowOrionTable(tag: Tag) extends Table[WorkflowOrion](tag, dbSchemaName, WorkflowTableName) {
 
     import CustomColumnTypes._
@@ -135,7 +184,7 @@ package object daoTables {
 
     def settings = column[SettingsOrion]("settings")
 
-    def pipelineGraph = column[PipelineGraph]("pipeline_graph")
+    def pipelineGraph = column[PipelineGraphHydraPegaso]("pipeline_graph")
 
     def executionEngine = column[ExecutionEngine]("execution_engine")
 

@@ -3,9 +3,8 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-
 package com.stratio.sparta.serving.core.models.workflow.migration
 
-case class EnvironmentAndromeda(variables: Seq[EnvironmentVariable])
+import com.stratio.sparta.serving.core.models.workflow.EdgeGraph
 
-case class EnvironmentVariable(name: String, value: String)
+case class PipelineGraphHydraPegaso(nodes: Seq[NodeGraphHydraPegaso], edges: Seq[EdgeGraph])

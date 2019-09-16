@@ -9,7 +9,6 @@ package com.stratio.sparta.serving.core.dao
 import com.stratio.sparta.core.models.{DebugResults, SpartaQualityRule}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
@@ -18,9 +17,8 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngin
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.models.workflow.migration.SettingsOrion
+import com.stratio.sparta.serving.core.models.workflow.migration.{PipelineGraphHydraPegaso, SettingsOrion}
 import com.stratio.sparta.serving.core.models.authorization.{HeaderAuthUser, LoggedUser}
-
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 
@@ -53,6 +51,11 @@ object CustomColumnTypes extends SpartaSerializer {
   implicit val executionPipelineGraph = MappedColumnType.base[PipelineGraph, String](
     objToSerialize => write(objToSerialize),
     objToDeSerialize => read[PipelineGraph](objToDeSerialize)
+  )
+
+  implicit val executionPipelineGraphPegason = MappedColumnType.base[PipelineGraphHydraPegaso, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[PipelineGraphHydraPegaso](objToDeSerialize)
   )
 
   implicit val executionUiSettings = MappedColumnType.base[UiSettings, String](

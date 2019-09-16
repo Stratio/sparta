@@ -21,8 +21,9 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.factory.{PostgresFactory, SparkContextFactory}
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
-import com.stratio.sparta.serving.core.services.migration.hydra.HydraMigrationService
+import com.stratio.sparta.serving.core.services.migration.hydra_pegaso.HydraPegasoMigrationService
 import com.stratio.sparta.serving.core.services.migration.orion.OrionMigrationService
+import com.stratio.sparta.serving.core.services.migration.r9.R9MigrationService
 import com.stratio.sparta.serving.core.utils.SpartaIgnite
 
 /**
@@ -62,15 +63,18 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
         log.info("Initializing Sparta Postgres schema migration ...")
         val orionMigrationService = new OrionMigrationService()
         orionMigrationService.loadOrionPgData()
-        val hydraMigrationService = new HydraMigrationService(orionMigrationService)
+        val hydraMigrationService = new HydraPegasoMigrationService(orionMigrationService)
+        hydraMigrationService.loadHydraPegasoPgData()
         hydraMigrationService.executePostgresMigration()
+        val r9MigrationService = new R9MigrationService(hydraMigrationService)
+        r9MigrationService.executePostgresMigration()
 
         log.info("Initializing Sparta Postgres data ...")
         PostgresFactory.invokeInitializationDataMethods()
 
         Thread.sleep(500)
-        orionMigrationService.executeMigration()
         hydraMigrationService.executeMigration()
+        r9MigrationService.executeMigration()
       } else {
         log.info("Initializing Sparta Postgres data ...")
         PostgresFactory.invokeInitializationDataMethods()

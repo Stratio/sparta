@@ -7,31 +7,27 @@
 package com.stratio.sparta.serving.core.models.workflow.migration
 
 import com.stratio.sparta.serving.core.constants.AppConstant.DefaultGroup
-import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
+import com.stratio.sparta.serving.core.models.workflow.{Group, UiSettings}
 import org.joda.time.DateTime
-import com.stratio.sparta.serving.core.models.workflow.{Group, PipelineGraph, UiSettings}
 
 case class WorkflowOrion(
-                     id: Option[String] = None,
-                     name: String,
-                     description: String = "Default description",
-                     settings: SettingsOrion,
-                     pipelineGraph: PipelineGraph,
-                     executionEngine: ExecutionEngine = WorkflowExecutionEngine.Streaming,
-                     uiSettings: Option[UiSettings] = None,
-                     creationDate: Option[DateTime] = None,
-                     lastUpdateDate: Option[DateTime] = None,
-                     version: Long = 0L,
-                     group: Group = DefaultGroup,
-                     tags: Option[Seq[String]] = None,
-                     debugMode: Option[Boolean] = Option(false),
-                     versionSparta: Option[String] = None,
-                     parametersUsedInExecution: Option[Map[String, String]] = None,
-                     executionId: Option[String] = None,
-                     groupId: Option[String] = None
-                   ) extends EntityAuthorization {
-
-  def authorizationId: String = s"${group.name}/$name"
-}
+                          id: Option[String] = None,
+                          name: String,
+                          description: String = "Default description",
+                          settings: SettingsOrion,
+                          pipelineGraph: PipelineGraphHydraPegaso,
+                          executionEngine: ExecutionEngine = WorkflowExecutionEngine.Streaming,
+                          uiSettings: Option[UiSettings] = None,
+                          creationDate: Option[DateTime] = None,
+                          lastUpdateDate: Option[DateTime] = None,
+                          version: Long = 0L,
+                          group: Group = DefaultGroup,
+                          tags: Option[Seq[String]] = None,
+                          debugMode: Option[Boolean] = Option(false),
+                          versionSparta: Option[String] = None,
+                          parametersUsedInExecution: Option[Map[String, String]] = None,
+                          executionId: Option[String] = None,
+                          groupId: Option[String] = None
+                        )

@@ -18,10 +18,7 @@ import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.models.workflow.migration.{WorkflowAndromeda, WorkflowCassiopeia}
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
-import com.stratio.sparta.serving.core.services.migration.MigrationUtils
-import com.stratio.sparta.serving.core.services.migration.cassiopea.CassiopeiaMigrationService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class WorkflowActor(
@@ -39,7 +36,6 @@ class WorkflowActor(
   private val workflowPgService = PostgresDaoFactory.workflowPgService
   private val groupPgService = PostgresDaoFactory.groupPgService
   private val workflowValidatorService = new WorkflowValidatorService()
-  private val migrationService = new CassiopeiaMigrationService()
 
 
   //scalastyle:off
@@ -67,8 +63,6 @@ class WorkflowActor(
     case CreateWorkflowVersion(workflowVersion, user) => createVersion(workflowVersion, user)
     case RenameWorkflow(workflowRename, user) => rename(workflowRename, user)
     case MoveWorkflow(workflowMove, user) => moveTo(workflowMove, user)
-    case MigrateFromCassiopeia(workflowCassiopeia, user) => migrateWorkflowFromCassiopeia(workflowCassiopeia, user)
-    case MigrateFromAndromeda(workflowAndromeda, user) => migrateWorkflowFromAndromeda(workflowAndromeda, user)
     case RunWithParametersView(workflow, user) => runWithParametersView(workflow, user)
     case RunWithParametersViewId(workflowId, user) => runWithParametersViewById(workflowId, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
@@ -331,24 +325,6 @@ class WorkflowActor(
     }
   }
 
-  def migrateWorkflowFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia, user: Option[LoggedUser]): Unit = {
-    authorizeActions[ResponseWorkflowAndromeda](user, Map(ResourceWorkflow -> View)) {
-      Try {
-        val workflow : WorkflowAndromeda = workflowCassiopeia
-        workflow
-      }
-    }
-  }
-
-  def migrateWorkflowFromAndromeda(workflowAndromeda: WorkflowAndromeda, user: Option[LoggedUser]): Unit = {
-    authorizeActions[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
-      Try {
-        val workflow : Workflow = MigrationUtils.migrationEndpoint.fromAndromedaToOrionWorkflow(workflowAndromeda)
-        workflow
-      }
-    }
-  }
-
   private def manageValidationResult(validationContextResult: Try[ValidationContextResult]): Try[WorkflowValidation] = {
     Try {
       validationContextResult match {
@@ -415,10 +391,6 @@ object WorkflowActor extends SLF4JLogging {
 
   case class MoveWorkflow(query: WorkflowMove, user: Option[LoggedUser])
 
-  case class MigrateFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia, user: Option[LoggedUser])
-
-  case class MigrateFromAndromeda(workflowAndromeda: WorkflowAndromeda, user: Option[LoggedUser])
-
   case class RunWithParametersView(workflow: Workflow, user: Option[LoggedUser])
 
   case class RunWithParametersViewId(workflowId: String, user: Option[LoggedUser])
@@ -435,6 +407,5 @@ object WorkflowActor extends SLF4JLogging {
 
   type ResponseRunWithExecutionContextView = Try[RunWithExecutionContextView]
 
-  type ResponseWorkflowAndromeda = Try[WorkflowAndromeda]
 }
 
