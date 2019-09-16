@@ -8,7 +8,7 @@ Improvements and new features:
 
 ## 2.10.0 (upcoming)
 Improvements and new features:
-    - @TODO
+    - [SPARTA-3346] Create Crossdata and SQL input.
     - @TODO
 
 

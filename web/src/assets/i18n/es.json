@@ -389,6 +389,7 @@
   "_SELECT_EXPRESSION_": "Select expression",
   "_SUPPORT_NULL_VALUES_": "Support null values",
   "_SQL_": "Sql query",
+  "_CROSSDATA_TABLE_": "Crossdata table",
   "_ADD_ALL_INPUT_FIELDS_": "Add all input fields",
   "_TRANSFORMATION_WHEN_ERROR_": "Error handling policy",
   "_TRANSFORMATION_WHEN_ROW_ERROR_": "Row error handling policy",

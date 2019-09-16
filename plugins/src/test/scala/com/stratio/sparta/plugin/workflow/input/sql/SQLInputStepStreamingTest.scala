@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.input.crossdata
+package com.stratio.sparta.plugin.workflow.input.sql
 
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.enumerators.SaveModeEnum
@@ -22,13 +22,13 @@ import com.stratio.sparta.core.models.{OutputOptions, OutputWriterOptions}
 
 
 @RunWith(classOf[JUnitRunner])
-class CrossdataInputStepStreamingTest extends WordSpec with Matchers with MockitoSugar {
+class SQLInputStepStreamingTest extends WordSpec with Matchers with MockitoSugar {
 
   val ssc = mock[StreamingContext]
   val xdSession = mock[XDSession]
   val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
 
-  "CrossdataInputStep" should {
+  "SQLInputStep" should {
       val offsetFields =
         """[
           |{
@@ -50,7 +50,7 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
         """.stripMargin
 
       val properties = Map("offsetFields" -> JsoneyString(offsetFields))
-      val input = new CrossdataInputStepStreaming("name", outputOptions, Option(ssc), xdSession, properties)
+      val input = new SQLInputStepStreaming("name", outputOptions, Option(ssc), xdSession, properties)
 
       val conditions = OffsetConditions(
         input.offsetItems,
@@ -115,7 +115,7 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
     "if no offsetConditions are passed should not add any WHERE or ORDER BY query unless it is in the sql query" in {
       val offsetFields = "[]"
       val properties = Map("offsetFields" -> JsoneyString(offsetFields))
-      val input = new CrossdataInputStepStreaming("name",
+      val input = new SQLInputStepStreaming("name",
         outputOptions, Option(ssc), xdSession, properties)
       val conditions = OffsetConditions(
         input.offsetItems,

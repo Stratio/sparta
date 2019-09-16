@@ -7,13 +7,6 @@
      "supportedEngines": ["Streaming", "Batch"],
     "description": "Crossdata output use Crossdata as a library with the available XDSession in order to save the data into persistent tables. The tables must be created previously in corresponding Crossdata catalog.",
     "properties": [
-      {
-        "propertyId": "tlsEnabled",
-        "propertyName": "_TLS_ENABLE_",
-        "tooltip": "Enable TLS protocol in order to connect to a secured filesystem using certificates.",
-        "default": false,
-        "qa": "fragment-details-postgres-tls"
-      },
        {
           "propertyId": "errorSink",
           "propertyName": "_ERROR_SINK_",
