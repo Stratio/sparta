@@ -26,8 +26,7 @@ class XlsInputStepBatchIT extends TemporalSparkContext with Matchers {
     val input = new XlsInputStepBatch("name", outputOptions, Option(ssc), sparkSession, properties)
     val rdd = input.initWithSchema()._1
     val count = rdd.ds.count()
-    print("\nhi "+rdd.ds.collect().mkString(",")  +"\n")
-    // count shouldBe 43
+    count shouldBe 43
   }
 
 }

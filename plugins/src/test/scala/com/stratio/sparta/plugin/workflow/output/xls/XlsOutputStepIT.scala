@@ -41,9 +41,9 @@ class XlsOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
         Row("Ariadne", Random.nextInt, Timestamp.from(Instant.now).getTime)
       )), schema)
   }
-  val dataAddress="A1:G27"
+  val dataRange="A1"
   trait WithEventData extends CommonValues {
-    val properties = Map("location" -> tmpPath, "useHeader" -> "true", "dataAddress"->dataAddress,"inferSchema"->"false")
+    val properties = Map("location" -> tmpPath, "useHeader" -> "true", "sheetName"->"Person","dataRange"->dataRange,"inferSchema"->"false")
     val output = new XlsOutputStep("csv-test", sparkSession, properties)
   }
 
@@ -51,9 +51,6 @@ class XlsOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
     output.save(data, SaveModeEnum.Append, Map(TableNameKey -> "person"))
     val read = sparkSession.read.csv(s"$tmpPath/person.xls")
 
-//    read.count should be(3)
-//    read should be eq data
-//    File(tmpPath).deleteRecursively
-//    File("spark-warehouse").deleteRecursively
+    read.count should be(3)
   }
 }

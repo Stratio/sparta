@@ -101,8 +101,7 @@ class XlsInputStepBatch(
 
     val userOptions2 :Map[String,String]= userOptions + ("dataAddress" -> sheetData)
 
-    val df = xDSession.read.format("com.crealytics.spark.excel").options(userOptions2).load(location.get) //options(userOptions).load(path.get) //https://stackoverflow.com/questions/44196741/how-to-construct-dataframe-from-a-excel-xls-xlsx-file-in-scala-spark
-
+    val df = xDSession.read.format("com.crealytics.spark.excel").options(userOptions2).load(location.get)
     (df.rdd, Option(df.schema))
   }
 

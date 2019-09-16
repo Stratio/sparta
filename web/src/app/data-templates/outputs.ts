@@ -41,6 +41,7 @@ export const outputs = [
     cassandraTemplate,
     crossdataTemplate,
     csvTemplate,
+    xlsTemplate,
     customTemplate,
     customLiteTemplate,
     customLiteXdTemplate,
@@ -61,8 +62,7 @@ export const outputs = [
     runWorkflowTemplate,
     sftpTemplate,
     textTemplate,
-    xmlTemplate,
-    xlsTemplate
+    xmlTemplate
 ];
 
 /*********************** */
