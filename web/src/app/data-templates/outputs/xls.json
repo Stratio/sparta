@@ -9,14 +9,31 @@
     "properties": [
       {
         "propertyId": "location",
-        "propertyName": "_LOCATION_",
+        "propertyName": "_LOCATION_FOLDER_",
         "propertyType": "text",
         "tooltip": "Path to store the data in a compatible filesystem (HDFS, S3, Azure, etc). Please note that, in order to write to the HDFS specified in the tenant configuration, also relative paths can be used (e.g. /user/sparta-server/) without the namenode details (e.g. hdfs:///addressNamenode:8020/user/sparta-server/)",
         "required": true,
         "qa": "fragment-details-xls-location"
       },
       {
-        "propertyId": "header",
+        "propertyId": "sheetName",
+        "propertyName": "_SHEET_NAME_",
+        "propertyType": "text",
+        "tooltip": "Location of file",
+        "required": false,
+        "qa": "fragment-details-xls-sheet-name"
+      },
+      {
+        "propertyId": "dataRange",
+        "propertyName": "_DATA_RANGE_",
+        "propertyType": "text",
+        "tooltip": "Location of data to write",
+        "default": "A1",
+        "required": true,
+        "qa": "fragment-details-xls-data-address"
+      },
+      {
+        "propertyId": "useHeader",
         "propertyName": "_HEADER_",
         "propertyType": "boolean",
         "regexp": "true|false",
@@ -26,15 +43,14 @@
         "qa": "fragment-details-csv-header"
       },
       {
-        "propertyId": "dataAddress",
-        "propertyName": "_DATA_ADDRESS_",
-        "propertyType": "text",
-        "tooltip": "Location of data to write",
-        "default": "A1",
-        "required": true,
-        "qa": "fragment-details-xls-data-address"
+        "propertyId": "treatEmptyValuesAsNulls",
+        "propertyName": "_TREAT_EMPTY_VALUES_AS_NULLS_",
+        "propertyType": "boolean",
+        "tooltip": "Treat nulls as empty value",
+        "default": true,
+        "required": false,
+        "qa": "fragment-details-xls-treat-nulls"
       },
-
       {
         "propertyId": "inferSchema",
         "propertyName": "_INFER_SCHEMA_",

@@ -25,14 +25,12 @@ class XlsOutputStep(
                      properties: Map[String, JSerializable]
                    ) extends OutputStep(name, xDSession, properties) with CsvBase with HdfsLineage {
 
-  //lazy val location: Option[String] = properties.getString("location",None).notBlank
-  lazy val dataAddress: Option[String] = properties.getString("dataAddress",None).notBlank
+  lazy val dataRange: Option[String] = properties.getString("dataRange",None).notBlank
   lazy val sheetName:  Option[String] = properties.getString("sheetName", None).notBlank
-  val sheetKey="sheetName"
+
   lazy val location: String = properties.getString("location", "").trim
   lazy val useHeader = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
   lazy val inferSchema = Try(properties.getString("inferSchema", "false").toBoolean).getOrElse(false)
-//  lazy val codecOption = propertiesWithCustom.getString("codec", None).notBlank
   lazy val compressExtension = propertiesWithCustom.getString("compressExtension", None).notBlank.getOrElse(".gz")
 
   override lazy val lineagePath: String = location
@@ -47,17 +45,10 @@ class XlsOutputStep(
 
     val validationSeq = Seq(
       location.isEmpty -> "destination path cannot be empty",
-      dataAddress.isEmpty -> "he location of data needs cannot be empty"
+      dataRange.isEmpty -> "The location of data  cannot be empty",
+      sheetName.isEmpty -> "Sheet name cannot be empty"
     )
     ErrorValidationsHelper.validate(validationSeq, name)
-
-
-//    if (charset.exists(ch => !isCharsetSupported(ch)))
-//      validation = ErrorValidations(
-//        valid = false,
-//        messages = validation.messages :+ WorkflowValidationMessage(s"encoding charset is not valid", name)
-//      )
-
     validation
   }
 
@@ -68,18 +59,18 @@ class XlsOutputStep(
 //    require(dataAddress.nonEmpty, "The location of data needs to be specified")
     val locationParsed = if (location.endsWith("/")) location else location + "/"
     val tableName = getTableNameFromOptions(options)
+    val data= "'"+sheetName.getOrElse(false).toString +"'!"+ dataRange.getOrElse(false).toString
     val optionsParsed =
       Map(
         "useHeader" -> useHeader.toString,
         "inferSchema" -> inferSchema.toString,
-        "dataAddress" -> dataAddress.getOrElse(throw new RuntimeException("fesf"))
-      ) //++ codecOption.fold(Map.empty[String, String]) { codec => Map("codec" -> codec) }
+        "dataAddress" -> data  //dataAddress.getOrElse(throw new RuntimeException("Empty dataAddress"))
+      )
 
     val fullLocation = s"$locationParsed$tableName.xls"
     //val pathWithExtension = codecOption.fold(fullPath) { codec => fullPath + compressExtension }
     validateSaveMode(saveMode)
     val dataFrameWriter = dataFrame.write.format("com.crealytics.spark.excel").options(optionsParsed).mode(getSparkSaveMode(saveMode))
-
 
     applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).save(fullLocation)
   }

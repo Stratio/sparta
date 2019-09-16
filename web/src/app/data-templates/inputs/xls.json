@@ -25,6 +25,15 @@
          "required": false,
          "qa": "fragment-details-xls-sheet-name"
        },
+       {
+         "propertyId": "dataRange",
+         "propertyName": "_DATA_RANGE_",
+         "propertyType": "text",
+         "tooltip": "Location of data to write",
+         "default": "A1",
+         "required": true,
+         "qa": "fragment-details-xls-data-address"
+       },
         {
            "propertyId": "useHeader",
            "propertyName": "_HEADER_",
@@ -52,24 +61,6 @@
          "required": false,
          "qa": "fragment-details-xls-infer-schema"
        },
-       {
-         "propertyId": "addColorColumns",
-         "propertyName": "_ADD_COLOR_COLUMNS_",
-         "propertyType": "boolean",
-         "tooltip": "Add color columns",
-         "default": false,
-         "required": false,
-         "qa": "fragment-details-xls-color-columns"
-       },
-        {
-           "propertyId": "delimiter",
-           "propertyName": "_DELIMITER_",
-           "propertyType": "text",
-           "tooltip": "Delimiter character for input rows.",
-           "default": "{{{Global.DEFAULT_DELIMITER}}}",
-           "required": false,
-           "qa": "fragment-details-xls-delimiter"
-        },
         {
            "propertyId": "inputOptions",
            "propertyName": "_OPTION_PROPERTIES_",

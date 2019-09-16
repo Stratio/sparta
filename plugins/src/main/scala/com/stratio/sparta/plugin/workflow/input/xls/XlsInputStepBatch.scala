@@ -6,6 +6,7 @@
 
 package com.stratio.sparta.plugin.workflow.input.xls
 import java.io.{Serializable => JSerializable}
+
 import com.crealytics.spark.excel._
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
@@ -21,6 +22,8 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
+import scala.util.Try
+
 class XlsInputStepBatch(
                          name: String,
                          outputOptions: OutputOptions,
@@ -32,9 +35,11 @@ class XlsInputStepBatch(
 
   lazy val treatEmptyValuesAsNulls: Option[String] = properties.getString("treatEmptyValuesAsNulls",None).notBlank
   lazy val location: Option[String] = properties.getString("location",None).notBlank
-  lazy val sheetName:  Option[String] = properties.getString("sheetName", None).notBlank
-  lazy val useHeader:  Option[String] = properties.getString("useHeader", None).notBlank
+  lazy val sheetName: Option[String] = properties.getString("sheetName",None).notBlank
+  lazy val useHeader = Try(properties.getString("useHeader", "false").toBoolean).getOrElse(false)
+  lazy val dataRange : Option[String] = properties.getString("dataRange", None).notBlank
   val sheetKey="sheetName"
+  val dataRangeKey="dataRange"
   val locationKey="location"
   override lazy val lineagePath: String = location.getOrElse("")
 
@@ -49,28 +54,22 @@ class XlsInputStepBatch(
         messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid.", name)
       )
 
-//    if (delimiter.isEmpty)
-//      validation = ErrorValidations(
-//        valid = false,
-//        messages = validation.messages :+ WorkflowValidationMessage(s"delimiter cannot be empty", name)
-//      )
+    if (sheetName.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"Sheet name cannot be empty", name)
+      )
 
     if (location.isEmpty)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"location cannot be empty", name)
       )
-    if (treatEmptyValuesAsNulls.isEmpty)
+    if (dataRange.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"treatEmptyValuesAsNulls cannot be empty", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"Data range cannot be empty (start_cell:end_cell)", name)
       )
-
-//    if (charset.exists(ch => !isCharsetSupported(ch)))
-//      validation = ErrorValidations(
-//        valid = false,
-//        messages = validation.messages :+ WorkflowValidationMessage(s"encoding charset is not valid", name)
-//      )
 
     if(debugOptions.isDefined && !validDebuggingOptions)
       validation = ErrorValidations(
@@ -92,15 +91,17 @@ class XlsInputStepBatch(
     require(location.nonEmpty, "The input path cannot be empty")
 
     val userOptions = propertiesWithCustom.flatMap { case (key, value) =>
-      if (key == sheetKey && sheetName.isEmpty)
-        None
-      else if(key==locationKey)
+      if(key==locationKey || key==sheetKey || key==dataRangeKey)
         None
       else
         Option(key -> value.toString)
     }
-    print(userOptions.toString())
-    val df = xDSession.read.format("com.crealytics.spark.excel").options(userOptions).load(location.get) //options(userOptions).load(path.get) //https://stackoverflow.com/questions/44196741/how-to-construct-dataframe-from-a-excel-xls-xlsx-file-in-scala-spark
+
+    val sheetData= "'"+sheetName.getOrElse(false).toString +"'!"+ dataRange.getOrElse(false).toString
+
+    val userOptions2 :Map[String,String]= userOptions + ("dataAddress" -> sheetData)
+
+    val df = xDSession.read.format("com.crealytics.spark.excel").options(userOptions2).load(location.get) //options(userOptions).load(path.get) //https://stackoverflow.com/questions/44196741/how-to-construct-dataframe-from-a-excel-xls-xlsx-file-in-scala-spark
 
     (df.rdd, Option(df.schema))
   }
