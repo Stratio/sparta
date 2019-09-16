@@ -16,9 +16,8 @@ import jsonTemplate from './inputs/json.json';
 import jdbcTemplate from './inputs/jdbc.json';
 import parquetTemplate from './inputs/parquet.json';
 import kafkaTemplate from './inputs/kafka.json';
+import crossdataStreamingTemplate from './inputs/crossdataStreaming.json';
 import crossdataBatchTemplate from './inputs/crossdataBatch.json';
-import sqlStreamingTemplate from './inputs/sqlStreaming.json';
-import sqlBatchTemplate from './inputs/sqlBatch.json';
 import customTemplate from './inputs/custom.json';
 import customLiteTemplate from './inputs/customLite.json';
 import customLiteXdTemplate from './inputs/customLiteXd.json';
@@ -45,6 +44,7 @@ export const inputs = [
     avroTemplate,
     binaryTemplate,
     cassandraBatchTemplate,
+    crossdataStreamingTemplate,
     crossdataBatchTemplate,
     csvTemplate,
     customTemplate,
@@ -67,8 +67,6 @@ export const inputs = [
     restStreamingTemplate,
     rowGeneratorBatchTemplate,
     sftpTemplate,
-    sqlBatchTemplate,
-    sqlStreamingTemplate,
     testBatchTemplate,
     testStreamingTemplate,
     xmlBatchTemplate,

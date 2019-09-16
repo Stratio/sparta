@@ -1,28 +1,32 @@
 {
-  "name": "Crossdata",
-  "icon": "Crossdata",
-  "category": "Database",
-  "className": "CrossdataInputStep",
-  "classPrettyName": "Crossdata",
-  "arity": [
-    "NullaryToNary"
-  ],
-  "crossdataCatalog": true,
-  "supportedEngines": [
-    "Batch"
-  ],
-  "supportedDataRelations": [
-    "ValidData"
-  ],
-  "description": "Allows you to load data from external Data Sources using Crossdata",
-  "properties": [
-    {
-      "propertyId": "crossdata",
-      "propertyName": "_CROSSDATA_TABLE_",
-      "propertyType": "crossdata",
-      "required": true,
-      "tooltip": "Table to read from the Crossdata catalog. The result will be stored in another temporal table named after the input step.",
-      "qa": "fragment-details-crossdata-query"
-    }
-  ]
+   "name": "Crossdata",
+   "icon": "Crossdata",
+   "className": "CrossdataInputStep",
+   "classPrettyName": "Crossdata",
+   "arity": ["NullaryToNary"],
+   "crossdataCatalog": true,
+   "supportedEngines": ["Batch"],
+   "supportedDataRelations": ["ValidData"],
+   "description": "Allows you to load data from external Data Sources using Crossdata",
+   "properties": [
+      {
+         "propertyId": "query",
+         "propertyName": "_QUERY_",
+         "propertyType": "textarea",
+         "contentType": "SQL",
+         "width": 12,
+         "required": true,
+         "tooltip": "Query to retrieve data from any temporal table available in the Crossdata catalog. The result will be stored in another temporal table named after the input step.",
+         "placeholder": "select * from tableName",
+         "qa": "fragment-details-crossdata-query"
+      },
+      {
+         "propertyId": "tlsEnabled",
+         "propertyName": "_TLS_ENABLE_",
+         "propertyType": "boolean",
+         "tooltip": "Enable TLS protocol in order to connect to a secured Crossdata catalog using certificates",
+         "default": false,
+         "qa": "fragment-details-postgres-tls"
+      }
+   ]
 }

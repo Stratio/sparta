@@ -83,10 +83,10 @@
   "pipelineGraph": {
     "nodes": [
       {
-        "name": "SQL",
+        "name": "Crossdata",
         "stepType": "Input",
-        "className": "SQLInputStep",
-        "classPrettyName": "SQL",
+        "className": "CrossdataInputStep",
+        "classPrettyName": "Crossdata",
         "arity": [
           "NullaryToNary"
         ],

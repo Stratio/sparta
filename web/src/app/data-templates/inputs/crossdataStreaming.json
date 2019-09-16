@@ -1,13 +1,13 @@
   {
-    "name": "StreamingSQL",
-    "icon": "SQL",
-    "className": "SQLInputStep",
-    "classPrettyName": "StreamingSQL",
+    "name": "Crossdata",
+    "icon": "Crossdata",
+    "className": "CrossdataInputStep",
+    "classPrettyName": "Crossdata",
     "crossdataCatalog": true,
     "arity": ["NullaryToNary"],
     "supportedEngines": ["Streaming"],
     "supportedDataRelations": ["ValidData"],
-    "description": "Allows you to execute any SQL to monitor tables migrating data in streaming processes with finite or infinite duration",
+    "description": "Allows you to load data from external Data Sources using Crossdata and to monitor tables migrating data in streaming processes with finite or infinite duration",
     "properties": [
       {
         "propertyId": "query",
@@ -16,9 +16,9 @@
         "contentType": "SQL",
         "width": 12,
         "required": true,
-        "tooltip": "Query to retrieve data from any table available in Crossdata or any temporal table. The result will be stored in another temporal table named after the input step.",
+        "tooltip": "Query to retrieve data from any temporal table available in the Crossdata catalog. The result will be stored in another temporal table named after the input step.",
         "placeholder": "select * from tableName",
-        "qa": "fragment-details-sql-query"
+        "qa": "fragment-details-crossdata-query"
       },
       {
         "propertyId": "continuousSentences",
@@ -37,7 +37,58 @@
             "contentType": "SQL",
             "width": 12,
             "tooltip": "SQL query to execute.",
-            "qa": "fragment-details-sql-continuousSentences-query"
+            "qa": "fragment-details-crossdata-continuousSentences-query"
+          }
+        ]
+      },
+      {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": true,
+        "default": "MEMORY_ONLY_SER",
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches. Refer to the Spark documentation for further information on this matter.",
+        "qa": "policy-storage-level",
+        "values": [
+          {
+            "label": "DISK_ONLY",
+            "value": "DISK_ONLY"
+          },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
           }
         ]
       },
@@ -46,7 +97,7 @@
         "propertyName": "_LIMIT_RECORDS_",
         "propertyType": "text",
          "tooltip": "Limit the records processed on each streaming window.",
-         "qa": "fragment-details-sql-limitRecords"
+         "qa": "fragment-details-crossdata-limitRecords"
       },
       {
          "propertyId": "offsetFields",
@@ -63,7 +114,7 @@
                "required": true,
                "width": 4,
                "tooltip": "Offset field in the source table",
-               "qa": "fragment-details-sql-offsetField"
+               "qa": "fragment-details-crossdata-offsetField"
             },
             {
                "propertyId": "offsetValue",
@@ -71,7 +122,7 @@
                "propertyType": "text",
                "width": 4,
                "tooltip": "Initial offset value",
-               "qa": "fragment-details-sql-offsetValue"
+               "qa": "fragment-details-crossdata-offsetValue"
             },
             {
                "propertyId": "offsetOperator",
@@ -99,7 +150,7 @@
                ],
                "default": ">=",
                "tooltip": "Offset operator to generate incremental or decremental queries in the source table",
-               "qa": "fragment-details-sql-offsetOperator"
+               "qa": "fragment-details-crossdata-offsetOperator"
             }
          ]
       },
@@ -109,7 +160,7 @@
         "propertyType": "boolean",
         "tooltip": "Store offsets in Kafka after all workflow outputs writes correctly. Is possible to simulates ONE TRANSACTION policy. It's mandatory to disable the auto commit when checked.",
         "default": true,
-        "qa": "fragment-details-sql-offset-after-write"
+        "qa": "fragment-details-crossdata-offset-after-write"
       },
       {
         "propertyId": "offsetLocation",
@@ -128,8 +179,40 @@
         "default": "MEMORY",
         "required": false,
         "tooltip": "Location where the offsets are saved",
-        "qa": "fragment-details-sql-offsetLocation"
+        "qa": "fragment-details-crossdata-offsetLocation"
       },
+      {
+        "propertyId": "zookeeperConnection",
+        "propertyName": "_ZOOKEEPER_CONNECTION_",
+        "propertyType": "text",
+        "visible": [
+          [
+            {
+              "propertyId": "offsetLocation",
+              "value": "ZOOKEEPER"
+            }
+          ]
+        ],
+         "default": "{{{Environment.CROSSDATA_ZOOKEEPER_CONNECTION}}}",
+         "tooltip": "Zookeeper connection string",
+        "qa": "fragment-details-crossdata-initialSentence"
+      },
+       {
+          "propertyId": "zookeeperPath",
+          "propertyName": "_ZOOKEEPER_PATH_",
+          "propertyType": "text",
+          "visible": [
+             [
+                {
+                   "propertyId": "offsetLocation",
+                   "value": "ZOOKEEPER"
+                }
+             ]
+          ],
+          "default": "{{{Environment.CROSSDATA_ZOOKEEPER_PATH}}}",
+          "tooltip": "Path in Zookeeper where the offsets are allocated.",
+          "qa": "fragment-details-crossdata-zookeeperPath"
+       },
        {
           "propertyId": "resetOffsetOnStart",
           "propertyName": "_RESET_ON_START_",
@@ -144,7 +227,7 @@
              ]
           ],
           "tooltip": "If checked, the application will reset any stored offsets when starting the streaming process.",
-          "qa": "fragment-details-sql-resetOffsetOnStart"
+          "qa": "fragment-details-crossdata-resetOffsetOnStart"
        },
        {
           "propertyId": "ignoreStartedStatus",
@@ -164,7 +247,7 @@
              ]
           ],
           "tooltip": "Force the offsets reset ignoring the workflow status. If not checked, the offsets will be restarted only when the workflow status is set to 'Not started'.",
-          "qa": "fragment-details-sql-ignoreStartedStatus"
+          "qa": "fragment-details-crossdata-ignoreStartedStatus"
        },
       {
         "propertyId": "stopContexts",
@@ -174,7 +257,7 @@
          "float": "true",
          "width": 4,
         "tooltip": "Allows the application to stop the Spark contexts after waiting for the processing of all received data to be completed",
-        "qa": "fragment-details-sql-stopContextsWhenEmpty"
+        "qa": "fragment-details-crossdata-stopContextsWhenEmpty"
       },
        {
           "propertyId": "finishAppWhenEmpty",
@@ -183,7 +266,15 @@
           "default": false,
           "width": 4,
           "tooltip": "If checked the application will shut down itself when no more data if left to be processed. It simulates a finite batch.",
-          "qa": "fragment-details-sql-stopWhenEmpty"
-       }
+          "qa": "fragment-details-crossdata-stopWhenEmpty"
+       },
+      {
+        "propertyId": "tlsEnabled",
+        "propertyName": "_TLS_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Enable TLS protocol in order to connect to a secured Crossdata catalog using certificates",
+        "default": false,
+        "qa": "fragment-details-postgres-tls"
+      }
     ]
   }

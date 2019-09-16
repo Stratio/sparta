@@ -110,11 +110,11 @@ hose {
 
         doCompile(config)
 
-        //parallel(UT: {
-        //    doUT(config)
-        //}, IT: {
-        //    doIT(config)
-        //}, failFast: config.FAILFAST)
+        parallel(UT: {
+            doUT(config)
+        }, IT: {
+            doIT(config)
+        }, failFast: config.FAILFAST)
 
         doPackage(config)
 

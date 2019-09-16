@@ -313,7 +313,7 @@ object LineageUtils extends ContextBuilderImplicits {
 
   def isCrossdataStepType(stepClassType: String): Boolean =
     stepClassType match {
-      case "Crossdata" | "Trigger" | "SQL" => true
+      case "Crossdata" | "Trigger" => true
       case _ => false
     }
 
@@ -321,7 +321,7 @@ object LineageUtils extends ContextBuilderImplicits {
     stepClassType match {
       case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" | "Text" => Some("HDFS")
       case "Jdbc" | "Postgres" => Some("SQL")
-      case "Crossdata" | "Trigger" | "SQL" => Some("XD")
+      case "Crossdata" | "Trigger" => Some("XD")
       case _ => None
     }
 }

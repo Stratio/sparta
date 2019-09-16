@@ -10,12 +10,19 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
-import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.InputStep
 import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.serving.core.workflow.lineage.CrossdataLineage
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
+
+import scala.language.implicitConversions
+import scala.util.{Failure, Success, Try}
 
 class CrossdataInputStepBatch(
                                name: String,
@@ -24,18 +31,66 @@ class CrossdataInputStepBatch(
                                xDSession: XDSession,
                                properties: Map[String, JSerializable]
                              )
-  extends CrossdataInputStep[RDD](name, outputOptions, ssc, xDSession, properties) {
+  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties)
+    with CrossdataLineage
+    with SLF4JLogging {
 
-  override def init(): DistributedMonad[RDD] = {
-    throw new Exception("Not used on inputs that generates Datasets with schema")
+  lazy val query: String = properties.getString("query", "").trim
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid.", name)
+      )
+
+    if (query.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input sql query cannot be empty", name)
+      )
+
+    if (query.nonEmpty && !validateSql)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input sql query is invalid", name)
+      )
+
+    if(debugOptions.isDefined && !validDebuggingOptions)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
+      )
+
+    validation
+  }
+
+  //Dummy function on batch inputs that generates DataSets with schema
+  def init(): DistributedMonad[RDD] = {
+    throw new Exception("Not used on inputs that generates DataSets with schema")
   }
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
-    require(maybeCrossdataInfo.isDefined, "Could not extract Crossdata database and table")
+    require(query.nonEmpty, "The input query cannot be empty")
+    require(validateSql, "The input query is invalid")
 
     val df = xDSession.sql(query)
+
     (df.rdd, Option(df.schema))
   }
+
+  override def lineageCatalogProperties(): Map[String, Seq[String]] = getCrossdataLineageProperties(xDSession, query)
+
+  def validateSql: Boolean =
+    Try(xDSession.sessionState.sqlParser.parsePlan(query)) match {
+      case Success(_) =>
+        true
+      case Failure(e) =>
+        log.error(s"$name invalid sql", e)
+        false
+    }
 
 }
 

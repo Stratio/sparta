@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.input.sql
+package com.stratio.sparta.plugin.workflow.input.crossdata
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.models.OutputWriterOptions
@@ -14,9 +14,9 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class SQLInputStepBatchIT extends TemporalSparkContext with Matchers {
+class CrossdataInputStepBatchIT extends TemporalSparkContext with Matchers {
 
-  "SQLInput " should "read all the records in one batch" in {
+  "CrossdataInput " should "read all the records in one batch" in {
 
     SparkSession.clearActiveSession()
 
@@ -33,8 +33,9 @@ class SQLInputStepBatchIT extends TemporalSparkContext with Matchers {
 
     val datasourceParams = Map("query" -> s"select * from $tableName")
     val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
-    val sqlInput = new SQLInputStepBatch("sqlInput", outputOptions, Option(ssc), sparkSession, datasourceParams)
-    val inputRdd = sqlInput.initWithSchema()._1
+    val crossdataInput = new CrossdataInputStepBatch(
+      "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
+    val inputRdd = crossdataInput.initWithSchema()._1
     val batchEvents = inputRdd.ds.count()
     val batchRegisters = inputRdd.ds.collect()
 

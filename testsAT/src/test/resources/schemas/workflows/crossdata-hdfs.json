@@ -183,10 +183,10 @@
         "lineageProperties": []
       },
       {
-        "name": "SQL",
+        "name": "Crossdata",
         "stepType": "Input",
-        "className": "SQLInputStepStreaming",
-        "classPrettyName": "SQL",
+        "className": "CrossdataInputStepStreaming",
+        "classPrettyName": "Crossdata",
         "arity": [
           "NullaryToNary"
         ],
