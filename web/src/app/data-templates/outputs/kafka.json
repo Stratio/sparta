@@ -460,5 +460,15 @@
           }
         ]
       }
+    ],
+    "writer":[
+      {
+        "propertyId": "partitionBy",
+        "propertyName": "_PARTITION_BY_",
+        "propertyType": "text",
+        "required": false,
+        "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
+        "qa": "partition-by-writer"
+      }
     ]
   }

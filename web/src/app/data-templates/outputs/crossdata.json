@@ -22,5 +22,26 @@
           "default": false,
           "qa": "fragment-details-errorSink"
        }
+    ],
+    "writer": [
+      {
+        "propertyId": "saveMode",
+        "propertyName": "_SAVEMODE_",
+        "propertyType": "select",
+        "required": true,
+        "default": "Append",
+        "tooltip": "Specifies a Save mode. According to the desired output step (e.g. Postgres), it is possible to select not only the native Spark save modes but also an Upsert save mode that requires the setting of the primary key fields property.",
+        "qa": "save-mode-writer",
+        "values": [
+          {
+            "label": "Append",
+            "value": "Append"
+          },
+          {
+            "label": "Overwrite",
+            "value": "Overwrite"
+          }
+        ]
+      }
     ]
   }

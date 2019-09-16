@@ -12,17 +12,19 @@ import { Location } from '@angular/common';
 
 import { iif, of, Observable, from } from 'rxjs';
 import { catchError, map, switchMap, withLatestFrom, mergeMap } from 'rxjs/operators';
-import { copyIntoClipboard } from '@utils';
 
 import * as fromWizard from './../reducers';
 import * as errorActions from 'actions/errors';
 import * as wizardActions from './../actions/wizard';
-import { InitializeWorkflowService, TemplatesService } from 'services/initialize-workflow.service';
+import { InitializeWorkflowService, TemplatesService, InitializeSchemaService } from 'services/initialize-workflow.service';
 import { WorkflowService } from 'services/workflow.service';
 import { WizardEdge, WizardNode } from '@app/wizard/models/node';
 import { WizardService } from '@app/wizard/services/wizard.service';
 import { WizardToolsService } from '@app/wizard/services/wizard-tools.service';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
+import { StepType } from '@models/enums';
+import { writerTemplate } from 'data-templates/index';
+import { getEditedNodeWriters } from '../selectors/writers';
 
 @Injectable()
 export class WizardEffect {
@@ -114,37 +116,51 @@ export class WizardEffect {
 
   @Effect()
   createEdge$: Observable<Action> = this.actions$
-    .pipe(ofType(wizardActions.CREATE_NODE_RELATION))
-    .pipe(map((action: any) => action.payload))
-    .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.wizard.wizard))))
-    .pipe(map(([payload, wizard]: [any, any]) => {
-      let relationExist = false;
-      // get number of connected entities in destionation and check if relation exists
-      wizard.edges.forEach((edge: WizardEdge) => {
-        if ((edge.origin === payload.origin && edge.destination === payload.destination) ||
-          (edge.origin === payload.destination && edge.destination === payload.origin)) {
-          relationExist = true;
+    .pipe(
+      ofType<wizardActions.CreateNodeRelationAction>(wizardActions.CREATE_NODE_RELATION),
+      map((action) => action.edge),
+      withLatestFrom(this._store.pipe(select(fromWizard.getEdges))),
+      withLatestFrom(this._store.pipe(select(fromWizard.getNodesMap))),
+      map(([[payload, edges], nodesMap]: [[WizardEdge, Array<WizardEdge>], any]) => {
+        let relationExist = false;
+        // get number of connected entities in destionation and check if relation exists
+        edges.forEach((edge: WizardEdge) => {
+          if ((edge.origin === payload.origin && edge.destination === payload.destination) ||
+            (edge.origin === payload.destination && edge.destination === payload.origin)) {
+            relationExist = true;
+          }
+        });
+        // throw error if relation exist or destination is the same than the origin
+        if (relationExist || (payload.origin === payload.destination)) {
+          return new wizardActions.CreateNodeRelationErrorAction('');
+        } else {
+          payload.dataType = 'ValidData';
+          const destinationNode: WizardNode = nodesMap[payload.destination];
+          const originNode: WizardNode = nodesMap[payload.origin];
+          // generate writer default config
+          return new wizardActions.CreateNodeRelationCompleteAction({
+            edge: payload,
+            originId: originNode.id,
+            destinationId: destinationNode.id,
+            writer: destinationNode.stepType === StepType.Output ?
+              InitializeSchemaService.getSchemaModel(writerTemplate) : null
+          });
         }
-      });
-      // throw error if relation exist or destination is the same than the origin
-      if (relationExist || (payload.origin === payload.destination)) {
-        return new wizardActions.CreateNodeRelationErrorAction('');
-      } else {
-        payload.dataType = 'ValidData';
-        return new wizardActions.CreateNodeRelationCompleteAction(payload);
-      }
-    }));
-
+      }));
   @Effect()
   getEditedWorkflow$: Observable<Action> = this.actions$
     .pipe(ofType(wizardActions.MODIFY_WORKFLOW))
     .pipe(map((action: any) => action.payload))
     .pipe(switchMap((id: any) => this._workflowService.getWorkflowById(id)
-      .pipe(switchMap((workflow: any) => [
-        new wizardActions.SetWorkflowTypeAction(workflow.executionEngine),
-        new wizardActions.GetMenuTemplatesAction(),
-        new wizardActions.ModifyWorkflowCompleteAction(this._initializeWorkflowService.getInitializedWorkflow(workflow))
-      ])).pipe(catchError(error => {
+      .pipe(switchMap((response: any) => {
+        const { workflow, writers } = this._initializeWorkflowService.getInitializedWorkflow(response);
+        return [
+          new wizardActions.SetWorkflowTypeAction(workflow.executionEngine),
+          new wizardActions.GetMenuTemplatesAction(),
+          new wizardActions.ModifyWorkflowCompleteAction(workflow),
+          new wizardActions.SetWorkflowWriters(writers)
+        ];
+      })).pipe(catchError(error => {
         return of(new wizardActions.ModifyWorkflowErrorAction(''));
       }))));
 
@@ -163,20 +179,15 @@ export class WizardEffect {
   @Effect()
   copyNodes$: Observable<Action> = this.actions$
     .pipe(ofType(wizardActions.COPY_NODES))
-    .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.wizard.wizard))))
-    .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.wizard.entities))))
-    .pipe(map(([[action, wizardState], entities]) => {
+    .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.wizard))))
+    .pipe(map(([action, state]) => {
+      const wizardState = state.wizard;
+      const writers = state.writers.writers;
+      const entities = state.entities;
       const selectedNodes = wizardState.selectedEntities;
       if (selectedNodes && selectedNodes.length) {
-        const nodes = wizardState.nodes.filter(wNode => selectedNodes.indexOf(wNode.name) > -1);
-        const edges = wizardState.edges.filter(edge => selectedNodes.indexOf(edge.origin) > -1 && selectedNodes.indexOf(edge.destination) > -1);
-        const value = JSON.stringify({
-          objectIdType: 'workflow',
-          workflowType: entities.workflowType,
-          nodes,
-          edges
-        }, null, 2);
-        localStorage.setItem('sp-copy-clipboard', value);
+        const data =  this._wizardToolsService.getCopiedModel(wizardState.selectedEntities, wizardState.nodes, wizardState.edges, writers, entities.workflowType);
+        localStorage.setItem('sp-copy-clipboard', data);
         // copyIntoClipboard(value);
         return new wizardActions.ShowNotificationAction({
           type: 'default',
@@ -201,7 +212,7 @@ export class WizardEffect {
           const model = JSON.parse(clipboardContent);
           if (model.objectIdType === 'workflow' && model.workflowType === entities.workflowType) {
             const names: Array<string> = wizardState.nodes.map(wNode => wNode.name);
-            const normalizedData = this._wizardToolsService.normalizeCopiedSteps(model.nodes, model.edges, names, wizardState.svgPosition);
+            const normalizedData = this._wizardToolsService.normalizeCopiedSteps(model.nodes, model.edges, names, wizardState.svgPosition, model.writers);
             return new wizardActions.PasteNodesCompleteAction(normalizedData);
           }
         } catch (error) {

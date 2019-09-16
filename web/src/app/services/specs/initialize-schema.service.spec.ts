@@ -65,14 +65,14 @@ describe('initialize-schema.service', function () {
 
    it('should be able to initize workflow settings model', () => {
       const template: any = <any>settingsTemplate;
-      spyOn(InitializeSchemaService, 'getCategoryModel');
+      spyOn(InitializeSchemaService, 'getSchemaModel');
       const model = InitializeSchemaService.setDefaultWorkflowSettings(template);
       expect(Object.keys(model.advancedSettings).length).toBe(template.advancedSettings.length);
-      expect(InitializeSchemaService.getCategoryModel).toHaveBeenCalled();
+      expect(InitializeSchemaService.getSchemaModel).toHaveBeenCalled();
    });
 
    it('should initialize caterory settings model', () => {
-      const model = InitializeSchemaService.getCategoryModel(schema);
+      const model = InitializeSchemaService.getSchemaModel(schema);
       expect(model.prop1).toBeDefined();
       expect(model.prop2).toBeDefined();
       expect(model.subcategory).toBeDefined();

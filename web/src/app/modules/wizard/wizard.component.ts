@@ -27,6 +27,7 @@ import { streamingPreprocessingNames, batchPreprocessingNames } from 'data-templ
 import { streamingAlgorithmNames, batchAlgorithmNames } from 'data-templates/pipelines/pipelines-algorithm';
 import { takeUntil } from 'rxjs/operators';
 import { WizardHelpCardsComponent } from './components/wizard-help-cards/wizard-help-cards.component';
+import { getEditedNodeWriters } from './selectors/writers';
 
 @Component({
   selector: 'wizard',
@@ -49,6 +50,7 @@ export class WizardComponent implements OnInit, OnDestroy {
   public showDebugConsole: boolean;
   public genericError: any;
   public consoleDebugData: any;
+  public editedNodeWriters$: Observable<any>;
 
   public workflowData: WorkflowData;
   public pipelinesMenu: any = [
@@ -89,7 +91,7 @@ export class WizardComponent implements OnInit, OnDestroy {
     };
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     const id = this._route.snapshot.params.id;
     this.isEdit = (id && id.length);
     const showHelpCards = localStorage.getItem('sparta-cards-help');
@@ -97,6 +99,7 @@ export class WizardComponent implements OnInit, OnDestroy {
       this._showCardsModal();
     }
     this.username$ = this._store.pipe(select(fromRoot.getUsername));
+    this.editedNodeWriters$ = this._store.pipe(select(getEditedNodeWriters));
     this._store.dispatch(new externalDataActions.GetParamsListAction());
     this._store.dispatch(new externalDataActions.GetMlModelsListAction());
     this._store.dispatch(new wizardActions.ResetWizardAction(this.isEdit));  // Reset wizard to default settings

@@ -50,5 +50,74 @@
             }
          ]
       }
-   ]
+   ],
+  "writer": [
+    {
+      "propertyId": "saveMode",
+      "propertyName": "_SAVEMODE_",
+      "propertyType": "select",
+      "required": true,
+      "default": "Append",
+      "tooltip": "Specifies a Save mode. According to the desired output step (e.g. Postgres), it is possible to select not only the native Spark save modes but also an Upsert save mode that requires the setting of the primary key fields property.",
+      "qa": "save-mode-writer",
+      "values": [
+        {
+          "label": "Append",
+          "value": "Append"
+        },
+        {
+          "label": "Error if exists",
+          "value": "ErrorIfExists"
+        },
+        {
+          "label": "Ignore",
+          "value": "Ignore"
+        },
+        {
+          "label": "Overwrite",
+          "value": "Overwrite"
+        },
+        {
+          "label": "Upsert",
+          "value": "Upsert"
+        },
+        {
+          "label": "Delete",
+          "value": "Delete"
+        }
+      ]
+    },
+    {
+      "propertyId": "primaryKey",
+      "propertyName": "_PRIMARY_KEY_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Sets the fields which indicates the 'WHERE' clause in the 'Upsert' save mode.",
+      "qa": "primaryKey-by-writer"
+    },
+    {
+      "propertyId": "updateFields",
+      "propertyName": "_UPDATE_FIELDS_",
+      "propertyType": "text",
+      "required": false,
+      "visible": [
+        [
+          {
+            "propertyId": "saveMode",
+            "value": "Upsert"
+          }
+        ]
+      ],
+      "tooltip": "These fields are the only one that will be updated on 'Upsert' operation",
+      "qa": "constraint-by-writer"
+    },
+    {
+      "propertyId": "partitionBy",
+      "propertyName": "_PARTITION_BY_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
+      "qa": "partition-by-writer"
+    }
+  ]
 }

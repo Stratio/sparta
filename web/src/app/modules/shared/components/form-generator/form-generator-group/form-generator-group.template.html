@@ -1,21 +1,23 @@
 <form #groupForm="ngForm" class="form-group" novalidate autocomplete="off">
-   <st-horizontal-tabs [options]="options" [style.width.px]="250*(options.length)" [qaTag]="qaTag" (changedOption)="changeFormOption($event)"
-      class="form-tabs">
-   </st-horizontal-tabs>
-   <div class="subsections">
-      <div [hidden]="activeOption !== formData[0].name">
+  <st-horizontal-tabs [options]="options"  [qaTag]="qaTag" (changedOption)="changeFormOption($event)"
+     class="form-tabs">
+  </st-horizontal-tabs>
+  <div class="subsections">
+    <div [style.maxWidth.px]="formMaxWidth">
+       <div [hidden]="activeOption !== formData[0].name">
          <ng-content></ng-content>
-      </div>
-      <div *ngFor="let category of formData; let i = index;">
+       </div>
+       <div *ngFor="let category of formData; let i = index;">
          <div [hidden]="activeOption !== category.name">
-            <form-generator [valueDictionary]="valueDictionary" 
-                [forceValidations]="forceValidations"
-                [variableList]="variableList" 
-                [showVars]="showVars" 
-                [(ngModel)]="stModel[category.name]" 
-                [name]="category.name" 
-                [formData]="category.properties"></form-generator>
+           <form-generator [valueDictionary]="valueDictionary"
+             [forceValidations]="forceValidations"
+             [variableList]="variableList"
+             [showVars]="showVars"
+             [(ngModel)]="stModel[category.name]"
+             [name]="category.name"
+             [formData]="category.properties"></form-generator>
          </div>
-      </div>
+       </div>
    </div>
+  </div>
 </form>

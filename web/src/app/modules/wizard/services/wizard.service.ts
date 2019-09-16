@@ -14,9 +14,12 @@ import { PipelineType, Engine } from '@models/enums';
 import { batchPreprocessingObject, streamingPreprocessingObject } from 'data-templates/pipelines/pipelines-preprocessing';
 import { batchAlgorithmObject, streamingAlgorithmObject } from 'data-templates/pipelines/pipelines-algorithm';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class WizardService {
   private _workflowType: string;
+  private _stepIndex = 0;
   public get workflowType() {
     return this._workflowType;
   }
@@ -79,9 +82,14 @@ export class WizardService {
     }
   }
 
-  getWorkflowModel(state: any) {
+  public getWorkflowModel(state: any) {
     const wizard = state.wizard.wizard;
     const entities = state.wizard.entities;
+    const writers = state.wizard.writers.writers;
+    const namesMap = wizard.nodes.reduce((acc, node) => {
+      acc[node.id] = node.name;
+      return acc;
+    }, {});
     return Object.assign({
       id: wizard.workflowId && wizard.workflowId.length ? wizard.workflowId : undefined,
       version: wizard.workflowVersion,
@@ -90,7 +98,22 @@ export class WizardService {
         position: wizard.svgPosition
       },
       pipelineGraph: {
-        nodes: wizard.nodes,
+        nodes: wizard.nodes.map(node => {
+          const nodeWriters = writers[node.id];
+          if (nodeWriters) {
+            return {
+              ...node,
+              outputsWriter: Object.keys(nodeWriters).map(key => {
+                return {
+                  ...nodeWriters[key],
+                  outputStepName: namesMap[key]
+                };
+              })
+            };
+          } else {
+            return node;
+          }
+        }),
         edges: wizard.edges,
         annotations: wizard.annotations
       },
@@ -98,5 +121,10 @@ export class WizardService {
         wizard.workflowGroup : state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup,
       settings: wizard.settings.advancedSettings
     }, wizard.settings.basic);
+  }
+
+  public generateStepID() {
+    this._stepIndex++;
+    return 'stepID-' + this._stepIndex;
   }
 }

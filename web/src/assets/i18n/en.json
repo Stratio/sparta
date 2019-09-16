@@ -933,6 +933,8 @@
     "QUERY_BUILDER": {
       "NO_INPUT_SCHEMAS": "You must add at least one input and run a debug execution to use this query builder."
     },
+    "WRITER_ERROR": "1 error detected",
+    "WRITER_ERRORS": "{{number}} errors detected",
     "RELATIONS": {
       "DEFAULT": "Default relation",
       "VALIDDATA": "Valid data",

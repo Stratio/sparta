@@ -14,30 +14,30 @@ export class InitializeSchemaService {
   constructor(private _translate: TranslateService) { }
 
   public static setDefaultWorkflowSettings(value: any): any {
-      const model: any = {};
-      model.basic = {
-          name: 'workflow-name',
-          description: ''
-      };
-      model.advancedSettings = {};
-      value.advancedSettings.map((category: any) => {
-          model.advancedSettings[category.name] = this.getCategoryModel(category.properties);
-      });
-      model.advancedSettings = {
-          ...model.advancedSettings,
-          global: {
-              ...model.advancedSettings.global,
-              parametersLists: ['Environment']
-          }
-      };
-      return model;
+    const model: any = {};
+    model.basic = {
+      name: 'workflow-name',
+      description: ''
+    };
+    model.advancedSettings = {};
+    value.advancedSettings.map((category: any) => {
+      model.advancedSettings[category.name] = this.getSchemaModel(category.properties);
+    });
+    model.advancedSettings = {
+      ...model.advancedSettings,
+      global: {
+        ...model.advancedSettings.global,
+        parametersLists: ['Environment']
+      }
+    };
+    return model;
   }
 
-  public static getCategoryModel(value: any): any {
+  public static getSchemaModel(value: any): any {
     const model: any = {};
     value.map((prop: any) => {
       if (prop.properties) {
-        model[prop.name] = this.getCategoryModel(prop.properties);
+        model[prop.name] = this.getSchemaModel(prop.properties);
       } else {
         model[prop.propertyId] = prop.default ? prop.default : null;
       }
@@ -45,7 +45,7 @@ export class InitializeSchemaService {
     return model;
   }
 
-  setDefaultEntityModel(workflowtype: string, value: any, stepType: string, writerOptions = false): any {
+  public setDefaultEntityModel(workflowtype: string, value: any, stepType: string, writerOptions = false): any {
     const model: any = {};
     model.configuration = {};
     model.supportedEngines = value.supportedEngines;
@@ -69,13 +69,13 @@ export class InitializeSchemaService {
   getConfiguration(value: any) {
     const configuration = {};
     value.properties.map((prop: any) => {
-      if(prop.properties) {
+      if (prop.properties) {
         configuration[prop.propertyId] = this.getConfiguration(prop);
       } else {
-        if(prop.default) {
+        if (prop.default) {
           configuration[prop.propertyId] = prop.default ? prop.default : null;
         } else {
-          if(prop.propertyType === 'boolean' || prop.propertyType === 'switch') {
+          if (prop.propertyType === 'boolean' || prop.propertyType === 'switch') {
             configuration[prop.propertyId] = false;
           }
         }
@@ -124,7 +124,7 @@ export class InitializeSchemaService {
           hidden: (prop.hasOwnProperty('hidden')) ? prop.hidden : false
         };
       })
-      .filter(value => !value.hidden );
+      .filter(value => !value.hidden);
   }
 
   getSubProperties(property: any) {

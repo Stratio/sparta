@@ -71,12 +71,11 @@
       font-size: 17px;
       cursor: pointer;
 
-      &:after {
+      &:before {
         content: '\E63F';
         font-family: ico_stratio;
         font-size: 1rem;
-        right: 0;
-        position: absolute;
+        margin-right: 10px;
       }
     }
 
@@ -86,7 +85,7 @@
     }
 
     &--collapsed {
-      &>.form-category__title:after {
+      &>.form-category__title:before {
         content: '\E605';
       }
 

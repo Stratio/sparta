@@ -51,11 +51,11 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
   writeValue(value: any): void {
     if (value) {
       let val;
-       try {
-          val = typeof value === 'string' ? JSON.parse(value) : value;
-        } catch(error) {
-          val = value;
-        }
+      try {
+        val = typeof value === 'string' ? JSON.parse(value) : value;
+      } catch (error) {
+        val = value;
+      }
       this.stFormGroup.patchValue(val);
     } else {
       this.stModel = {};
@@ -69,9 +69,19 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
   registerOnTouched(fn: any): void { }
 
   validate(c: FormGroup): { [key: string]: any; } {
+    const controls = this.stFormGroup.controls;
     return (this.stFormGroup.valid) ? null : {
       formGeneratorError: {
-        valid: false
+        valid: false,
+        errors: Object.keys(controls).reduce((acc, key) => {
+          if (controls[key].invalid) {
+            acc.push({
+              name: key,
+              errors: controls[key].errors
+            });
+          }
+          return acc;
+        }, [])
       }
     };
   }

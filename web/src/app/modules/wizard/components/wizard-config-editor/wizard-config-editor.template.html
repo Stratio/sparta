@@ -28,7 +28,8 @@
         (click)="isShowedHelp = !isShowedHelp">
          <i class="icon-help2"></i>
       </button>
-      <button *ngIf="entityFormModel.classPrettyName !== 'QueryBuilder'" class="show-catalog button button-toolbar" [ngClass]="{'selected-button' : isShowedInfo}" id="show-catalog-button"
+      <button *ngIf="entityFormModel.classPrettyName !== 'QueryBuilder'"
+        class="show-catalog button button-toolbar" [ngClass]="{'selected-button' : isShowedInfo}" id="show-catalog-button"
          (click)="toggleInfo()" >
          <i class="icon-info1"></i>
       </button>
@@ -46,48 +47,76 @@
       </sp-help>
    </div>
    <div class="st-fullscreen-layout-content">
-      <div class="node-edition" >
-         <form [hidden]="entityFormModel.classPrettyName === 'QueryBuilder' && visualQueryBuilder"  #entityForm="ngForm" class="form-group" novalidate autocomplete="off" (ngSubmit)="saveForm()">
-            <st-horizontal-tabs class="entity-categories" *ngIf="options.length" [options]="options"
-               qaTag="node-tabs" (changedOption)="changeFormOption($event)">
-            </st-horizontal-tabs>
-            <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
-               <div class="col-sm-8" [ngClass]="{'error' : validatedName}">
-                  <sp-input name="name" (change)="resetValidation()" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}} *"
-                     fieldType="text" [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
-                     class="input-field st-form-field"></sp-input>
-                  <div class="st-input-error-message name-validation" *ngIf="validatedName">{{'WIZARD.NODE_NAME_VALIDATION' | translate}}</div>
-               </div>
+      <div class="config__container" [ngClass]="{'config__container--collapsed' : isShowedInfo}">
+        <form [hidden]="entityFormModel.classPrettyName === 'QueryBuilder' && visualQueryBuilder"  #entityForm="ngForm" class="form-group" novalidate autocomplete="off" (ngSubmit)="saveForm()">
+          <st-horizontal-tabs class="config__categories"
+            *ngIf="options.length"
+            [options]="options"
+            [activeOption]="activeOption"
+            qaTag="node-tabs"
+            (changedOption)="changeFormOption($event)">
+          </st-horizontal-tabs>
+          <div class="config__form">
+            <div class="config__form-container">
+              <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption.id === 'Global')">
+                <div class="col-sm-8" [ngClass]="{'error' : validatedName}">
+                    <sp-input name="name" (change)="resetValidation()" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}} *"
+                      fieldType="text" [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
+                      class="input-field st-form-field"></sp-input>
+                    <div class="st-input-error-message name-validation" *ngIf="validatedName">{{'WIZARD.NODE_NAME_VALIDATION' | translate}}</div>
+                </div>
+              </div>
             </div>
-            <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
-               <div class="col-sm-8">
-                  <sp-textarea name="description" [(ngModel)]="entityFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
-                     fieldType="text" [required]="false" qaTag="input-name" [forceValidations]="submitted" [errors]="errorsService.errors.inputErrors"
-                     class="input-field st-form-field"></sp-textarea>
-               </div>
+            <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption.id === 'Global')">
+              <div class="col-sm-8">
+                <sp-textarea name="description" [(ngModel)]="entityFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
+                    fieldType="text" [required]="false" qaTag="input-name" [forceValidations]="submitted" [errors]="errorsService.errors.inputErrors"
+                    class="input-field st-form-field"></sp-textarea>
+              </div>
             </div>
+            <writers-config *ngIf="nodeWriters"
+              [writersGroup]="writersGroup"
+              [hidden]="activeOption.id !== 'Writer'"
+              [forceValidations]="submitted"
+              [nodeWritersNames]="nodeWritersNames$ | async"
+              [nodeWriters]="nodeWriters"></writers-config>
 
-        <form-generator *ngIf="config.editionType.stepType !== 'Output'" [variableList]="formVariables" [showVars]="true" [hidden]="activeOption !== 'Writer'"
-                        [forceValidations]="submitted" name="writer" [valueDictionary]="valueDictionary" [formData]="writerSettings" [(ngModel)]="entityFormModel.writer"></form-generator>
+            <form-generator *ngIf="!isTemplate"
+              [variableList]="formVariables"
+              [showVars]="true"
+              [hidden]="!(config.editionType.stepType === 'Output' || activeOption.id === 'Global')"
+              [forceValidations]="submitted"
+              name="global"
+              [formData]="basicSettings"
+              [valueDictionary]="valueDictionary"
+              [(ngModel)]="entityFormModel.configuration"></form-generator>
 
-        <form-generator *ngIf="!isTemplate" [variableList]="formVariables" [showVars]="true" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')"
-                        [forceValidations]="submitted" name="global" [formData]="basicSettings" [valueDictionary]="valueDictionary" [(ngModel)]="entityFormModel.configuration"></form-generator>
+          <div class="mocks-tab"
+            *ngIf="config.editionType.stepType === 'Input'"
+            [style.display]="activeOption.id === 'Mocks' ? 'block' : 'none'">
+            <mocks-config [model]="debugOptions"></mocks-config>
+          </div>
 
-        <div class="mocks-tab" *ngIf="config.editionType.stepType === 'Input'" [style.visibility]="activeOption === 'Mocks' ? 'visible' : 'hidden'">
-          <mocks-config [model]="debugOptions"></mocks-config>
-        </div>
-        <div class="template-data" *ngIf="isTemplate && templateData && activeOption === 'Global'">
-          <div class="egeo-title-medium">Template configuration</div>
-          <div class="advice-params">These are read-only parameters. To edit them, <span class="link" (click)="editTemplate(templateData.id)">go to the Templates section</span>.</div>
-          <form-generator [forceValidations]="submitted" [disabled]="true" [disabledForm]="true" name="global" [formData]="basicSettings"
-                          [(ngModel)]="templateData.configuration"></form-generator>
+          <div class="template-data" *ngIf="isTemplate && templateData && activeOption.id === 'Global'">
+            <div class="egeo-title-medium">Template configuration</div>
+            <div class="advice-params">
+              These are read-only parameters. To edit them,
+              <span class="link" (click)="editTemplate(templateData.id)">go to the Templates section</span>.
+            </div>
+            <form-generator [forceValidations]="submitted"
+              [disabled]="true"
+              [disabledForm]="true"
+              name="global"
+              [formData]="basicSettings"
+              [(ngModel)]="templateData.configuration"></form-generator>
+          </div>
         </div>
       </form>
-      <div *ngIf="entityFormModel.classPrettyName === 'QueryBuilder'" [hidden]="!visualQueryBuilder">
-        <query-builder [nodeData]="config" [entityFormModel]="entityFormModel" ></query-builder>
-      </div>
-    </div>
 
+    </div>
+    <div *ngIf="entityFormModel.classPrettyName === 'QueryBuilder'" [hidden]="!visualQueryBuilder">
+      <query-builder [nodeData]="config" [entityFormModel]="entityFormModel" ></query-builder>
+    </div>
     <sidebar-config
       *ngIf="!(entityFormModel.classPrettyName === 'QueryBuilder')"
       [nodeData]="config"

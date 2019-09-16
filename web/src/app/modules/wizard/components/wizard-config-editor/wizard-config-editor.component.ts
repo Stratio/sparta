@@ -14,10 +14,10 @@ import {
   ViewChild
 } from '@angular/core';
 import { Store, select } from '@ngrx/store';
-import { NgForm } from '@angular/forms';
+import { NgForm, FormGroup } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
 import { Router } from '@angular/router';
-import { Subscription, Subject } from 'rxjs';
+import { Subscription, Subject, Observable } from 'rxjs';
 
 import { cloneDeep as _cloneDeep } from 'lodash';
 
@@ -33,6 +33,8 @@ import { EditionConfigMode } from '@app/wizard/models/node';
 
 import * as fromQueryBuilder from '../query-builder/reducers';
 import { take, takeUntil } from 'rxjs/operators';
+import { WizardConfigEditorService } from './wizard-config.service';
+import { writerOption, mockOption, globalOption } from './wizard-config.model';
 
 
 @Component({
@@ -46,9 +48,10 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
   @Input() config: EditionConfigMode;
   @Input() workflowType: string;
-  @Input() parameters;
+  @Input() parameters: any;
   @Input() environmentList: Array<Environment> = [];
   @Input() mlModelsList: Array<string> = [];
+  @Input() nodeWriters: any;
   @ViewChild('entityForm') public entityForm: NgForm;
 
   public basicSettings: any = [];
@@ -69,30 +72,31 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
   public isShowedInfo = true;
   public fadeActive = false;
 
-  public activeOption = 'Global';
+  public activeOption: StHorizontalTab;
   public options: StHorizontalTab[] = [];
   public debugOptions: any = {};
   public helpOptions: Array<HelpOptions> = [];
   public editTitle = false;
   public queryBuilder: any;
   public visualQueryBuilder = false;
+  public nodeWritersNames$: Observable<any>;
 
+  public writersGroup = new FormGroup({});
+  public validatedName$: Observable<boolean>;
   private _componentDestroyed = new Subject();
-  private _allOptions: StHorizontalTab[] = [{
-    id: 'Global',
-    text: 'Global'
-  }, {
-    id: 'Writer',
-    text: 'Writer'
-  },
-  {
-    id: 'Mocks',
-    text: 'Mock Data'
-  }];
   private saveSubscription: Subscription;
-  private validatedNameSubcription: Subscription;
 
-  ngOnInit(): void {
+  constructor(
+    private _store: Store<fromWizard.State>,
+    private _router: Router,
+    private _initializeSchemaService: InitializeSchemaService,
+    private _cd: ChangeDetectorRef,
+    private _wizardService: WizardService,
+    private _wizardConfigEditorService: WizardConfigEditorService,
+    public errorsService: ErrorMessagesService
+  ) { }
+
+  public ngOnInit(): void {
     setTimeout(() => {
       this.fadeActive = true;
       this._cd.markForCheck();
@@ -118,13 +122,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       value: model
     }));
     this._getMenuTabs();
-    this.validatedNameSubcription = this._store.pipe(select(fromWizard.getValidatedEntityName))
-      .pipe(takeUntil(this._componentDestroyed))
-      .subscribe((validation: boolean) => {
-        this.validatedName = validation;
-        this._cd.markForCheck();
-      });
-
+    this.validatedName$ = this._store.pipe(select(fromWizard.getValidatedEntityName));
     this.saveSubscription = this._store.pipe(select(fromWizard.isEntitySaved))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((isEntitySaved) => {
@@ -149,38 +147,52 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
     this.getFormTemplate();
     this.visualQueryBuilder = true;
+    if (this.nodeWriters) {
+      this._getWriterOutputNames();
+    }
   }
 
-  resetValidation() {
+  public ngOnDestroy(): void {
+    this._componentDestroyed.next();
+    this._componentDestroyed.unsubscribe();
+    const isPipelineNodeEdition = (this.config.editionType.data.classPrettyName === 'MlPipeline');
+    this._store.dispatch(new wizardActions.ModifyIsPipelinesNodeEdition(isPipelineNodeEdition));
+    if (this.saveSubscription) {
+      this.saveSubscription.unsubscribe();
+    }
+  }
+
+  public resetValidation() {
     this._store.dispatch(new wizardActions.SaveEntityErrorAction(false));
   }
 
-  cancelEdition() {
+  public cancelEdition() {
     this._store.dispatch(new wizardActions.HideEditorConfigAction());
     this._store.dispatch(new wizardActions.SaveEntityErrorAction(false));
   }
 
-  changeFormOption(event: any) {
-    this.activeOption = event.id;
+  public changeFormOption(event: StHorizontalTab) {
+    this.activeOption = event;
     if (event.id === 'Global') {
       this.helpOptions = this._initializeSchemaService.getHelpOptions(this.basicSettings);
     } else if (event.id === 'Writer') {
       this.helpOptions = this._initializeSchemaService.getHelpOptions(this.writerSettings);
     }
   }
-  onEditTitle() {
+
+  public onEditTitle() {
     this.editTitle = true;
   }
 
-  onSaveName() {
+  public onSaveName() {
     this.editTitle = false;
   }
 
-  toggleInfo() {
+  public toggleInfo() {
     this._store.dispatch(new wizardActions.ToggleCrossdataCatalogAction());
   }
 
-  editTemplate(templateId) {
+  public editTemplate(templateId) {
     let routeType = '';
     switch (this.config.editionType.data.stepType) {
       case StepType.Input:
@@ -201,11 +213,11 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  closeHelp() {
+  public closeHelp() {
     this.isShowedHelp = false;
   }
 
-  getFormTemplate() {
+  public getFormTemplate() {
     if (this.config.editionType.data.createdNew) {
       this.submitted = false;
     }
@@ -265,7 +277,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     this.entityFormModel.relationType = this.config.editionType.data.relationType;
     this.entityFormModel.createdNew = false;
     if (this.entityFormModel.classPrettyName === 'QueryBuilder') {
-      const queryConfiguration = this.normalizeQueryConfiguration();
+      const queryConfiguration = this._wizardConfigEditorService.normalizeQueryConfiguration(this.queryBuilder);
       this.queryBuilder.outputSchemaFields = this.queryBuilder.outputSchemaFields.map(output => ({
         ...output,
         position: { ...output.position, y: output.position.y > 200 ? output.position.y - 110 : output.position.y }
@@ -288,94 +300,37 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
         closeEdition: true
       }));
     }
-
-  }
-
-  normalizeQueryConfiguration() {
-    const usedInputs = [].concat.apply([], this.queryBuilder.outputSchemaFields
-      .map(output => output.originFields.map(field => `${field.alias}.${field.table}`)))
-      .filter((elem, index, self) => index === self.indexOf(elem));
-    let joinClause = null;
-    let fromClause = null;
-    if (usedInputs.length > 1 || this.queryBuilder.join.type.includes('RIGHT_ONLY') || this.queryBuilder.join.type.includes('LEFT_ONLY')) {
-      // JOIN
-      if (this.queryBuilder.join && this.queryBuilder.join.joins && this.queryBuilder.join.joins.length) {
-        const origin = this.queryBuilder.join.joins[0].origin;
-        const destination = this.queryBuilder.join.joins[0].destination;
-        const leftTable = { tableName: origin.table, alias: origin.alias };
-        const rightTable = { tableName: destination.table, alias: destination.alias };
-        const joinTypes = this.queryBuilder.join.type;
-        const joinConditions = this.queryBuilder.join.joins.map(join => ({ leftField: join.origin.column, rightField: join.destination.column }));
-        joinClause = { leftTable, rightTable, joinTypes, joinConditions };
-      } else {
-        joinClause = {
-          leftTable: { tableName: this.queryBuilder.inputSchemaFields[0].name, alias: this.queryBuilder.inputSchemaFields[0].alias },
-          rightTable: { tableName: this.queryBuilder.inputSchemaFields[1].name, alias: this.queryBuilder.inputSchemaFields[1].alias },
-          joinTypes: 'CROSS'
-        };
-      }
-    } else {
-      // FROM
-      if (this.queryBuilder.inputSchemaFields.length || this.queryBuilder.outputSchemaFields.length) {
-        const table = this.queryBuilder.inputSchemaFields[0];
-        const ouputTable = this.queryBuilder.outputSchemaFields[0] || [];
-        fromClause = {
-          tableName: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].table : table.name,
-          alias: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].alias : table.alias
-        };
-      }
+    // save writer options
+    if (this.nodeWriters) {
+      this._store.dispatch(new wizardActions.SaveNodeWriterOptions(this.entityFormModel.id, this.writersGroup.value));
     }
-
-
-
-    // SELECT
-    const selectClauses = this.queryBuilder.outputSchemaFields
-      .map(output => {
-        if (output.column) {
-          return {
-            expression: output.expression,
-            alias: output.column
-          };
-        } else {
-          return {
-            expression: output.expression
-          };
-        }
-      });
-
-    // WHERE
-    const whereClause = this.queryBuilder.filter;
-
-
-
-    // ORDERBY
-    const orderByClauses = this.queryBuilder.outputSchemaFields
-      .map((output, position) => {
-        const order = !output.order ? output.order : output.order === 'orderAsc' ? 'ASC' : 'DESC';
-        return { field: output.expression, order, position };
-      })
-      .filter(output => !!output.order);
-
-
-    const result = { selectClauses, whereClause, joinClause, orderByClauses, fromClause };
-    // Delete null references
-    Object.keys(result).forEach((key) => (result[key] === null) && delete result[key]);
-
-    return result;
   }
 
   private _getMenuTabs() {
-    switch (this.config.editionType.stepType) {
-      case StepType.Input:
-        this.options = this._allOptions;
-        break;
-      case StepType.Transformation:
-        this.options = this._allOptions.slice(0, 2);
-        break;
-      case StepType.Output:
-        this.options = [];
-        break;
+    const options: StHorizontalTab[] = [globalOption];
+    if (this.nodeWriters) {
+      options.push(this._getWriterTab(this.writersGroup.valid));
+      this.writersGroup.statusChanges
+        .pipe(takeUntil(this._componentDestroyed))
+        .subscribe((status) => {
+          const writerTab = this._getWriterTab(this.writersGroup.valid);
+          this.options = this.options.map(option => option.id === writerOption.id ?
+            writerTab : option);
+          this._cd.markForCheck();
+        });
     }
+    if (this.config.editionType.stepType === StepType.Input) {
+      options.push(mockOption);
+    }
+    this.options = options;
+    this.activeOption = options[0];
+  }
+
+  private _getWriterTab(status: boolean) {
+    return {
+      ...writerOption,
+      text: writerOption.text + ` (${Object.keys(this.nodeWriters).length})`
+    };
   }
 
   private _getInputSchema(input: any) {
@@ -391,20 +346,8 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(
-    private _store: Store<fromWizard.State>,
-    private _router: Router,
-    private _initializeSchemaService: InitializeSchemaService,
-    private _cd: ChangeDetectorRef,
-    private _wizardService: WizardService,
-    public errorsService: ErrorMessagesService
-  ) { }
-
-  ngOnDestroy(): void {
-    this._componentDestroyed.next();
-    this._componentDestroyed.unsubscribe();
-    const isPipelineNodeEdition = (this.config.editionType.data.classPrettyName === 'MlPipeline');
-    this._store.dispatch(new wizardActions.ModifyIsPipelinesNodeEdition(isPipelineNodeEdition));
+  private _getWriterOutputNames() {
+    this.nodeWritersNames$ = this._store.select(fromWizard.getStepNamesFromIDs(Object.keys(this.nodeWriters)));
   }
 }
 

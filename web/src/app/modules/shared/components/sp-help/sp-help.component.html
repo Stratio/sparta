@@ -8,7 +8,7 @@
       <span (click)="onCloseHelpMenu.emit()" class="icon-cross close-help"></span>
    </div>
    <div class="help-content">
-      <perfect-scrollbar class="scroll-bar" style="max-width: 600px; max-height: 320px;" [config]="config" [scrollIndicators]="false">
+      <div class="scroll-bar custom-scrollbar" style="max-width: 600px; max-height: 320px;">
          <ul class="tips" *ngIf="!definitionShowed">
             <li *ngFor="let option of options" (click)="showDefinition(option.label)">{{option.label | translate}}</li>
          </ul>
@@ -22,7 +22,7 @@
                </div>
             </div>
          </div>
-      </perfect-scrollbar>
+        </div>
       <div class="help-links" *ngIf="!definitionShowed" (click)="showSpartaDoc()">
          <span class="icon icon-export"></span> {{'GLOBAL.DOCUMENTATION_LINK' | translate}}
       </div>

@@ -3,8 +3,8 @@
     "icon": "Avro",
     "className": "AvroOutputStep",
     "classPrettyName": "Avro",
-     "arity": ["NullaryToNullary", "NaryToNullary"],
-     "supportedEngines": ["Streaming", "Batch"],
+    "arity": ["NullaryToNullary", "NaryToNullary"],
+    "supportedEngines": ["Streaming", "Batch"],
     "description": "Serializes data in a compact binary format. It can provide both a serialization format for persistent data, and a wire format for communication between Hadoop nodes.",
     "properties": [
       {
@@ -48,5 +48,43 @@
           }
         ]
       }
+    ],
+    "writer": [
+      {
+        "propertyId": "saveMode",
+        "propertyName": "_SAVEMODE_",
+        "propertyType": "select",
+        "required": true,
+        "default": "Append",
+        "tooltip": "Specifies a Save mode. According to the desired output step (e.g. Postgres), it is possible to select not only the native Spark save modes but also an Upsert save mode that requires the setting of the primary key fields property.",
+        "qa": "save-mode-writer",
+        "values": [
+          {
+            "label": "Append",
+            "value": "Append"
+          },
+          {
+            "label": "Error if exists",
+            "value": "ErrorIfExists"
+          },
+          {
+            "label": "Ignore",
+            "value": "Ignore"
+          },
+          {
+            "label": "Overwrite",
+            "value": "Overwrite"
+          }
+        ]
+      },
+      {
+        "propertyId": "partitionBy",
+        "propertyName": "_PARTITION_BY_",
+        "propertyType": "text",
+        "required": false,
+        "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
+        "qa": "partition-by-writer"
+      }
+
     ]
   }

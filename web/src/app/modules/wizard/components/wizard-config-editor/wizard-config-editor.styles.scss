@@ -9,61 +9,88 @@
 }
 
 .name-validation {
-   margin-top: -10px;
+  margin-top: -10px;
 }
 
 .cancel-button {
-   margin-right: 20px;
+  margin-right: 20px;
 }
 
 .visualQuery {
-   color: neutral-09;
-   font-size: $egeo-font-size-xxsmall;
-   margin-right: 30px;
+  color: neutral-09;
+  font-size: $egeo-font-size-xxsmall;
+  margin-right: 30px;
 }
 
 .input-field {
-   margin: 15px 0;
-   display: block;
+  margin: 15px 0;
+  display: block;
 }
 
 .entity-categories {
-   margin-bottom: 30px;
-   display: block;
+  margin-bottom: 30px;
+  display: block;
+}
+
+.config {
+  margin-bottom: 30px;
+  &__categories {
+    display: block;
+    display: block;
+  }
+
+  &__form {
+    background: white;
+    padding: 30px 20px;
+  }
+
+  &__form-container {
+    max-width: 900px;
+  }
+
+  &__container {
+    padding: 25px 15px;
+    padding-top: 0px;
+    padding-bottom: 50px;
+    width: 100%;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    transition: 0.3s width;
+    overflow: auto;
+
+    &--collapsed {
+      width: calc(100vw - 415px - (100vw - 100%) / 2);
+    }
+  }
 }
 
 .help-button {
-    margin-right: 20px;
+  margin-right: 20px;
 }
 
 .template-data {
-   .title {
-      color: $action-secondary-06;
-      font-size: 14px;
-      margin-top: 6px;
-      display: block;
-   }
-   .values {
-      display: block;
-      word-break: break-all;
-   }
-   .advice-params {
-      color: $neutral-11;
-      font-family: $egeo-nunito-sans;
-      font-size: $egeo-font-size-small;
-      line-height: $egeo-line-height-small;
-      margin: 30px 0px;
-      .link {
-         cursor: pointer;
-         color: $action-primary-default;
-      }
-   }
-}
-
-.node-edition {
-   margin-bottom: 50px;
-   position: relative;
-   width: calc(100% - 430px);
+  .title {
+    color: $action-secondary-06;
+    font-size: 14px;
+    margin-top: 6px;
+    display: block;
+  }
+  .values {
+    display: block;
+    word-break: break-all;
+  }
+  .advice-params {
+    color: $neutral-11;
+    font-family: $egeo-nunito-sans;
+    font-size: $egeo-font-size-small;
+    line-height: $egeo-line-height-small;
+    margin: 30px 0px;
+    .link {
+      cursor: pointer;
+      color: $action-primary-default;
+    }
+  }
 }
 
 .show-catalog {
@@ -71,13 +98,13 @@
 }
 
 .catalog {
-   position: absolute;
-   display: block;
-   position: absolute;
-   z-index: 100;
-   right: 0;
-   height: auto;
-   top: -30px;
+  position: absolute;
+  display: block;
+  position: absolute;
+  z-index: 100;
+  right: 0;
+  height: auto;
+  top: -30px;
 }
 
 .mocks-tab {
@@ -85,25 +112,25 @@
 }
 
 .edit-title {
-   position: relative;
-   div.edit-text {
-      position: absolute;
-      left: -880px;
-      background-color: $neutral-00;
-      min-width: 600px;
-      height: 30px;
-      padding-top: 7px;
-      font-family: $egeo-nunito-sans-extraBold;
-      font-size: $egeo-font-size-medium;
-   }
-   span.icon {
-      margin-left: 5px;
-      cursor: pointer;
-   }
-   .input-edit {
-      padding: 5px 10px 5px 10px;
-      border: 1px solid $neutral-07;
-      width: 100%;
-      margin-top: -8px;
-   }
+  position: relative;
+  div.edit-text {
+    position: absolute;
+    left: -880px;
+    background-color: $neutral-00;
+    min-width: 600px;
+    height: 30px;
+    padding-top: 7px;
+    font-family: $egeo-nunito-sans-extraBold;
+    font-size: $egeo-font-size-medium;
+  }
+  span.icon {
+    margin-left: 5px;
+    cursor: pointer;
+  }
+  .input-edit {
+    padding: 5px 10px 5px 10px;
+    border: 1px solid $neutral-07;
+    width: 100%;
+    margin-top: -8px;
+  }
 }

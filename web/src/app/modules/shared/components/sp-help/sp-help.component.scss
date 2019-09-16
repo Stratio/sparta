@@ -49,6 +49,9 @@
 
 .scroll-bar{
   margin-top: 15px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
 }
 
 .tips {
@@ -70,7 +73,7 @@
 }
 
 .section {
-  margin-top: 15px; 
+  margin-top: 15px;
 }
 
 .help-links {

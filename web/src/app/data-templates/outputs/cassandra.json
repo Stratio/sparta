@@ -1,97 +1,126 @@
-  {
-     "name": "Cassandra",
-     "classPrettyName": "Cassandra",
-     "className": "CassandraOutputStep",
-     "icon": "Cassandra",
-     "arity": ["NullaryToNullary", "NaryToNullary"],
-     "supportedEngines": ["Streaming", "Batch"],
-     "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. This output uses the generic implementation with DataFrames.",
-    "properties": [
-       {
-          "propertyId": "nodes",
-          "propertyName": "_NODES_",
-          "propertyType": "list",
-          "default": "",
+{
+  "name": "Cassandra",
+  "classPrettyName": "Cassandra",
+  "className": "CassandraOutputStep",
+  "icon": "Cassandra",
+  "arity": ["NullaryToNullary", "NaryToNullary"],
+  "supportedEngines": ["Streaming", "Batch"],
+  "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. This output uses the generic implementation with DataFrames.",
+  "properties": [
+    {
+      "propertyId": "nodes",
+      "propertyName": "_NODES_",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "hidden": false,
+      "limit": 0,
+      "tooltip": "Configures the cassandra nodes",
+      "qa": "fragment-details-cassandra-nodes",
+      "fields": [
+        {
+          "propertyId": "node",
+          "propertyName": "_HOST_",
+          "propertyType": "text",
+          "default": "{{{Environment.CASSANDRA_HOST}}}",
           "required": true,
+          "qa": "fragment-details-cassandra-node"
+        }
+      ]
+    },
+    {
+      "propertyId": "keyspace",
+      "propertyName": "_KEYSPACE_",
+      "propertyType": "text",
+      "required": true,
+      "tooltip": "",
+      "qa": "fragment-details-cassandra-keyspace"
+    },
+    {
+      "propertyId": "cluster",
+      "propertyName": "_CLUSTER_",
+      "propertyType": "text",
+      "required": true,
+      "tooltip": "",
+      "qa": "fragment-details-cassandra-cluster"
+    },
+    {
+      "propertyId": "tlsEnabled",
+      "propertyName": "_TLS_ENABLE_",
+      "propertyType": "boolean",
+      "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection.",
+      "default": false,
+      "qa": "fragment-details-cassandra-tls"
+    },
+    {
+      "propertyId": "errorSink",
+      "propertyName": "_ERROR_SINK_",
+      "propertyType": "boolean",
+      "tooltip": "This output can be used for sending errors in the errors management settings",
+      "default": false,
+      "qa": "fragment-details-errorSink"
+    },
+    {
+      "propertyId": "saveOptions",
+      "propertyName": "_CASSANDRA_SAVE_PROPERTIES_",
+      "propertyType": "list",
+      "default": "",
+      "required": false,
+      "tooltip": "",
+      "qa": "fragment-details-cassandra-save-properties",
+      "fields": [
+        {
+          "propertyId": "saveOptionsKey",
+          "propertyName": "_SAVE_OPTIONS_KEY_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
           "hidden": false,
-          "limit": 0,
-          "tooltip": "Configures the cassandra nodes",
-          "qa": "fragment-details-cassandra-nodes",
-          "fields": [
-             {
-                "propertyId": "node",
-                "propertyName": "_HOST_",
-                "propertyType": "text",
-                "default": "{{{Environment.CASSANDRA_HOST}}}",
-                "required": true,
-                "qa": "fragment-details-cassandra-node"
-             }
-          ]
-       },
-      {
-        "propertyId": "keyspace",
-        "propertyName": "_KEYSPACE_",
-        "propertyType": "text",
-        "required": true,
-        "tooltip": "",
-        "qa": "fragment-details-cassandra-keyspace"
-      },
-      {
-        "propertyId": "cluster",
-        "propertyName": "_CLUSTER_",
-        "propertyType": "text",
-        "required": true,
-        "tooltip": "",
-        "qa": "fragment-details-cassandra-cluster"
-      },
-      {
-        "propertyId": "tlsEnabled",
-        "propertyName": "_TLS_ENABLE_",
-        "propertyType": "boolean",
-        "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection.",
-        "default": false,
-        "qa": "fragment-details-cassandra-tls"
-      },
-       {
-          "propertyId": "errorSink",
-          "propertyName": "_ERROR_SINK_",
-          "propertyType": "boolean",
-          "tooltip": "This output can be used for sending errors in the errors management settings",
-          "default": false,
-          "qa": "fragment-details-errorSink"
-       },
-      {
-        "propertyId": "saveOptions",
-        "propertyName": "_CASSANDRA_SAVE_PROPERTIES_",
-        "propertyType": "list",
-        "default": "",
-        "required": false,
-        "tooltip": "",
-        "qa": "fragment-details-cassandra-save-properties",
-        "fields": [
-           {
-              "propertyId": "saveOptionsKey",
-              "propertyName": "_SAVE_OPTIONS_KEY_",
-              "propertyType": "text",
-              "regexp": "",
-              "default": "",
-              "hidden": false,
-              "width": 4,
-              "required": false,
-              "qa": "fragment-details-cassandra-saveOptionsKey"
-           },
-           {
-              "propertyId": "saveOptionsValue",
-              "propertyName": "_SAVE_OPTIONS_VALUE_",
-              "propertyType": "text",
-              "regexp": "",
-              "default": "",
-              "width": 4,
-              "hidden": false,
-              "required": false,
-              "qa": "fragment-details-cassandra-saveOptionsValue"
-           }
-        ]
-      }
-    ]
-  }
+          "width": 4,
+          "required": false,
+          "qa": "fragment-details-cassandra-saveOptionsKey"
+        },
+        {
+          "propertyId": "saveOptionsValue",
+          "propertyName": "_SAVE_OPTIONS_VALUE_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "width": 4,
+          "hidden": false,
+          "required": false,
+          "qa": "fragment-details-cassandra-saveOptionsValue"
+        }
+      ]
+    }
+  ],
+  "writer": [
+    {
+      "propertyId": "saveMode",
+      "propertyName": "_SAVEMODE_",
+      "propertyType": "select",
+      "required": true,
+      "default": "Append",
+      "tooltip": "Specifies a Save mode. According to the desired output step (e.g. Postgres), it is possible to select not only the native Spark save modes but also an Upsert save mode that requires the setting of the primary key fields property.",
+      "qa": "save-mode-writer",
+      "values": [
+        {
+          "label": "Append",
+          "value": "Append"
+        },
+        {
+          "label": "Error if exists",
+          "value": "ErrorIfExists"
+        },
+        {
+          "label": "Ignore",
+          "value": "Ignore"
+        },
+        {
+          "label": "Overwrite",
+          "value": "Overwrite"
+        }
+      ]
+    }
+  ]
+}

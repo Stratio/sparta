@@ -44,7 +44,7 @@ export class FormGeneratorGroupComponent implements Validator, ControlValueAcces
    @Input() public valueDictionary: any = {};
    @Input() variableList: Array<any> = [];
    @Input() showVars: boolean;
-
+   @Input() formMaxWidth: number;
 
    @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
    @Output() public changeGroup: EventEmitter<number> = new EventEmitter<number>();

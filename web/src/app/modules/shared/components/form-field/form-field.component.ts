@@ -11,153 +11,156 @@ import { StInputError } from '@stratio/egeo';
 import { ErrorMessagesService } from 'services';
 
 @Component({
-   selector: 'form-field',
-   templateUrl: './form-field.template.html',
-   styleUrls: ['./form-field.styles.scss'],
-   providers: [
-      {
-         provide: NG_VALUE_ACCESSOR,
-         useExisting: forwardRef(() => FormFieldComponent),
-         multi: true
-      },
-      {
-         provide: NG_VALIDATORS,
-         useExisting: forwardRef(() => FormFieldComponent),
-         multi: true
-      }]
+  selector: 'form-field',
+  templateUrl: './form-field.template.html',
+  styleUrls: ['./form-field.styles.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FormFieldComponent),
+      multi: true
+    },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => FormFieldComponent),
+      multi: true
+    }]
 })
 export class FormFieldComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
 
-   @Input() field: any;
-   @Input() stFormGroup: FormGroup;
-   @Input() forceValidations = false;
-   @Input() disabled = false;
-   @Input() disabledForm = false;
-   @Input() valueDictionary;
-   @Input() variableList: Array<any> = [];
-   @Input() showVars: boolean;
-   @Input() customValidator: any;
+  @Input() field: any;
+  @Input() stFormGroup: FormGroup;
+  @Input() forceValidations = false;
+  @Input() disabled = false;
+  @Input() disabledForm = false;
+  @Input() valueDictionary;
+  @Input() variableList: Array<any> = [];
+  @Input() showVars: boolean;
+  @Input() customValidator: any;
 
 
-   public stFormControl: FormControl;
-   public stFormControlSubcription: Subscription;
-   public isDisabled = false; // To check disable
-   public isVisible = true;
-   public disableSubscription: Subscription[] = [];
-   public stModel: any = false;
-   public errors: StInputError = {};
-   public freeText = true;
+  public stFormControl: FormControl;
+  public stFormControlSubcription: Subscription;
+  public isDisabled = false; // To check disable
+  public isVisible = true;
+  public disableSubscription: Subscription[] = [];
+  public stModel: any = false;
+  public errors: StInputError = {};
+  public freeText = true;
 
-   constructor(private _cd: ChangeDetectorRef, public errorsService: ErrorMessagesService) {}
+  constructor(private _cd: ChangeDetectorRef, public errorsService: ErrorMessagesService) { }
 
-   ngOnInit() {
-      this.stFormControl = new FormControl();
-      if (!this.disabledForm) {
-         setTimeout(() => {
-            if (this.field.visible && this.field.visible.length) {
-               this.checkDisableRules(this.field.visible[0], false);
-            }
-            if (this.field.visibleOR && this.field.visibleOR.length) {
-               this.checkDisableRules(this.field.visibleOR[0], true);
-            }
-            setTimeout(() => {
-               this.stFormControl.updateValueAndValidity();
-            });
-         });
-      }
-      if (this.field.hasOwnProperty('freeText')) {
-        this.freeText = this.field.freeText;
-      }
-   }
-
-   checkDisableRules(fields: Array<any>, isOR: boolean) {
-      for (const field of fields) {
-         this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
-            this.checkDisabledFields(fields, isOR);
-         }));
-      }
-   }
-
-   checkDisabledFields(visibleFields: Array<any>, isOR: boolean) {
-      let enable = !isOR;
-      visibleFields.forEach((rule: any) => {
-         const ruleField = this.stFormGroup.controls[rule.propertyId];
-         if (!isOR && (rule.value !== ruleField.value || ruleField.disabled)) {
-            enable = false;
-         }
-         if (isOR && rule.value === ruleField.value && ruleField.enabled) {
-            enable = true;
-         }
-
+  ngOnInit() {
+    this.stFormControl = new FormControl();
+    if (!this.disabledForm) {
+      setTimeout(() => {
+        if (this.field.visible && this.field.visible.length) {
+          this.checkDisableRules(this.field.visible[0], false);
+        }
+        if (this.field.visibleOR && this.field.visibleOR.length) {
+          this.checkDisableRules(this.field.visibleOR[0], true);
+        }
+        setTimeout(() => {
+          this.stFormControl.updateValueAndValidity();
+        });
       });
-      enable ? this.stFormGroup.controls[this.field.propertyId].enable() : this.stFormGroup.controls[this.field.propertyId].disable();
-   }
+    }
+    if (this.field.hasOwnProperty('freeText')) {
+      this.freeText = this.field.freeText;
+    }
+  }
 
-   getEmptyValue(): any {
-      switch (this.field.propertyType) {
-         case 'text':
-            return '';
-         case 'select':
-            return this.field.default ? this.field.default : '';
-         case 'boolean':
-            return false;
-         case 'switch':
-            return false;
-         case 'list':
-            return [];
-         default:
-            return '';
+  checkDisableRules(fields: Array<any>, isOR: boolean) {
+    for (const field of fields) {
+      this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
+        this.checkDisabledFields(fields, isOR);
+      }));
+    }
+  }
+
+  checkDisabledFields(visibleFields: Array<any>, isOR: boolean) {
+    let enable = !isOR;
+    visibleFields.forEach((rule: any) => {
+      const ruleField = this.stFormGroup.controls[rule.propertyId];
+      if (!isOR && (rule.value !== ruleField.value || ruleField.disabled)) {
+        enable = false;
       }
-   }
-
-   onChange(value: any) {
-      value = value && value !== undefined && value !== '' ? value : this.getEmptyValue();
-      this.stFormControl.setValue(value);
-      this.stModel = value;
-   }
-
-   writeValue(value: any): void {
-      this.onChange(value);
-   }
-
-   registerOnChange(fn: (_: any) => void) {
-      this.stFormControlSubcription = this.stFormControl.valueChanges.subscribe(fn);
-   }
-
-   registerOnTouched(fn: any): void { }
-
-   setDisabledState(isDisabled: boolean) {
-      this.isDisabled = isDisabled;
-      if (isDisabled) {
-         this.stFormControl.disable();
-      } else {
-         this.stFormControl.enable();
+      if (isOR && rule.value === ruleField.value && ruleField.enabled) {
+        enable = true;
       }
-   }
 
-   validate(c: FormGroup): { [key: string]: any; } {
-      return (this.stFormControl.valid) ? null : {
-         formFieldError: {
-            valid: false
-         }
-      };
-   }
+    });
+    if (enable) {
+      this.stFormGroup.controls[this.field.propertyId].enable();
+    } else {
+      this.stFormGroup.controls[this.field.propertyId].disable();
+    }
+  }
 
-   getVariableList() {
-      if (this.valueDictionary && this.field.showSchemaFields && this.valueDictionary.formFieldsVariables) {
-        return this.valueDictionary.formFieldsVariables;
-      }
-      if (this.valueDictionary && this.field.showInputSteps && this.valueDictionary.inputStepsVariables) {
-        return this.valueDictionary.inputStepsVariables;
-      }
-      return this.variableList;
-   }
+  getEmptyValue(): any {
+    switch (this.field.propertyType) {
+      case 'text':
+        return '';
+      case 'select':
+        return this.field.default ? this.field.default : '';
+      case 'boolean':
+        return false;
+      case 'switch':
+        return false;
+      case 'list':
+        return [];
+      default:
+        return '';
+    }
+  }
 
-   ngOnDestroy(): void {
-      this.stFormControlSubcription.unsubscribe();
-      this.disableSubscription.map((subcription: Subscription) => {
-         subcription.unsubscribe();
-      });
-   }
+  onChange(value: any) {
+    value = value && value !== undefined && value !== '' ? value : this.getEmptyValue();
+    this.stFormControl.setValue(value);
+    this.stModel = value;
+  }
+
+  writeValue(value: any): void {
+    this.onChange(value);
+  }
+
+  registerOnChange(fn: (_: any) => void) {
+    this.stFormControlSubcription = this.stFormControl.valueChanges.subscribe(fn);
+  }
+
+  registerOnTouched(fn: any): void { }
+
+  setDisabledState(isDisabled: boolean) {
+    this.isDisabled = isDisabled;
+    if (isDisabled) {
+      this.stFormControl.disable();
+    } else {
+      this.stFormControl.enable();
+    }
+  }
+
+  validate(c: FormGroup): { [key: string]: any; } {
+    return (this.stFormControl.valid) ? null : {
+      valid: false,
+      error: this.stFormControl.errors
+    };
+  }
+
+  getVariableList() {
+    if (this.valueDictionary && this.field.showSchemaFields && this.valueDictionary.formFieldsVariables) {
+      return this.valueDictionary.formFieldsVariables;
+    }
+    if (this.valueDictionary && this.field.showInputSteps && this.valueDictionary.inputStepsVariables) {
+      return this.valueDictionary.inputStepsVariables;
+    }
+    return this.variableList;
+  }
+
+  ngOnDestroy(): void {
+    this.stFormControlSubcription.unsubscribe();
+    this.disableSubscription.map((subcription: Subscription) => {
+      subcription.unsubscribe();
+    });
+  }
 }
 

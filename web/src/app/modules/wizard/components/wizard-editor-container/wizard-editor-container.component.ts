@@ -18,8 +18,8 @@ import {
 } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
-
-import { Observable, Subject } from 'rxjs';
+import { WizardService } from '@app/wizard/services/wizard.service';
+import { Observable, Subject, combineLatest } from 'rxjs';
 
 import * as fromWizard from './../../reducers';
 import * as fromRoot from 'reducers';
@@ -39,7 +39,7 @@ import { WorkflowData } from '@app/wizard/models/data';
 import { WizardEditorComponent } from './wizard-editor/wizard-editor.component';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
 
-import { takeUntil, take } from 'rxjs/operators';
+import { takeUntil, take, debounceTime } from 'rxjs/operators';
 import { DraggableElementPosition } from '@app/shared';
 
 @Component({
@@ -166,6 +166,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     private _initializeStepService: InitializeStepService,
     private _cd: ChangeDetectorRef,
     private _store: Store<fromWizard.State>,
+    private _wizardService: WizardService,
     private _el: ElementRef,
     private store: Store<fromRoot.State>
   ) {
@@ -205,13 +206,13 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         this.selectedNodeNames = names;
         this._cd.markForCheck();
       });
-      this._store
-        .select(fromWizard.isPipelinesNodeSelected)
-        .pipe(takeUntil(this._componentDestroyed))
-        .subscribe((isSelected) => {
-          this.isPipelinesNodeSelected = isSelected;
-          this._cd.markForCheck();
-        });
+    this._store
+      .select(fromWizard.isPipelinesNodeSelected)
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((isSelected) => {
+        this.isPipelinesNodeSelected = isSelected;
+        this._cd.markForCheck();
+      });
     this._store
       .select(fromWizard.getWorkflowPosition)
       .pipe(takeUntil(this._componentDestroyed))
@@ -224,7 +225,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((data: Array<any>) => {
         this.workflowNodes = data;
-        this._store.dispatch(new wizardActions.ValidateWorkflowAction());
         this._cd.markForCheck();
       });
     this._store
@@ -233,8 +233,16 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       .subscribe((data: Array<WizardEdgeNodes>) => {
         this.workflowEdges = data;
         this._cd.markForCheck();
+      });
+
+    combineLatest(
+      this._store.pipe(select(fromWizard.getWorkflowEdges)),
+      this._store.pipe(select(fromWizard.getWorkflowNodes)),
+    ).pipe(debounceTime(100), takeUntil(this._componentDestroyed))
+      .subscribe(() => {
         this._store.dispatch(new wizardActions.ValidateWorkflowAction());
       });
+
     this._store
       .select(fromWizard.getSelectedRelation)
       .pipe(takeUntil(this._componentDestroyed))
@@ -404,6 +412,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         this.workflowNodes
       );
     }
+    entity.id = this._wizardService.generateStepID();
     entity.uiConfiguration = {
       position: event.position
     };
@@ -478,7 +487,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       date: new Date().getTime(),
       author: this.username
     }, annotationNumber));
- }
+  }
 
   public createMessage({ color, message }: { color: string, message: string }) {
     this._store.dispatch(new wizardActions.CreateNote({

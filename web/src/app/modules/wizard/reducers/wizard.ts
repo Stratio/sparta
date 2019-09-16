@@ -189,7 +189,10 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.CREATE_NODE_RELATION_COMPLETE: {
       return {
         ...state,
-        edges: [...state.edges, action.payload],
+        edges: [
+          ...state.edges,
+          action.payload.edge
+        ],
         undoStates: getUndoState(state),
         pristineWorkflow: false,
         redoStates: []
@@ -347,7 +350,7 @@ export function reducer(state: State = initialState, action: any): State {
       };
     }
     case wizardActions.MODIFY_WORKFLOW_COMPLETE: {
-      const workflow = action.payload;
+      const workflow = action.workflow;
       return {
         ...state,
         loading: false,

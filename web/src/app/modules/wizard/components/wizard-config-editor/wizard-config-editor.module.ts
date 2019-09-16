@@ -19,6 +19,8 @@ import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
 import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea.module';
 import { QueryBuilderModule } from '@app/wizard/components/query-builder/query-builder.module';
 import { SidebarConfigModule } from '@app/wizard/components/sidebar-config/sidebar-config.module';
+import { WritersModule } from './writers/writers.module';
+import { WizardConfigEditorService } from './wizard-config.service';
 
 @NgModule({
   exports: [
@@ -39,7 +41,11 @@ import { SidebarConfigModule } from '@app/wizard/components/sidebar-config/sideb
     SpTextareaModule,
     StFullscreenLayoutModule,
     StHorizontalTabsModule,
-    TranslateModule
+    TranslateModule,
+    WritersModule
+  ],
+  providers: [
+    WizardConfigEditorService
   ]
 })
 

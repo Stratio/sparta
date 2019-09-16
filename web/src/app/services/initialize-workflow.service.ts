@@ -9,11 +9,14 @@ import { batchInputsObject, streamingInputsObject } from 'data-templates/inputs'
 import { batchOutputsObject, streamingOutputsObject } from 'data-templates/outputs';
 import { batchTransformationsObject, streamingTransformationsObject } from 'data-templates/transformations';
 import { StepType, Engine } from '@models/enums';
+import { WizardService } from '@app/wizard/services/wizard.service';
 
 @Injectable()
 export class InitializeWorkflowService {
 
-  getInitializedWorkflow(workflow: any) {
+  constructor(private _wizardService: WizardService) { }
+
+  public getInitializedWorkflow(workflow: any) {
     if (!workflow.uiSettings || !workflow.uiSettings.position || !workflow.uiSettings.position.x) {
       workflow.uiSettings = {};
       workflow.uiSettings.position = {
@@ -23,25 +26,43 @@ export class InitializeWorkflowService {
       };
     }
     const nodes = workflow.pipelineGraph.nodes;
+    this._initializeNodes(nodes);
+    const idsMap = nodes.reduce((acc, node) => {
+      acc[node.name] = node.id;
+      return acc;
+    }, {});
+    const writers: any = {};
+    nodes.forEach(node => {
+      if (node.outputsWriter.length) {
+        writers[node.id] = node.outputsWriter.reduce((acc, writer) => {
+          acc[idsMap[writer.outputStepName]] = writer;
+          return acc;
+        }, {});
+      }
+    });
+
+    return { workflow, writers };
+  }
+
+  private _initializeNodes(nodes) {
     let x = 40; // default node positions
     let y = 100;
     let h = true;
     if (nodes && nodes.length) {
-      this.setSupportedDataRelations(workflow.executionEngine, nodes);
-        nodes.map((node: any) => {
-         if (!node.uiConfiguration || !node.uiConfiguration.position) {
-            node.uiConfiguration = {};
-            node.uiConfiguration.position = {
-               x: x,
-               y: y
-            };
+      nodes.forEach((node: any) => {
+        node.id = this._wizardService.generateStepID();
+        if (!node.uiConfiguration || !node.uiConfiguration.position) {
+          node.uiConfiguration = {};
+          node.uiConfiguration.position = {
+            x: x,
+            y: y
+          };
 
-            h ? x += 200 : y += 120;
-            h = !h;
-         }
+          h ? x += 200 : y += 120;
+          h = !h;
+        }
       });
-   }
-    return workflow;
+    }
   }
 
   // old workflow versions

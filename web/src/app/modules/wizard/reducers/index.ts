@@ -4,22 +4,25 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import { createSelector } from 'reselect';
-import { createFeatureSelector } from '@ngrx/store';
+import { createFeatureSelector, State } from '@ngrx/store';
 
 import * as fromRoot from 'reducers';
 import * as fromWizard from './wizard';
 import * as fromEntities from './entities';
 import * as fromDebug from './debug';
 import * as fromExternalData from './externalData';
+import * as fromWriters from './writers';
 
 import { WizardEdge, WizardNode } from '@app/wizard/models/node';
 import { WizardAnnotation } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.model';
+import { StepType } from '@models/enums';
 
 export interface WizardState {
   wizard: fromWizard.State;
   entities: fromEntities.State;
   debug: fromDebug.State;
   externalData: fromExternalData.State;
+  writers: fromWriters.State;
 }
 
 export interface State extends fromRoot.State {
@@ -30,7 +33,8 @@ export const reducers = {
   wizard: fromWizard.reducer,
   entities: fromEntities.reducer,
   debug: fromDebug.reducer,
-  externalData: fromExternalData.reducer
+  externalData: fromExternalData.reducer,
+  writers: fromWriters.reducer
 };
 
 export const getWizardFeatureState = createFeatureSelector<WizardState>('wizard');
@@ -58,6 +62,11 @@ export const getExternalDataState = createSelector(
 export const getEdges = createSelector(
   getWizardState,
   (state) => state.edges
+);
+
+export const getWritersState = createSelector(
+  getWizardFeatureState,
+  state => state.writers
 );
 
 export const getWorkflowNodes = createSelector(
@@ -130,7 +139,7 @@ export const getSelectedNodeSchemas = createSelector(
         outputs: Object.keys(debugResult.steps)
           .map(key => debugResult.steps[key])
           .filter(output => output.error || (output.result.step && (output.result.step === selectedNode.name || output.result.step === selectedNode.name + '_Discard')))
-          .sort((a, b) => a.result && b.result  && a.result.step && a.result.step > b.result.step ? 1 : -1)
+          .sort((a, b) => a.result && b.result && a.result.step && a.result.step > b.result.step ? 1 : -1)
       };
     } else {
       return null;
@@ -166,7 +175,22 @@ export const getSelectedEntityData = createSelector(
     }
   }
 );
-export const getEditionConfig = createSelector(getWizardState, fromWizard.getEditionConfigMode);
+
+
+
+export const getEditionConfigState = createSelector(getWizardState, state => state.editionConfig);
+export const getEditionTypeState = createSelector(getWizardState, state => state.editionConfigType);
+export const getIsPipelinesEdition = createSelector(getWizardState, state => state.isPipelineEdition);
+
+export const getEditionConfig = createSelector(
+  getEditionConfigState,
+  getEditionTypeState,
+  getIsPipelinesEdition,
+  (isEdition, editionType, isPipelinesEdition) => ({
+    isEdition,
+    editionType,
+    isPipelinesEdition
+  }));
 
 export const getEditionConfigMode = createSelector(
   getEditionConfig,
@@ -186,10 +210,7 @@ export const getEditionConfigMode = createSelector(
       } : editionConfig;
   }
 );
-
-
 export const showDebugConsole = createSelector(getDebugState, state => state.showDebugConsole);
-
 export const getConsoleDebugEntity = createSelector(getDebugState, state => state.showedDebugDataEntity);
 
 
@@ -265,14 +286,14 @@ export const getAnnotations = createSelector(getWizardState, state => state.anno
 export const getCreatedAnnotation = createSelector(getWizardState, state => state.createdAnnotation);
 export const showAnnotations = createSelector(getWizardState, state => state.showAnnotations);
 
- export const getAnnotationsWithNumbers = createSelector(
+export const getAnnotationsWithNumbers = createSelector(
   getAnnotations,
   annotations => annotations.map((annotation: WizardAnnotation, index: number): WizardAnnotation => ({
     ...annotation,
     number: index
   })));
 
- export const getAnnotationsWithTemporal = createSelector(
+export const getAnnotationsWithTemporal = createSelector(
   getAnnotationsWithNumbers,
   getCreatedAnnotation,
   showAnnotations,
@@ -283,7 +304,7 @@ export const showAnnotations = createSelector(getWizardState, state => state.sho
 );
 
 
- export const getNodeAnnotationsMap = createSelector(
+export const getNodeAnnotationsMap = createSelector(
   getAnnotationsWithTemporal,
   (annotations: Array<WizardAnnotation>) => annotations
     .filter(annotation => annotation.stepName && annotation.stepName.length)
@@ -292,7 +313,7 @@ export const showAnnotations = createSelector(getWizardState, state => state.sho
       return map;
     }, {}));
 
- export const getEdgeAnnotationsMap = createSelector(
+export const getEdgeAnnotationsMap = createSelector(
   getAnnotationsWithTemporal,
   (annotations: Array<WizardAnnotation>) => annotations
     .filter(annotation => annotation.edge)
@@ -301,13 +322,13 @@ export const showAnnotations = createSelector(getWizardState, state => state.sho
       return map;
     }, {}));
 
- export const getDraggableAnnotations = createSelector(
+export const getDraggableAnnotations = createSelector(
   getAnnotationsWithTemporal,
   (annotations: Array<WizardAnnotation>) => annotations.length ? annotations
     .filter(annotation => annotation.position) : []
 );
 
- export const getSelectedNodeAnnotations = createSelector(
+export const getSelectedNodeAnnotations = createSelector(
   getSelectedNodeData,
   getAnnotationsWithNumbers,
   (entityData: WizardNode, annotations: WizardAnnotation[]) => entityData ? annotations.filter(annotation => {
@@ -320,3 +341,17 @@ export const showAnnotations = createSelector(getWizardState, state => state.sho
     return false;
   }) : null
 );
+
+export const getStepNamesFromIDs = (stepsIDs: Array<string>) => createSelector(
+  getWorkflowNodes,
+  (nodes: WizardNode[]) => {
+    return nodes.reduce((acc, node) => {
+      if (stepsIDs.includes(node.id)) {
+        acc[node.id] = {
+          name: node.name,
+          classPrettyName: node.classPrettyName
+        };
+      }
+      return acc;
+    }, {});
+  });

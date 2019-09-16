@@ -5,6 +5,7 @@
  */
 import { Action } from '@ngrx/store';
 import { WizardAnnotation, WizardAnnotationMessage } from '@app/shared/wizard/components/wizard-annotation/wizard-annotation.model';
+import { WizardEdge } from '../models/node';
 
 export const RESET_WIZARD = '[Wizard] Reset wizard';
 export const GET_MENU_TEMPLATES = '[Wizard] Get menu templates';
@@ -12,6 +13,7 @@ export const GET_MENU_TEMPLATES_COMPLETE = '[Wizard] Get menu templates complete
 export const GET_MENU_TEMPLATES_ERROR = '[Wizard] Get menu templates error';
 export const MODIFY_WORKFLOW = '[Wizard] Modify workflow';
 export const MODIFY_WORKFLOW_COMPLETE = '[Wizard] Modify workflow complete';
+export const SET_WORKFLOW_WRITERS = '[Wizard] Set workflow writers';
 export const MODIFY_WORKFLOW_ERROR = '[Wizard] Modify workflow error';
 export const SELECTED_CREATION_ENTITY = '[Wizard] Selected creation entity';
 export const DESELECTED_CREATION_ENTITY = '[Wizard] Deselected creation entity';
@@ -80,6 +82,8 @@ export const DELETE_ANNOTATION = '[Wizard] Delete annotation';
 export const DELETE_ANNOTATION_COMPLETE = '[Wizard] Delete annotation complete';
 export const DELETE_ANNOTATION_CANCEL = '[Wizard] Delete annotation cancel';
 export const TOGGLE_ANNOTATION_ACTIVATION = '[Wizard] Toggle annotation activation';
+export const SAVE_NODE_WRITER_OPTIONS = '[Wizard] Save node writer options';
+
 
 export class GetMenuTemplatesAction implements Action {
   readonly type = GET_MENU_TEMPLATES;
@@ -106,12 +110,17 @@ export class ModifyWorkflowAction implements Action {
 
 export class ModifyWorkflowCompleteAction implements Action {
   readonly type = MODIFY_WORKFLOW_COMPLETE;
-  constructor(public payload: any) { }
+  constructor(public workflow: any) { }
 }
 
 export class ModifyWorkflowErrorAction implements Action {
   readonly type = MODIFY_WORKFLOW_ERROR;
   constructor(public payload: any) { }
+}
+
+export class SetWorkflowWriters implements Action {
+  readonly type = SET_WORKFLOW_WRITERS;
+  constructor(public writers: any) { }
 }
 
 export class SelectedCreationEntityAction implements Action {
@@ -156,12 +165,12 @@ export class ToggleDetailSidebarAction implements Action {
 
 export class CreateNodeRelationAction implements Action {
   readonly type = CREATE_NODE_RELATION;
-  constructor(public payload: any) { }
+  constructor(public edge: WizardEdge) { }
 }
 
 export class CreateNodeRelationCompleteAction implements Action {
   readonly type = CREATE_NODE_RELATION_COMPLETE;
-  constructor(public payload: any) { }
+  constructor(public payload: { edge: WizardEdge; originId: string; destinationId: string; writer?: any }) { }
 }
 
 export class CreateNodeRelationErrorAction implements Action {
@@ -406,8 +415,13 @@ export class SetActiveAnnotation implements Action {
   readonly type = DELETE_ANNOTATION_CANCEL;
 }
 
- export class ToggleAnnotationActivation implements Action {
+export class ToggleAnnotationActivation implements Action {
   readonly type = TOGGLE_ANNOTATION_ACTIVATION;
+}
+
+export class SaveNodeWriterOptions implements Action {
+  readonly type = SAVE_NODE_WRITER_OPTIONS;
+  constructor(public nodeId: string, public writers: any) { }
 }
 
 export type Actions =
@@ -418,6 +432,7 @@ export type Actions =
   ModifyWorkflowAction |
   ModifyWorkflowCompleteAction |
   ModifyWorkflowErrorAction |
+  SetWorkflowWriters |
   SelectedCreationEntityAction |
   DeselectedCreationEntityAction |
   ChangeWorkflowNameAction |
@@ -478,4 +493,5 @@ export type Actions =
   DeleteAnnotation |
   DeleteAnnotationComplete |
   DeleteAnnotationCancel |
-  ToggleAnnotationActivation;
+  ToggleAnnotationActivation |
+  SaveNodeWriterOptions;

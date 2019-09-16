@@ -5,6 +5,7 @@
  */
 
 export interface WizardNode {
+  id: string;
   stepType: 'Input' | 'Transformation' | 'Output' | 'Preprocessing' | 'Algorithm';
   name: string;
   created: boolean;
@@ -20,6 +21,7 @@ export interface WizardNode {
   uiConfiguration: {
     position: WizardNodePosition
   };
+  writers?: Array<any>;
 }
 
 

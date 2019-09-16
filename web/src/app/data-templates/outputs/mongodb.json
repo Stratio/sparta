@@ -1,81 +1,144 @@
- {
-    "name": "MongoDb",
-    "icon": "MongoDb",
-    "className": "MongoDbOutputStep",
-    "classPrettyName": "MongoDb",
-    "arity": ["NullaryToNullary", "NaryToNullary"],
-    "supportedEngines": ["Streaming", "Batch"],
-    "description": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
-    "properties": [
-      {
-        "propertyId": "hosts",
-        "propertyName": "_HOSTS_",
-        "propertyType": "list",
-        "required": true,
-        "tooltip": "This section let us specify the parameters needed to establish a MongoDB connection, with different replica set or with sharding.",
-        "qa": "fragment-details-mongoDb-hosts",
-        "fields": [
+{
+  "name": "MongoDb",
+  "icon": "MongoDb",
+  "className": "MongoDbOutputStep",
+  "classPrettyName": "MongoDb",
+  "arity": ["NullaryToNullary", "NaryToNullary"],
+  "supportedEngines": ["Streaming", "Batch"],
+  "description": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
+  "properties": [
+    {
+      "propertyId": "hosts",
+      "propertyName": "_HOSTS_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "This section let us specify the parameters needed to establish a MongoDB connection, with different replica set or with sharding.",
+      "qa": "fragment-details-mongoDb-hosts",
+      "fields": [
+        {
+          "propertyId": "host",
+          "propertyName": "_HOST_",
+          "propertyType": "text",
+          "default": "{{{Environment.MONGODB_HOST}}}",
+          "required": true,
+          "width": 6,
+          "qa": "fragment-details-mongoDb-hostName"
+        },
+        {
+          "propertyId": "port",
+          "propertyName": "_PORT_",
+          "propertyType": "text",
+          "default": "{{{Environment.MONGODB_PORT}}}",
+          "required": true,
+          "width": 5,
+          "qa": "fragment-details-mongoDb-port"
+        }
+      ]
+    },
+    {
+      "propertyId": "dbName",
+      "propertyName": "_DATEBASE_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "tooltip": "Default value set to sparta.",
+      "qa": "fragment-details-mongoDb-dbName"
+    },
+    {
+      "propertyId": "errorSink",
+      "propertyName": "_ERROR_SINK_",
+      "propertyType": "boolean",
+      "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
+      "default": false,
+      "qa": "fragment-details-errorSink"
+    },
+    {
+      "propertyId": "saveOptions",
+      "propertyName": "_MONGODB_SAVE_PROPERTIES_",
+      "propertyType": "list",
+      "required": false,
+      "tooltip": "",
+      "qa": "fragment-details-mongodb-save-properties",
+      "fields": [
+        {
+          "propertyId": "saveOptionsKey",
+          "propertyName": "_SAVE_OPTIONS_KEY_",
+          "propertyType": "text",
+          "width": 4,
+          "required": false,
+          "qa": "fragment-details-mongodb-saveOptionsKey"
+        },
+        {
+          "propertyId": "saveOptionsValue",
+          "propertyName": "_SAVE_OPTIONS_VALUE_",
+          "propertyType": "text",
+          "width": 4,
+          "required": false,
+          "qa": "fragment-details-mongodb-saveOptionsValue"
+        }
+      ]
+    }
+  ],
+  "writer":
+  [
+    {
+      "propertyId": "saveMode",
+      "propertyName": "_SAVEMODE_",
+      "propertyType": "select",
+      "required": true,
+      "default": "Append",
+      "tooltip": "Specifies a Save mode. According to the desired output step (e.g. Postgres), it is possible to select not only the native Spark save modes but also an Upsert save mode that requires the setting of the primary key fields property.",
+      "qa": "save-mode-writer",
+      "values": [
+        {
+          "label": "Append",
+          "value": "Append"
+        },
+        {
+          "label": "Error if exists",
+          "value": "ErrorIfExists"
+        },
+        {
+          "label": "Ignore",
+          "value": "Ignore"
+        },
+        {
+          "label": "Overwrite",
+          "value": "Overwrite"
+        },
+        {
+          "label": "Upsert",
+          "value": "Upsert"
+        },
+        {
+          "label": "Delete",
+          "value": "Delete"
+        }
+      ]
+    },
+    {
+      "propertyId": "primaryKey",
+      "propertyName": "_PRIMARY_KEY_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Sets the fields which indicates the 'WHERE' clause in the 'Upsert' save mode.",
+      "qa": "primaryKey-by-writer"
+    },
+    {
+      "propertyId": "updateFields",
+      "propertyName": "_UPDATE_FIELDS_",
+      "propertyType": "text",
+      "required": false,
+      "visible": [
+        [
           {
-            "propertyId": "host",
-            "propertyName": "_HOST_",
-            "propertyType": "text",
-            "default": "{{{Environment.MONGODB_HOST}}}",
-            "required": true,
-            "width": 6,
-            "qa": "fragment-details-mongoDb-hostName"
-          },
-          {
-            "propertyId": "port",
-            "propertyName": "_PORT_",
-            "propertyType": "text",
-            "default": "{{{Environment.MONGODB_PORT}}}",
-            "required": true,
-            "width": 5,
-            "qa": "fragment-details-mongoDb-port"
+            "propertyId": "saveMode",
+            "value": "Upsert"
           }
         ]
-      },
-      {
-        "propertyId": "dbName",
-        "propertyName": "_DATEBASE_NAME_",
-        "propertyType": "text",
-        "required": true,
-        "tooltip": "Default value set to sparta.",
-        "qa": "fragment-details-mongoDb-dbName"
-      },
-       {
-          "propertyId": "errorSink",
-          "propertyName": "_ERROR_SINK_",
-          "propertyType": "boolean",
-          "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
-          "default": false,
-          "qa": "fragment-details-errorSink"
-       },
-       {
-          "propertyId": "saveOptions",
-          "propertyName": "_MONGODB_SAVE_PROPERTIES_",
-          "propertyType": "list",
-          "required": false,
-          "tooltip": "",
-          "qa": "fragment-details-mongodb-save-properties",
-          "fields": [
-             {
-                "propertyId": "saveOptionsKey",
-                "propertyName": "_SAVE_OPTIONS_KEY_",
-                "propertyType": "text",
-                "width": 4,
-                "required": false,
-                "qa": "fragment-details-mongodb-saveOptionsKey"
-             },
-             {
-                "propertyId": "saveOptionsValue",
-                "propertyName": "_SAVE_OPTIONS_VALUE_",
-                "propertyType": "text",
-                "width": 4,
-                "required": false,
-                "qa": "fragment-details-mongodb-saveOptionsValue"
-             }
-          ]
-       }
-    ]
-  }
+      ],
+      "tooltip": "These fields are the only one that will be updated on 'Upsert' operation",
+      "qa": "constraint-by-writer"
+    }
+  ]
+
+}

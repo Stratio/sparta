@@ -58,7 +58,6 @@ import { WizardConsoleModule } from './components/wizard-console/wizard-console.
     WizardSettingsModule
   ],
   providers: [
-    WizardService,
     WizardToolsService,
     ValidateSchemaService,
     StModalService

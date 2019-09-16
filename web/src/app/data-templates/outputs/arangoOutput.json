@@ -90,5 +90,34 @@
       "tooltip": "Max number of connections per host.",
       "qa": "fragment-details-arangodb-max-connections"
     }
+  ],
+  "writer": [
+    {
+      "propertyId": "saveMode",
+      "propertyName": "_SAVEMODE_",
+      "propertyType": "select",
+      "required": true,
+      "default": "Append",
+      "tooltip": "Specifies a Save mode. According to the desired output step (e.g. Postgres), it is possible to select not only the native Spark save modes but also an Upsert save mode that requires the setting of the primary key fields property.",
+      "qa": "save-mode-writer",
+      "values": [
+        {
+          "label": "Append",
+          "value": "Append"
+        },
+        {
+          "label": "Upsert",
+          "value": "Upsert"
+        }
+      ]
+    },
+    {
+      "propertyId": "primaryKey",
+      "propertyName": "_PRIMARY_KEY_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Sets the fields which indicates the 'WHERE' clause in the 'Upsert' save mode.",
+      "qa": "primaryKey-by-writer"
+    }
   ]
 }

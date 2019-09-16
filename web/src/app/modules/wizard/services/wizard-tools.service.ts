@@ -7,19 +7,55 @@
 import { Injectable } from '@angular/core';
 import { WizardEdge, WizardNode } from '@app/wizard/models/node';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
+import { WizardService } from './wizard.service';
 
 @Injectable()
 export class WizardToolsService {
 
-  constructor(private _initializeStepService: InitializeStepService) { }
+  constructor(private _initializeStepService: InitializeStepService,
+    private _wizardService: WizardService) { }
 
-  normalizeCopiedSteps(nodes: Array<WizardNode>, edges: Array<WizardEdge>, currentStepNames: Array<string>, svgPosition: {x: number; y: number; k: number}) {
+  public getCopiedModel(selectedNodes: Array<string>, workflowNodes: Array<any>, workflowEdges: Array<WizardEdge>, writers: any, workflowType: string) {
+    const nodes: Array<any> = workflowNodes.filter(wNode => selectedNodes.indexOf(wNode.name) > -1);
+    const edges = workflowEdges.filter(edge => selectedNodes.indexOf(edge.origin) > -1 && selectedNodes.indexOf(edge.destination) > -1);
+    const nodesIdsMap = nodes.reduce((acc, node) => {
+      acc[node.id] = node;
+      return acc;
+    }, {});
+    const copiedWriters = Object.keys(writers).reduce((acc, key) => {
+      // if the writer node is copied
+      if (nodesIdsMap[key]) {
+        acc[key] = Object.keys(writers[key]).reduce((cWriters, outputId) => {
+          if (nodesIdsMap[outputId]) {
+            cWriters[outputId] = writers[key][outputId];
+          }
+          return cWriters;
+        }, {});
+      }
+      return acc;
+    }, {});
+    return JSON.stringify({
+      objectIdType: 'workflow',
+      workflowType: workflowType,
+      nodes,
+      edges,
+      writers: copiedWriters
+    }, null, 2);
+  }
+
+  public normalizeCopiedSteps(nodes: Array<WizardNode>, edges: Array<WizardEdge>, currentStepNames: Array<string>, svgPosition: { x: number; y: number; k: number }, writers?: any) {
     const names = [...currentStepNames];
     const nodesMap: any = {};
-    const steps = this.getStepsCopiedPosition(nodes, svgPosition).map(wNode => {
+    const steps = this._getStepsCopiedPosition(nodes, svgPosition);
+    const idsMap = {};
+    steps.forEach(wNode => {
       const newName = this._initializeStepService.getNewStepName(wNode.name, names);
       nodesMap[wNode.name] = newName;
       names.push(newName);
+      const newId = this._wizardService.generateStepID();
+      idsMap[wNode.id] = newId;
+      wNode.id = newId;
+      wNode.name = newName;
       return {
         ...wNode,
         name: newName
@@ -29,16 +65,27 @@ export class WizardToolsService {
       return {
         ...edge,
         origin: nodesMap[edge.origin],
-        destination: nodesMap[edge.destination]
+        destination: nodesMap[edge.destination],
       };
     });
     return {
       nodes: steps,
-      edges: normalizedEdges
+      edges: normalizedEdges,
+      writers: writers ? Object.keys(writers).reduce((acc, key) => {
+        const currentStepWriters = Object.keys(writers[key]);
+        if (currentStepWriters.length) {
+          // set new ID
+          acc[idsMap[key]] = currentStepWriters.reduce((cWriters, outputId) => {
+            cWriters[idsMap[outputId]] = writers[key][outputId];
+            return cWriters;
+          }, {});
+        }
+        return acc;
+      }, {}) : null
     };
   }
 
-  getStepsCopiedPosition(nodes: Array<WizardNode>, svgPosition: {x: number; y: number; k: number}) {
+  private _getStepsCopiedPosition(nodes: Array<WizardNode>, svgPosition: { x: number; y: number; k: number }) {
     const coors: any = {};
     nodes.forEach(wNode => {
       const x = wNode.uiConfiguration.position.x;
