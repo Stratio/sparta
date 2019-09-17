@@ -40,6 +40,5 @@ object ErrorValidationsHelper {
     }
   }
 
-  def errorWhenEmpty(str: String): String = ???
 
 }

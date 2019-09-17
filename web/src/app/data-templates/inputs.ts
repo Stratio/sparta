@@ -48,7 +48,6 @@ export const inputs = [
     cassandraBatchTemplate,
     crossdataBatchTemplate,
     csvTemplate,
-    xlsTemplate,
     customTemplate,
     customLiteTemplate,
     customLiteXdTemplate,
@@ -73,6 +72,7 @@ export const inputs = [
     sqlStreamingTemplate,
     testBatchTemplate,
     testStreamingTemplate,
+    xlsTemplate,
     xmlBatchTemplate,
     websocketTemplate
 ];

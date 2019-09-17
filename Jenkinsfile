@@ -111,11 +111,11 @@ hose {
 
         doCompile(config)
 
-        /*parallel(UT: {
+        parallel(UT: {
             doUT(config)
         }, IT: {
             doIT(config)
-        }, failFast: config.FAILFAST)*/
+        }, failFast: config.FAILFAST)
 
         doPackage(config)
 
