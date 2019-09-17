@@ -7,23 +7,24 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.security.{Select, SpartaSecurityManager, View}
+import com.stratio.sparta.serving.api.actor.CatalogActor._
 import com.stratio.sparta.serving.api.actor.CrossdataActor._
-import com.stratio.sparta.serving.api.services.CrossdataService
+import com.stratio.sparta.serving.api.actor.remote.DispatcherActor.EnqueueJob
+import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.authorization.{GosecUser, LoggedUser}
 import com.stratio.sparta.serving.core.models.crossdata.{QueryRequest, TableInfoRequest, TablesRequest}
-import com.stratio.sparta.serving.core.models.authorization.LoggedUser
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import com.stratio.sparta.serving.core.utils.AkkaClusterUtils
+import org.json4s.native.Serialization.write
 
-class CrossdataActor() extends Actor
-  with SLF4JLogging
-  with ActionUserAuthorize {
+class CrossdataActor() extends Actor with SLF4JLogging with SpartaSerializer {
 
-  lazy val crossdataService = new CrossdataService
-  val ResourceType = "Catalog"
+  implicit val actorSystem = context.system
 
-  def receiveApiActions(action : Any): Any = action match {
+  lazy val catalogDispatcherActor = AkkaClusterUtils.proxyInstanceForName(CatalogDispatcherActorName,  MasterRole)
+
+  override def receive: Receive = {
     case FindAllDatabases(user) => findAllDatabases(user)
     case FindAllTables(user) => findAllTables(user)
     case FindTables(tablesRequest, user) => findTables(tablesRequest, user)
@@ -33,34 +34,47 @@ class CrossdataActor() extends Actor
   }
 
   def findAllDatabases(user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    authorizeActions(user, Map(ResourceType -> View)) {
-      crossdataService.listDatabases(user.map(_.id))
-    }
+    val job = FindAllDatabasesJob(
+      user.map(userInstance => GosecUser(id = userInstance.id, name = userInstance.name, gid = userInstance.gid)),
+      true
+    )
+    catalogDispatcherActor forward EnqueueJob(write(job))
   }
 
   def findAllTables(user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    authorizeActions(user, Map(ResourceType -> View)) {
-      crossdataService.listAllTables(user.map(_.id))
-    }
+    val job = FindAllTablesJob(
+      user.map(userInstance => GosecUser(id = userInstance.id, name = userInstance.name, gid = userInstance.gid)),
+      true
+    )
+    catalogDispatcherActor forward EnqueueJob(write(job))
   }
 
   def findTables(tablesRequest: TablesRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    authorizeActions(user, Map(ResourceType -> View)) {
-      crossdataService.listTables(tablesRequest.dbName.notBlank, tablesRequest.temporary, user.map(_.id))
-    }
+    val job = FindTablesJob(
+      tablesRequest,
+      user.map(userInstance => GosecUser(id = userInstance.id, name = userInstance.name, gid = userInstance.gid)),
+      true
+    )
+    catalogDispatcherActor forward EnqueueJob(write(job))
   }
 
 
   def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    authorizeActions(user, Map(ResourceType -> View)) {
-      crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName, user.map(_.id))
-    }
+    val job = DescribeTableJob(
+      tableInfoRequest,
+      user.map(userInstance => GosecUser(id = userInstance.id, name = userInstance.name, gid = userInstance.gid)),
+      true
+    )
+    catalogDispatcherActor forward EnqueueJob(write(job))
   }
 
   def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    authorizeActions(user, Map(ResourceType -> Select)) {
-      crossdataService.executeQuery(queryRequest.query, user.map(_.id))
-    }
+    val job = ExecuteQueryJob(
+      queryRequest,
+      user.map(userInstance => GosecUser(id = userInstance.id, name = userInstance.name, gid = userInstance.gid)),
+      true
+    )
+    catalogDispatcherActor forward EnqueueJob(write(job))
   }
 
 }

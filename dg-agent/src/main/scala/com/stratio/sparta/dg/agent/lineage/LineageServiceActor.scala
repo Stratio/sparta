@@ -16,18 +16,17 @@ import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.models.LineageWorkflow
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangeListenerActor.OnExecutionStatusesChangeDo
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.WorkflowExecutionStatusChange
-import com.stratio.sparta.serving.core.utils.{HttpRequestUtils, SpartaClusterUtils}
+import com.stratio.sparta.serving.core.utils.{AkkaClusterUtils, HttpRequestUtils, SpartaClusterUtils}
 import org.json4s.jackson.Serialization._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 
-class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends Actor
+class LineageServiceActor extends Actor
   with SpartaClusterUtils
   with HttpRequestUtils
   with SpartaSerializer
@@ -36,6 +35,9 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
   import LineageServiceActor._
 
   implicit val system = context.system
+
+  lazy val executionStatusChangeListenerActor =
+    AkkaClusterUtils.proxyInstanceForName(AkkaConstant.ExecutionStatusChangeListenerActorName, AkkaConstant.MasterRole)
 
   val cluster = Cluster(context.system)
   val actorRefFactory: ActorRefFactory = context
@@ -143,7 +145,7 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
 
 object LineageServiceActor {
 
-  def props(executionListenerActor: ActorRef): Props = Props(new LineageServiceActor(executionListenerActor))
+  def props(): Props = Props[LineageServiceActor]
 
   val ExecutionStatusLineageKey = "execution-status-lineage"
 }

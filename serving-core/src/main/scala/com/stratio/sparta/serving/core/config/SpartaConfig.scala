@@ -7,7 +7,7 @@
 package com.stratio.sparta.serving.core.config
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.constants.AppConstant.{ConfigBootstrap, ConfigCatalog, ConfigDebug, ConfigValidator, _}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.util.Try
@@ -36,6 +36,10 @@ object SpartaConfig extends SLF4JLogging {
   private var lineageConfig: Option[Config] = None
   private var s3Config: Option[Config] = None
   private var sftpConfig: Option[Config] = None
+  private var bootstrapConfig: Option[Config] = None
+  private var debugConfig: Option[Config] = None
+  private var validatorConfig: Option[Config] = None
+  private var catalogConfig: Option[Config] = None
 
   def getSpartaConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initMainConfig(fromConfig)
@@ -118,6 +122,22 @@ object SpartaConfig extends SLF4JLogging {
   def getSftpConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initSftpConfig(fromConfig)
     else sftpConfig.orElse(initSftpConfig(fromConfig))
+
+  def getBootstrapConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
+    if(force) initBootstrapConfig(fromConfig)
+    else bootstrapConfig.orElse(initBootstrapConfig(fromConfig))
+
+  def getDebugConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
+    if(force) initDebugConfig(fromConfig)
+    else debugConfig.orElse(initDebugConfig(fromConfig))
+
+  def getValidatorConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
+    if(force) initValidatorConfig(fromConfig)
+    else validatorConfig.orElse(initValidatorConfig(fromConfig))
+
+  def getCatalogConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
+    if(force) initValidatorConfig(fromConfig)
+    else catalogConfig.orElse(initCatalogConfig(fromConfig))
 
   def daemonicAkkaConfig: Config = mainConfig match {
     case Some(mainSpartaConfig) =>
@@ -243,5 +263,29 @@ object SpartaConfig extends SLF4JLogging {
     val configFactory = SpartaConfigFactory(fromConfig)
     sftpConfig = initConfig(ConfigSftp, configFactory)
     sftpConfig
+  }
+
+  private[config] def initBootstrapConfig(fromConfig: Option[Config] = None): Option[Config] = {
+    val configFactory = SpartaConfigFactory(fromConfig)
+    bootstrapConfig = initConfig(ConfigBootstrap, configFactory)
+    bootstrapConfig
+  }
+
+  private[config] def initDebugConfig(fromConfig: Option[Config] = None): Option[Config] = {
+    val configFactory = SpartaConfigFactory(fromConfig)
+    debugConfig = initConfig(ConfigDebug, configFactory)
+    debugConfig
+  }
+
+  private[config] def initValidatorConfig(fromConfig: Option[Config] = None): Option[Config] = {
+    val configFactory = SpartaConfigFactory(fromConfig)
+    validatorConfig = initConfig(ConfigValidator, configFactory)
+    validatorConfig
+  }
+
+  private[config] def initCatalogConfig(fromConfig: Option[Config] = None): Option[Config] = {
+    val configFactory = SpartaConfigFactory(fromConfig)
+    catalogConfig = initConfig(ConfigCatalog, configFactory)
+    catalogConfig
   }
 }

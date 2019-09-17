@@ -5,16 +5,15 @@
  */
 package com.stratio.sparta.serving.api.service.ssl
 
+import akka.event.slf4j.SLF4JLogging
 import javax.net.ssl.SSLContext
-
 import com.stratio.sparta.core.helpers.SSLHelper
-import com.stratio.sparta.serving.api.helpers.SpartaHelper.log
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import spray.io._
 
 import scala.util.{Failure, Success, Try}
 
-trait SSLSupport {
+trait SSLSupport extends SLF4JLogging{
 
   implicit def sslContext: SSLContext = SSLHelper.getSSLContext(isHttpsEnabled)
 

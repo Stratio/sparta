@@ -55,8 +55,8 @@ object GosecUser extends SLF4JLogging{
   }
 }
 
-case class GosecUser(override val id: String, override val name: String, email: String, override val gid: String,
-                     groups: Seq[String], roles: Seq[String], tenant: Option[String] = None) extends LoggedUser {
+case class GosecUser(override val id: String, override val name: String, email: String = "", override val gid: String,
+                     groups: Seq[String] = Seq.empty, roles: Seq[String] = Seq.empty, tenant: Option[String] = None) extends LoggedUser {
 
   def isAuthorized(securityEnabled: Boolean, allowedRoles: Seq[String] = GosecUserConstants.AllowedRoles): Boolean = {
 

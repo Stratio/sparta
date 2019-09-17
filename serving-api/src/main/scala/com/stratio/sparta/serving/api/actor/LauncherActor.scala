@@ -13,8 +13,8 @@ import akka.pattern.ask
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.{SpartaQualityRule, WorkflowError}
-import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.QualityRuleReceiverActor.RetrieveQualityRules
+import com.stratio.sparta.serving.api.actor.remote.DispatcherActor.EnqueueJob
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor._
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor.{ValidateExecutionContextToWorkflow, ValidateExecutionContextToWorkflowId}
@@ -24,24 +24,25 @@ import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.constants.SparkConstant.SpartaDriverClass
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, AkkaClusterUtils}
 import org.joda.time.DateTime
+import org.json4s.native.Serialization.write
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-class LauncherActor(
-                     parametersStateActor: ActorRef,
-                     localLauncherActor: ActorRef,
-                     debugLauncherActor: ActorRef
-                   )
-  extends Actor with ActionUserAuthorize {
+class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef, debugLauncherActor: ActorRef) extends Actor
+  with ActionUserAuthorize
+  with SpartaSerializer {
+
+  implicit val actorSystem = context.system
 
   private val ResourceWorkflow = "Workflows"
   private val executionService = PostgresDaoFactory.executionPgService
@@ -60,6 +61,8 @@ class LauncherActor(
     Props(new ClusterLauncherActor()),
     s"$ClusterLauncherActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}"
   )
+
+  val debugDispatcherActor = AkkaClusterUtils.proxyInstanceForName(DebugDispatcherActorName, MasterRole)
 
   lazy val qualityRulesEnabled = Try(SpartaConfig.getDetailConfig().get.getString("lineage.enable").toBoolean)
     .getOrElse(false)
@@ -254,8 +257,8 @@ class LauncherActor(
       )
       val workflowLauncherActor = debugLauncherActor
 
-      workflowLauncherActor ! StartDebug(dummyExecution)
-      (workflow, workflowLauncherActor)
+      debugDispatcherActor ! EnqueueJob(write(dummyExecution))
+      (workflow, debugDispatcherActor)
     } match {
       case Success((workflow, launcherActor)) =>
         val startDate = new DateTime()

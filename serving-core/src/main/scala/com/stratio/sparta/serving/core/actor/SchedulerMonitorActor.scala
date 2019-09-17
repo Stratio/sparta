@@ -8,10 +8,11 @@ package com.stratio.sparta.serving.core.actor
 import java.util.{Calendar, UUID}
 
 import akka.actor.SupervisorStrategy.Restart
-import akka.actor.{Actor, ActorRef, AllForOneStrategy, Cancellable, Props, SupervisorStrategy}
+import akka.actor.{Actor, ActorRef, ActorSystem, AllForOneStrategy, Cancellable, Props, SupervisorStrategy}
 import akka.cluster.Cluster
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
+import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -24,7 +25,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
-import com.stratio.sparta.serving.core.marathon.MarathonService
+import com.stratio.sparta.serving.core.marathon.service.{MarathonService, MarathonUpAndDownComponent}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
@@ -32,6 +33,7 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.{SchedulerUtils, SpartaClusterUtils}
+import com.typesafe.config.Config
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
 import org.joda.time.DateTime
@@ -48,9 +50,16 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
 
   implicit val ec = context.system.dispatchers.lookup("sparta-actors-dispatcher")
 
+  implicit val actorSystem: ActorSystem = context.system
+  implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(actorSystem))
+
   val cluster = Cluster(context.system)
   val mediator = DistributedPubSub(context.system).mediator
-  val marathonService = new MarathonService(context)
+
+  lazy val marathonConfig: Config = SpartaConfig.getMarathonConfig().get
+  lazy val marathonUpAndDownComponent = MarathonUpAndDownComponent(marathonConfig)
+
+  val marathonService = new MarathonService(marathonUpAndDownComponent)
 
   val StartKey = "-start"
   val StopKey = "-stop"
@@ -184,7 +193,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
   }
 
   val awaitWorkflowStatusTime: WorkflowExecution => Int = (workflowExecution: WorkflowExecution) => {
-    import MarathonService._
+    import com.stratio.sparta.serving.core.marathon.service.MarathonService._
     calculateMaxTimeout(getHealthChecks(workflowExecution.getWorkflowToExecute))
   }
 
@@ -587,4 +596,6 @@ object SchedulerMonitorActor {
       }
     }.toMap
   }
+
+  def props: Props = Props[SchedulerMonitorActor]
 }

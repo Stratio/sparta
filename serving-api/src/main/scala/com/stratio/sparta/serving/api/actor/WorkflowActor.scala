@@ -6,30 +6,39 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import com.stratio.sparta.security._
+import com.stratio.sparta.serving.api.actor.WorkflowValidatorActor.{ValidateWorkflowIdWithExContextJob, ValidateWorkflowStepsJob, ValidateWorkflowWithoutExContextJob}
+import com.stratio.sparta.serving.api.actor.remote.DispatcherActor.EnqueueJob
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor._
+import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.constants.AkkaConstant.ValidatorDispatcherActorName
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.authorization.{GosecUser, LoggedUser}
 import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
-import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, AkkaClusterUtils}
+import org.json4s.native.Serialization.write
 
-class WorkflowActor(
-                     launcherActor: ActorRef,
-                     parametersStateActor: ActorRef
-                   )
-  extends Actor with ActionUserAuthorize {
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
+
+class WorkflowActor(launcherActor: ActorRef, parametersStateActor: ActorRef) extends Actor
+  with ActionUserAuthorize
+  with SpartaSerializer {
 
   import DtoModelImplicits._
   import WorkflowActor._
   import com.stratio.sparta.serving.core.models.workflow.migration.MigrationModelImplicits._
+
+  implicit val actorSystem = context.system
+
+  lazy val validatorDispatcherActor = AkkaClusterUtils.proxyInstanceForName(ValidatorDispatcherActorName, AkkaConstant.MasterRole)
 
   val ResourceWorkflow = "Workflows"
 
@@ -92,72 +101,41 @@ class WorkflowActor(
 
   //TODO this method should be removed when the front migrate to latest version and call validate with ex. context
   def validate(workflowRaw: Workflow, user: Option[LoggedUser]): Unit = {
-    val authorizationId = workflowRaw.authorizationId
-    val action = Map(ResourceWorkflow -> Edit)
-
-    authorizeActionsByResourceId(user, action, authorizationId, Option(sender)) {
-      for {
-        response <- (parametersStateActor ? ValidateExecutionContextToWorkflow(
-          workflowExecutionContext = WorkflowExecutionContext(workflowRaw, ExecutionContext()),
-          ignoreCustomParams = true
-        )).mapTo[Try[ValidationContextResult]]
-      } yield manageValidationResult(response)
-    }
+    val job = ValidateWorkflowStepsJob(
+      workflowRaw,
+      user.map(userInstance => GosecUser(id = userInstance.id, name = userInstance.name, gid = userInstance.gid)),
+      true
+    )
+    validatorDispatcherActor forward EnqueueJob(write(job))
   }
 
   def validateSteps(workflowRaw: Workflow, user: Option[LoggedUser]): Unit = {
-    val authorizationId = workflowRaw.authorizationId
-    val action = Map(ResourceWorkflow -> Edit)
-
-    authorizeActionsByResourceId(user, action, authorizationId, Option(sender)) {
-      for {
-        validationContextResult <- (parametersStateActor ? ValidateExecutionContextToWorkflow(
-          workflowExecutionContext = WorkflowExecutionContext(workflowRaw, ExecutionContext()),
-          ignoreCustomParams = true
-        )).mapTo[Try[ValidationContextResult]]
-      } yield {
-        Try {
-          validationContextResult match {
-            case Success(result) =>
-              if (result.workflowValidation.valid)
-                workflowValidatorService.validateSinglePlugins(result.workflow)
-              else result.workflowValidation
-            case Failure(e) =>
-              throw e
-          }
-        }
-      }
-    }
+    val job = ValidateWorkflowStepsJob(
+      workflowRaw,
+      user.map(userInstance => GosecUser(id = userInstance.id, name = userInstance.name, gid = userInstance.gid)),
+      true
+    )
+    validatorDispatcherActor forward EnqueueJob(write(job))
   }
 
   def validateWithoutExecutionContext(workflowRaw: Workflow, user: Option[LoggedUser]): Unit = {
-    val authorizationId = workflowRaw.authorizationId
-    val action = Map(ResourceWorkflow -> Edit)
-
-    authorizeActionsByResourceId(user, action, authorizationId, Option(sender)) {
-      workflowValidatorService.validateAll(workflowRaw)
-    }
+    val job = ValidateWorkflowWithoutExContextJob(
+      workflowRaw,
+      user.map(userInstance => GosecUser(id = userInstance.id, name = userInstance.name, gid = userInstance.gid)),
+      true
+    )
+    validatorDispatcherActor forward EnqueueJob(write(job))
   }
 
-  def validateWithExecutionContext(
-                                    workflowIdExecutionContext: WorkflowIdExecutionContext,
-                                    user: Option[LoggedUser]
-                                  ): Future[Unit] = {
+  def validateWithExecutionContext(workflowIdExecutionContext: WorkflowIdExecutionContext,
+                                    user: Option[LoggedUser]): Unit = {
 
-    val senderResponseTo = Option(sender)
-    for {
-      workflowRaw <- workflowPgService.findWorkflowById(workflowIdExecutionContext.workflowId)
-    } yield {
-      val action = Map(ResourceWorkflow -> Edit)
-      val authorizationId = workflowRaw.authorizationId
-      authorizeActionsByResourceId(user, action, authorizationId, senderResponseTo) {
-        for {
-          response <- (parametersStateActor ? ValidateExecutionContextToWorkflowId(
-            workflowIdExecutionContext = workflowIdExecutionContext, ignoreCustomParams = false
-          )).mapTo[Try[ValidationContextResult]]
-        } yield manageValidationResult(response)
-      }
-    }
+    val job = ValidateWorkflowIdWithExContextJob(
+      workflowIdExecutionContext,
+      user.map(userInstance => GosecUser(id = userInstance.id, name = userInstance.name, gid = userInstance.gid)),
+      true
+    )
+    validatorDispatcherActor forward EnqueueJob(write(job))
   }
 
   def runWithParametersView(workflow: Workflow, user: Option[LoggedUser]): Unit = {

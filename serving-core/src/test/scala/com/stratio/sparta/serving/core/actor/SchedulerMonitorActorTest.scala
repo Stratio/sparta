@@ -14,6 +14,7 @@ import com.stratio.sparta.serving.core.actor.SchedulerMonitorActor.{RetrieveStat
 import com.stratio.sparta.serving.core.actor.SchedulerMonitorActorTest._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.MarathonAPIUtils
@@ -68,9 +69,9 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
     "the method CheckDiscrepancy in its utils is invoked" should {
       "retrieve correctly only inconsistent status through MarathonAPI" in {
         val mockMarathon = mock[MarathonAPIUtils](CALLS_REAL_METHODS)
-        doReturn(Future(testJSON)).when(mockMarathon).retrieveApps()
+        doReturn(Future(testJSON)).when(mockMarathon).retrieveApps(WorkflowHelper.getMarathonBaseId)
         when(mockMarathon.checkDiscrepancy(Map.empty[String, String])).thenCallRealMethod()
-        when(mockMarathon.extractWorkflowAppsFromMarathonResponse(testJSON)).thenCallRealMethod()
+        when(mockMarathon.extractAppsFromMarathonResponse(testJSON)).thenCallRealMethod()
         whenReady(mockMarathon.checkDiscrepancy(mapMarathonWorkflowIDs)) { res =>
           assert(res._2.isEmpty)
         }
@@ -83,7 +84,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
             res._1 === Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-v0/5678" -> "5678") &&
               res._2 === Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234"))
         }
-        val extractApp = mockMarathon.extractWorkflowAppsFromMarathonResponse(testJSON)
+        val extractApp = mockMarathon.extractAppsFromMarathonResponse(testJSON)
         extractApp should be(Some(Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234")))
       }
     }

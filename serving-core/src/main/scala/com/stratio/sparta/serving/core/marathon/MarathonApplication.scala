@@ -30,66 +30,7 @@ object MarathonApplication {
 
   val TcpValue = "tcp"
   val BridgeValue = "BRIDGE"
-  val defaultMarathonApplication = MarathonApplication(
-    id = "",
-    cpus = 1,
-    mem = 1024,
-    instances = Option(1),
-    user = None,
-    args = None,
-    env = None,
-    container = MarathonContainer(
-      docker = Docker(
-        image = "",
-        network = "HOST",
-        portMappings = None,
-        privileged = Option(false),
-        parameters = None,
-        forcePullImage = Option(false)
-      ),
-      `type` = "DOCKER",
-      volumes = None
-    ),
-    cmd = None,
-    portDefinitions = Option(Seq(
-      MarathonPortDefinition(
-        name = Option("sparkui"),
-        port = 0,
-        labels = None
-      ),
-      MarathonPortDefinition(
-        name = Option("metrics"),
-        port = 0,
-        labels = None
-      ),
-      MarathonPortDefinition(
-        name = Option("jmx"),
-        port = 0,
-        labels = None
-      )
-    )),
-    requirePorts = None,
-    healthChecks = Option(Seq(
-      MarathonHealthCheck(
-        protocol = "HTTP",
-        path = Option("/environment"),
-        portIndex = Option(0),
-        command = None,
-        gracePeriodSeconds = 240,
-        intervalSeconds = 60,
-        timeoutSeconds = 30,
-        maxConsecutiveFailures = 3,
-        ignoreHttp1xx = Option(false)
-      ))),
-    labels = Map(
-      "DCOS_SERVICE_PORT_INDEX" -> "0",
-      "DCOS_SERVICE_SCHEME" -> "http"
-    ),
-    ports = None,
-    constraints = None,
-    ipAddress = None,
-    secrets = Map.empty[String, Map[String, String]]
-  )
+
 }
 
 case class MarathonContainer(docker: Docker, `type`: String = "DOCKER", volumes: Option[Seq[MarathonVolume]] = None)

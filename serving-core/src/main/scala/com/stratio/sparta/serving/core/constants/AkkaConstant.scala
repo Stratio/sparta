@@ -12,6 +12,7 @@ import scala.util.Try
 
 object AkkaConstant {
 
+  val MasterRole = "spartaMaster"
   val TemplateActorName = "templateActor"
   val WorkflowActorName = "workflowActor"
   val ExecutionActorName = "executionActor"
@@ -39,11 +40,27 @@ object AkkaConstant {
   val InconsistentStatusCheckerActorName = "InconsistentStatusCheckerActor"
   val ParameterListActorName = "ParameterListActorName"
   val QualityRuleResultActorName = "qualityRuleResultActor"
-  val RunWorkflowListenerActorName = "RunWorkflowListenerActorName"
   val ScheduledWorkflowTaskActorName = "ScheduledWorkflowTaskActorName"
   val ScheduledWorkflowTaskExecutorActorName = "ScheduledWorkflowTaskExecutorActorName"
   val QualityRuleResultSenderActorName = "QualityRuleResultSenderActor"
   val QualityRuleReceiverActorName = "QualityRuleReceiverActor"
+  val JmxMetricsActorName = "JmxMetricsActor"
+  val DebugDispatcherActorName = "DebugDispatcherActor"
+  val DebugWorkerActorName = "DebugWorkerNode"
+  val SchedulerMonitorActorName = "SchedulerMonitorActor"
+  val DebugGuardianActorName = "DebugGuardianActor"
+  val ValidatorDispatcherActorName = "ValidatorDispatcherActor"
+  val ValidatorWorkerActorName = "ValidatorWorkerNode"
+  val ValidatorGuardianActorName = "ValidatorGuardianActor"
+  val CatalogDispatcherActorName = "CatalogDispatcherActor"
+  val CatalogWorkerActorName = "CatalogWorkerNode"
+  val CatalogGuardianActorName = "CatalogGuardianActor"
+  val ExecutionStatusChangeListenerActorName = "ExecutionStatusChangeListenerActor"
+  val ExecutionStatusChangePublisherActorName = "ExecutionStatusChangePublisherActor"
+  val RunWorkflowListenerActorName = "RunWorkflowListenerActorName"
+  val RunWorkflowPublisherActorName = "RunWorkflowPublisherActor"
+  val LineageServiceActorName = "LineageServiceActor"
+
 
 
   lazy val DefaultInstances = Try(SpartaConfig.getDetailConfig().get.getInt("actors.instances"))

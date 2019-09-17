@@ -6,6 +6,7 @@
 
 package com.stratio.sparta.serving.core.actor
 
+import akka.actor.Props
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe}
 import com.stratio.sparta.serving.core.actor.ListenerPublisher.ClusterTopicNodeListener
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -72,6 +73,8 @@ object RunWorkflowPublisherActor {
   trait Notification
 
   case class RunWorkflowNotification(path: String, workflowIdExecutionContext: WorkflowIdExecutionContext) extends Notification
+
+  def props: Props = Props[RunWorkflowPublisherActor]
 
 }
 

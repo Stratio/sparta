@@ -13,7 +13,8 @@ import akka.stream.ActorMaterializer
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.jayway.jsonpath.{Configuration, JsonPath, ReadContext}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
-import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.marathon.Deployment
 import com.stratio.sparta.serving.core.utils.MarathonApiError._
@@ -27,7 +28,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Properties, Success, Try}
-import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 
 class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   extends SLF4JLogging with SpartaSerializer {
@@ -57,7 +57,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
       val deployments = for {
         deploymentsInDcos <- retrieveDeployments()
       } yield {
-        extractWorkflowDeploymentsFromMarathonResponse(deploymentsInDcos).filter { case (appId, _) =>
+        extractDeploymentsFromMarathonResponse(deploymentsInDcos).filter { case (appId, _) =>
           appId == applicationId
         }
       }
@@ -80,6 +80,30 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
     }
   }
 
+  def getGroupTasks(groupPath : String): Future[Seq[String]] = {
+    Try {
+      val appsRunning = for {
+        runningAppsInDcos <- retrieveApps(groupPath)
+      } yield extractAppsFromMarathonResponse(runningAppsInDcos).getOrElse(Seq.empty)
+
+      appsRunning.recoverWith {
+        case _: UnExpectedError =>
+          Future.successful(Seq.empty[String])
+        case exception: Exception =>
+          responseUnExpectedErrorWithResponse(exception, Seq.empty[String])
+        case _ =>
+          Future.successful(Seq.empty[String])
+      }
+    } match {
+      case Success(result) =>
+        result
+      case Failure(exception: Exception) =>
+        responseUnExpectedErrorWithResponse(exception, Seq.empty[String])
+      case _ =>
+        Future.successful(Seq.empty[String])
+    }
+  }
+
   def removeEmptyFoldersFromDCOS(): Unit = {
     outer.log.debug("Retrieving groups from MarathonAPI to purge the empty ones")
     val groupsToDelete = for {
@@ -99,8 +123,8 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
                       ): Future[(Map[String, String], Seq[String])] = {
     Try {
       val discrepancyResponse = for {
-        runningAppsInDcos <- retrieveApps()
-        runningExecutionsInDcos = extractWorkflowAppsFromMarathonResponse(runningAppsInDcos)
+        runningAppsInDcos <- retrieveApps(WorkflowHelper.getMarathonBaseId)
+        runningExecutionsInDcos = extractAppsFromMarathonResponse(runningAppsInDcos)
       } yield extractDiscrepancyFromDatabaseAndDcos(startedExecutionsInDatabase, runningExecutionsInDcos)
 
       discrepancyResponse.recoverWith {
@@ -165,9 +189,8 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
     }
   }
 
-  def retrieveApps(): Future[String] = {
-    retrieveIPandPorts
-    val appsList = s"v2/apps?id=$getMarathonBaseId&embed=apps.tasks"
+  def retrieveApps(groupPath: String): Future[String] = {
+    val appsList = s"v2/apps?id=$groupPath&embed=apps.tasks"
     val appsInDcosResponse = for {
       responseMarathon <- doRequest(marathonApiUri.get,
         appsList,
@@ -323,7 +346,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
     }
   }
 
-  private[core] def extractWorkflowAppsFromMarathonResponse(json: String): Option[Seq[String]] = {
+  private[core] def extractAppsFromMarathonResponse(json: String): Option[Seq[String]] = {
     val queryPath = "$.apps[*].id"
 
     if (json.trim.nonEmpty) {
@@ -344,7 +367,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
     else None
   }
 
-  private[core] def extractWorkflowDeploymentsFromMarathonResponse(json: String): Map[String, String] = {
+  private[core] def extractDeploymentsFromMarathonResponse(json: String): Map[String, String] = {
     Try {
       val deployments = read[Seq[Deployment]](json)
 

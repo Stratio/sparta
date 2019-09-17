@@ -57,7 +57,7 @@ class MarathonApiUtilsTest extends BaseUtilsTest {
                               |  }
                               |]""".stripMargin
 
-        val result = testMarathonApiUtils.extractWorkflowDeploymentsFromMarathonResponse(jsonDeployments)
+        val result = testMarathonApiUtils.extractDeploymentsFromMarathonResponse(jsonDeployments)
 
         result should not be empty
         result should be equals Map(
@@ -69,7 +69,7 @@ class MarathonApiUtilsTest extends BaseUtilsTest {
       "parse to empty map a invalid reponse" in {
         val jsonDeployments="""wrong""".stripMargin
 
-        val result = testMarathonApiUtils.extractWorkflowDeploymentsFromMarathonResponse(jsonDeployments)
+        val result = testMarathonApiUtils.extractDeploymentsFromMarathonResponse(jsonDeployments)
 
         result should be equals Map.empty
       }

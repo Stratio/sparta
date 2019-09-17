@@ -6,9 +6,9 @@
 package com.stratio.sparta.serving.api.service.http
 
 import javax.ws.rs.Path
-
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.CrossdataActor._
+import com.stratio.sparta.serving.api.actor.{SpartaColumn, SpartaDatabase, SpartaTable}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
@@ -46,7 +46,7 @@ trait CrossdataHttpService extends BaseHttpService {
       get { context =>
         for {
           response <- (supervisor ? FindAllDatabases(user))
-            .mapTo[Either[Try[Array[Database]], UnauthorizedResponse]]
+            .mapTo[Either[Try[Array[SpartaDatabase]], UnauthorizedResponse]]
         } yield getResponse(context, CrossdataServiceListDatabases, response, genericError)
       }
     }
@@ -64,7 +64,7 @@ trait CrossdataHttpService extends BaseHttpService {
       get { context =>
         for {
           response <- (supervisor ? FindAllTables(user))
-            .mapTo[Either[Try[Array[Table]], UnauthorizedResponse]]
+            .mapTo[Either[Try[Array[SpartaTable]], UnauthorizedResponse]]
         } yield getResponse(context, CrossdataServiceListTables, response, genericError)
       }
     }
@@ -91,7 +91,7 @@ trait CrossdataHttpService extends BaseHttpService {
           complete {
             for {
               response <- (supervisor ? FindTables(tablesRequest, user))
-                .mapTo[Either[Try[Array[Table]], UnauthorizedResponse]]
+                .mapTo[Either[Try[Array[SpartaTable]], UnauthorizedResponse]]
             } yield deletePostPutResponse(CrossdataServiceListTables, response, genericError)
           }
         }
@@ -120,7 +120,7 @@ trait CrossdataHttpService extends BaseHttpService {
           complete {
             for {
               response <- (supervisor ? DescribeTable(tableInfoRequest, user))
-                .mapTo[Either[Try[Array[Column]], UnauthorizedResponse]]
+                .mapTo[Either[Try[Array[SpartaColumn]], UnauthorizedResponse]]
             } yield deletePostPutResponse(CrossdataServiceListColumns, response, genericError)
           }
         }

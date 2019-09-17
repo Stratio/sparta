@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.serving.core.marathon
+package com.stratio.sparta.serving.core.marathon.service
 
 import java.net.HttpCookie
 
@@ -11,6 +11,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.StatusCode
 import akka.stream.ActorMaterializer
+import com.stratio.sparta.serving.core.marathon.MarathonApplication
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.utils.{HttpRequestUtils, MarathonAPIUtils}
 import com.typesafe.config.Config

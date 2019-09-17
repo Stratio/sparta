@@ -98,6 +98,7 @@ object MarathonConstant {
   val ServerMarathonLBPathEnv = "MARATHON_APP_LABEL_HAPROXY_0_PATH"
   val GosecAuthEnableEnv = "ENABLE_GOSEC_AUTH"
   val UserNameEnv = "USER_NAME"
+  val DatastoreCaNameEnv = "DATASTORE_TRUSTSTORE_CA_NAME"
   val SpartaTLSEnableEnv = "SECURITY_TLS_ENABLE"
   val sparkLogLevel = "SPARK_LOG_LEVEL"
   val spartaRedirectorLogLevel = "SPARTA_REDIRECTOR_LOG_LEVEL"
@@ -117,6 +118,7 @@ object MarathonConstant {
   val SpartaPluginInstance = "SPARTA_PLUGIN_INSTANCE"
   val SpartaDyplonPluginInstance = "SPARTA_PLUGIN_DYPLON_INSTANCE"
   val SpartaWorkflowsPluginInstance = "SPARTA_WORKFLOWS_PLUGIN_INSTANCE"
+  val SpartaWorkflowsDyplonPluginInstance = "SPARTA_WORKFLOWS_DYPLON_PLUGIN_INSTANCE"
   val SpartaDyplonTenantName = "DYPLON_TENANT_NAME"
 
 }

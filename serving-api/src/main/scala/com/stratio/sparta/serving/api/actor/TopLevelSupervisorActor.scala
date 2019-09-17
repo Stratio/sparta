@@ -9,15 +9,9 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, AllForOneStrategy, Props, SupervisorStrategy}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.dg.agent.lineage.LineageServiceActor
-import com.stratio.sparta.serving.core.actor.{ExecutionStatusChangeListenerActor, ExecutionStatusChangePublisherActor, RunWorkflowPublisherActor, SchedulerMonitorActor}
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.MarathonConstant
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 
-import scala.util.{Properties, Try}
-
+// TODO ALVARO Delete this class when possible
 class TopLevelSupervisorActor extends Actor with SLF4JLogging {
 
   implicit val ec = context.system.dispatchers.lookup("sparta-actors-dispatcher")
@@ -35,35 +29,11 @@ class TopLevelSupervisorActor extends Actor with SLF4JLogging {
   }
 
   override def preStart(): Unit = {
-
-    context.actorOf(Props(new ExecutionStatusChangePublisherActor()))
-
-    context.actorOf(Props(new RunWorkflowPublisherActor()))
-
-    context.actorOf(Props[SchedulerMonitorActor])
-
-    if (
-      (
-        Try(SpartaConfig.getDetailConfig().get.getBoolean("metrics.jmx.enable")).getOrElse(false) ||
-        Try(SpartaConfig.getDetailConfig().get.getBoolean("metrics.prometheus.enable")).getOrElse(false)
-        ) &&
-      Try(SpartaConfig.getDetailConfig().get.getBoolean("user.metrics.enable")).getOrElse(false)
-    ) {
-      log.info("Initializing JMX user metrics")
-      context.actorOf(Props[JmxMetricsActor])
-    }
-
-
     //Initialize Nginx actor
     if (WorkflowHelper.isMarathonLBConfigured) {
       log.info("Initializing Nginx service")
       Option(context.actorOf(Props(new NginxActor())))
     }
 
-    if (Try(SpartaConfig.getDetailConfig().get.getBoolean("lineage.enable")).getOrElse(false)) {
-      val executionStatusChangeListenerActor = context.actorOf(Props(new ExecutionStatusChangeListenerActor()))
-      log.info("Initializing lineage service")
-      context.actorOf(LineageServiceActor.props(executionStatusChangeListenerActor))
-    }
   }
 }
