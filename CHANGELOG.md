@@ -19,7 +19,7 @@ Improvements and new features:
     - Integration with DCOS 1.12
     - Upgrade to new Gosec Facade version
     - Upgrade dyplon-crossdata version to 0.19.1-e67b2ab  
-    - Upgrade ml-modelrep version to 1.5.0-2460505
+    - Upgrade ml-modelrep version to 1.5.0
     - Support Cassandra TLS in input and output
     - Auto create schema in JDBC and Postgres output
     - Integration with new QR API
