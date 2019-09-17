@@ -749,7 +749,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       val configuration = node.configuration ++
         workflow.executionId.fold(Map.empty[String, JsoneyString]) { executionId =>
           Map(ExecutionIdKey -> JsoneyString(executionId))
-        }
+        } ++ (if (node.className.equalsIgnoreCase("SQLInputStepStreaming")) {
+          Map(WorkflowIdKey -> JsoneyString(workflow.id.get))
+        } else Map.empty)
 
       workflowContext.classUtils.tryToInstantiate[InputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(

@@ -83,7 +83,7 @@ export class SpCrossdataInputComponent implements ControlValueAccessor, OnDestro
     if (this._tablesSubscription) {
       this._tablesSubscription.unsubscribe();
     }
-    if(this._valueSubscription) {
+    if (this._valueSubscription) {
       this._valueSubscription.unsubscribe();
     }
   }
@@ -96,9 +96,20 @@ export class SpCrossdataInputComponent implements ControlValueAccessor, OnDestro
     return this.required && this.formGroup.invalid ? { 'custom': true } : null;
   }
 
-  public writeValue(value: SpCrossdataInputValue): void {
+  public writeValue(val: any): void {
+    let value: SpCrossdataInputValue;
+    if (typeof val === 'string' && val.length) {
+      try {
+        value = JSON.parse(val as string);
+      } catch (error) {
+        console.warn(error);
+      }
+    } else {
+      value = val;
+    }
+
     if (value && value.database) {
-      if(!value.table) {
+      if (!value.table) {
         value.table = null;
       }
       this.formGroup.setValue(value);

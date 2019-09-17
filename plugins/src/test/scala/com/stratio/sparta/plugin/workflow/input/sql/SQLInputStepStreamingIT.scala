@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.input.crossdata
+package com.stratio.sparta.plugin.workflow.input.sql
 
 import java.io.{Serializable => JSerializable}
 import java.util.{Properties, UUID}
@@ -21,10 +21,10 @@ import org.scalatest.junit.JUnitRunner
 import scala.util.Random
 
 @RunWith(classOf[JUnitRunner])
-class CrossdataInputStepStreamingIT extends TemporalSparkContext with PostgresSuiteBase with Matchers {
+class SQLInputStepStreamingIT extends TemporalSparkContext with PostgresSuiteBase with Matchers {
 
 
-  "CrossdataInput " should "read all the records in one streaming batch" in {
+  "SQLInput " should "read all the records in one streaming batch" in {
     SparkSession.clearActiveSession()
     val schema = new StructType(Array(
       StructField("id", IntegerType, nullable = true),
@@ -57,13 +57,13 @@ class CrossdataInputStepStreamingIT extends TemporalSparkContext with PostgresSu
     val datasourceParams = Map(
       "query" -> s"select * from $tableName",
       "rememberDuration" -> "20000",
-      "offsetFields" -> offsetFields.asInstanceOf[JSerializable]
+      "offsetFields" -> offsetFields.asInstanceOf[JSerializable],
+      "workflowId" -> "1"
     )
 
     val outputOptions = OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName"))
-    val crossdataInput = new CrossdataInputStepStreaming(
-      "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
-    val inputStream = crossdataInput.init
+    val sqlInput = new SQLInputStepStreaming("sqlInput", outputOptions, Option(ssc), sparkSession, datasourceParams)
+    val inputStream = sqlInput.init
 
     inputStream.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
@@ -115,19 +115,19 @@ class CrossdataInputStepStreamingIT extends TemporalSparkContext with PostgresSu
     withCrossdataTable(testView, "jdbc", postgresTableOptions, sparkSession){
       val totalEvents = ssc.sparkContext.longAccumulator("Number of events received")
 
-      val crossdataInput = {
+      val sqlInput = {
         val datasourceParams: Map[String, JSerializable] = Map(
           "query" -> s"select * from $testView",
           "limitRecords" -> offsetLimit,
-          "offsetFields" -> offsetFields
+          "offsetFields" -> offsetFields,
+          "workflowId" -> "1"
         )
 
-        new CrossdataInputStepStreaming(
-          "crossdata", OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName")), Option(ssc), sparkSession, datasourceParams
-        )
+        new SQLInputStepStreaming("sqlInput",
+          OutputWriterOptions.defaultOutputOptions("stepName", None, Option("tableName")), Option(ssc), sparkSession, datasourceParams)
       }
 
-      val inputStream = crossdataInput.init
+      val inputStream = sqlInput.init
 
       inputStream.ds.foreachRDD(rdd => {
         val streamingEvents = rdd.count()

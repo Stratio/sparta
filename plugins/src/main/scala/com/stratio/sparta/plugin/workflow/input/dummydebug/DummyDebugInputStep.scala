@@ -9,7 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.workflow.input.avro.AvroInputStepBatch
-import com.stratio.sparta.plugin.workflow.input.crossdata.CrossdataInputStepBatch
+import com.stratio.sparta.plugin.workflow.input.sql.SQLInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.csv.CsvInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.filesystem.FileSystemInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.json.JsonInputStepBatch
@@ -90,7 +90,7 @@ abstract class DummyDebugInputStep[Underlying[Row]](
     (debugPath, debugQuery, debugUserProvidedExample, debugFileUploaded) match {
       case (Some(path), _ , _,_) => createDebugFromPath(Some(path))
       case (None, Some(debQuery), _, _) =>
-        new CrossdataInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
+        new SQLInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
           override lazy val query = debQuery
         }.initWithSchema()
       case (None, None, Some(userExample), _) => createDebugFromUserDefinedExample()
