@@ -30,15 +30,15 @@ class XlsOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
     val delimiter = ","
     val schema = StructType(Seq(
       StructField("name", StringType),
-      StructField("age", IntegerType),
-      StructField("minute", LongType)
+      StructField("age", StringType),
+      StructField("minute", StringType)
     ))
-
+    //We assume headers are strings!
     val data =
       sparkSession.createDataFrame(sc.parallelize(Seq(
-        Row("Kevin", Random.nextInt, Timestamp.from(Instant.now).getTime),
-        Row("Kira", Random.nextInt, Timestamp.from(Instant.now).getTime),
-        Row("Ariadne", Random.nextInt, Timestamp.from(Instant.now).getTime)
+        Row("Kevin", Random.nextInt.toString, Timestamp.from(Instant.now).getTime.toString),
+        Row("Kira",Random.nextInt.toString, Timestamp.from(Instant.now).getTime.toString),
+        Row("Ariadne", Random.nextInt.toString, Timestamp.from(Instant.now).getTime.toString)
       )), schema)
   }
   val dataRange="A1"
@@ -49,8 +49,12 @@ class XlsOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
 
   it should "save a dataframe " in new WithEventData {
     output.save(data, SaveModeEnum.Append, Map(TableNameKey -> "person"))
-    val read = sparkSession.read.csv(s"$tmpPath/person.xls")
-
-    read.count should be(3)
+    //val read = sparkSession.read.csv(s"$tmpPath/person.xls")
+    val prop = Map("useHeader" -> "false", "dataRange"->"A1","sheetName"->"Person","inferSchema"->"true")
+    val location=s"$tmpPath/person.xls"
+    val df = sparkSession.read.format("com.crealytics.spark.excel").options(prop).load(location)
+    df.count should be(3)
+    File(tmpPath).deleteRecursively
+    File("spark-warehouse").deleteRecursively
   }
 }

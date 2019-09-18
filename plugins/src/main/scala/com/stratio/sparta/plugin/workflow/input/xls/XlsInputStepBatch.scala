@@ -38,6 +38,7 @@ class XlsInputStepBatch(
   lazy val sheetName: Option[String] = properties.getString("sheetName",None).notBlank
   lazy val useHeader = Try(properties.getString("useHeader", "false").toBoolean).getOrElse(false)
   lazy val dataRange : Option[String] = properties.getString("dataRange", None).notBlank
+  lazy val dateFormat = Try(properties.getString("useHeader", "dd/mm/yyyy")).getOrElse(false)
   val sheetKey="sheetName"
   val dataRangeKey="dataRange"
   val locationKey="location"

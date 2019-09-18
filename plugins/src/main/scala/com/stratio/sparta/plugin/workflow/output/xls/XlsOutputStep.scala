@@ -32,7 +32,7 @@ class XlsOutputStep(
   lazy val useHeader = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
   lazy val inferSchema = Try(properties.getString("inferSchema", "false").toBoolean).getOrElse(false)
   lazy val compressExtension = propertiesWithCustom.getString("compressExtension", None).notBlank.getOrElse(".gz")
-
+  lazy val dateFormat = Try(properties.getString("useHeader", "dd/mm/yyyy")).getOrElse(false)
   override lazy val lineagePath: String = location
 
   override lazy val lineageResourceSuffix: Option[String] = None
@@ -64,11 +64,10 @@ class XlsOutputStep(
       Map(
         "useHeader" -> useHeader.toString,
         "inferSchema" -> inferSchema.toString,
-        "dataAddress" -> data  //dataAddress.getOrElse(throw new RuntimeException("Empty dataAddress"))
+        "dataAddress" -> data
       )
 
     val fullLocation = s"$locationParsed$tableName.xls"
-    //val pathWithExtension = codecOption.fold(fullPath) { codec => fullPath + compressExtension }
     validateSaveMode(saveMode)
     val dataFrameWriter = dataFrame.write.format("com.crealytics.spark.excel").options(optionsParsed).mode(getSparkSaveMode(saveMode))
 
