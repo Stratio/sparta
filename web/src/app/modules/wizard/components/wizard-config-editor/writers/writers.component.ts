@@ -38,5 +38,6 @@ export class WritersComponent implements OnInit {
       this.writersGroup.addControl(key, control);
       this.accordionStates.push(false);
     });
+    setTimeout(() => this.writersGroup.setValue(this.nodeWriters));
   }
 }
