@@ -106,7 +106,6 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
           formControl: formControl,
           field: prop
         });
-
         formControl.statusChanges.pipe(takeUntil(this._componentDestroyed)).subscribe(status => {
           if (status === 'DISABLED' && formControl.value === null) {
             formControl.setValue(prop.default);

@@ -117,6 +117,7 @@ export class WizardService {
         edges: wizard.edges,
         annotations: wizard.annotations
       },
+      writers: undefined,
       group: wizard.workflowGroup && wizard.workflowGroup.id ?
         wizard.workflowGroup : state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup,
       settings: wizard.settings.advancedSettings
