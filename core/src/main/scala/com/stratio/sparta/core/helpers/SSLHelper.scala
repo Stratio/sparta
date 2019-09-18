@@ -59,6 +59,24 @@ object SSLHelper extends SLF4JLogging {
     } else SSLContext.getInstance("TLS")
   }
 
+  def getSSLContextV2(keyStoreFileAndPassword: (String, String), trustStoreFileAndPassword: (String, String)): SSLContext = {
+    val (keyStoreFile, keyStorePassword) = keyStoreFileAndPassword
+    val (trustStoreFile, trustStorePassword) = trustStoreFileAndPassword
+
+    val keyStore = KeyStore.getInstance(KeyStore.getDefaultType)
+    keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword.toCharArray)
+
+    val trustStore = KeyStore.getInstance(KeyStore.getDefaultType)
+    trustStore.load(new FileInputStream(trustStoreFile), trustStorePassword.toCharArray)
+
+    new SSLContextBuilder()
+      .useProtocol("TLSv1.2")
+      .loadTrustMaterial(trustStore, null)
+      .loadKeyMaterial(keyStore, keyStorePassword.toCharArray)
+      .build()
+  }
+
+
   private def getKeyStoreFileAndPassword(sslProperties: Map[String, String]): (String, String) = {
     val config = ConfigFactory.load()
 

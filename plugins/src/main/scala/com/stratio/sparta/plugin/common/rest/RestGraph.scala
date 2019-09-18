@@ -20,6 +20,7 @@ import akka.stream.scaladsl.{Flow, GraphDSL, Keep, RunnableGraph, Sink, Source}
 import com.stratio.sparta.core.enumerators.WhenRowError
 import com.stratio.sparta.core.models.TransformationStepManagement
 import com.stratio.sparta.plugin.common.rest.RestUtils.WithPreprocessing
+import com.stratio.sparta.plugin.common.rest.SparkExecutorRestUtils.SparkExecutorRestUtils
 import org.apache.spark.sql.{Row, RowFactory}
 
 import scala.concurrent.{ExecutionContext, Future, TimeoutException}

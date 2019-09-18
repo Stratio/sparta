@@ -12,6 +12,7 @@ import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.plugin.common.rest.SparkExecutorRestUtils.SparkExecutorRestUtils
 import com.stratio.sparta.plugin.common.rest.{RestConfig, RestGraph, RestUtils, SparkExecutorRestUtils}
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
 import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper
@@ -28,6 +29,8 @@ class RestOutputStep(
                       xDSession: XDSession,
                       properties: Map[String, JSerializable]
                     ) extends OutputStep(name, xDSession, properties) {
+
+  val conf = xDSession.conf.getAll
 
   lazy val restConfig: RestConfig = RestConfig(properties)
 
@@ -51,8 +54,8 @@ class RestOutputStep(
       RestUtils.preProcessingInputFields(urlUnwrapped, restConfig.bodyString, restConfig.bodyFormat, dataFrame.schema)
 
     dataFrame.rdd.foreachPartition { rowIterator =>
-
-      val restUtils: SparkExecutorRestUtils = SparkExecutorRestUtils.getOrCreate(restConfig.akkaHttpProperties)
+      val restUtils: SparkExecutorRestUtils =
+        SparkExecutorRestUtils.getOrCreate(restConfig.akkaHttpProperties, conf)
 
       import restUtils.Implicits._
 

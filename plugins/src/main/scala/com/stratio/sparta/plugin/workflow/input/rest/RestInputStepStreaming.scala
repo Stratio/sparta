@@ -12,6 +12,7 @@ import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.models.OutputOptions
 import com.stratio.sparta.plugin.common.rest.RestUtils.WithPreprocessing
+import com.stratio.sparta.plugin.common.rest.SparkExecutorRestUtils.SparkExecutorRestUtils
 import com.stratio.sparta.plugin.common.rest.{RestGraph, SparkExecutorRestUtils}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -20,7 +21,6 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.test.TestDStream
 
-import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
@@ -32,6 +32,8 @@ class RestInputStepStreaming(name: String,
                             )
   extends RestInputStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
+  val conf = xDSession.conf.getAll
+
   override def init(): DistributedMonad[DStream] = {
 
     val triggerRDD = xDSession.sparkContext.parallelize(Array(triggerRow))
@@ -41,7 +43,8 @@ class RestInputStepStreaming(name: String,
     val defaultRDStream = triggerDStream.transform { inputRDD =>
       inputRDD.mapPartitions { rowsIterator =>
 
-        implicit val restUtils: SparkExecutorRestUtils = SparkExecutorRestUtils.getOrCreate(restConfig.akkaHttpProperties)
+        implicit val restUtils: SparkExecutorRestUtils =
+          SparkExecutorRestUtils.getOrCreate(restConfig.akkaHttpProperties, conf)
 
         import restUtils.Implicits._
 

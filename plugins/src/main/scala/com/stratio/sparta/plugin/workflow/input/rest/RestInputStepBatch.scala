@@ -12,12 +12,13 @@ import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.models.OutputOptions
 import com.stratio.sparta.plugin.common.rest.RestUtils.WithPreprocessing
+import com.stratio.sparta.plugin.common.rest.SparkExecutorRestUtils.SparkExecutorRestUtils
 import com.stratio.sparta.plugin.common.rest.{RestGraph, SparkExecutorRestUtils}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{Row, RowFactory}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
 import scala.concurrent.Await
@@ -31,6 +32,8 @@ class RestInputStepBatch(name: String,
                         )
   extends RestInputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
+  val conf = xDSession.conf.getAll
+
   def init(): DistributedMonad[RDD] = {
     throw new Exception("Not used on inputs that generates DataSets with schema")
   }
@@ -41,7 +44,8 @@ class RestInputStepBatch(name: String,
 
     val defaultRDD = triggerRDD.mapPartitions { rowsIterator =>
 
-      implicit val restUtils: SparkExecutorRestUtils = SparkExecutorRestUtils.getOrCreate(restConfig.akkaHttpProperties)
+      implicit val restUtils: SparkExecutorRestUtils =
+        SparkExecutorRestUtils.getOrCreate(restConfig.akkaHttpProperties, conf)
 
       import restUtils.Implicits._
 

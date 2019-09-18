@@ -4,7 +4,7 @@ MAINTAINER Stratio "jenkins@stratio.com"
 COPY docker/* /
 COPY ./dist/target/sparta*.all.deb /
 
-EXPOSE 9090 10000 11000
+EXPOSE 9090 10000 11000 7777
 ADD http://sodio.stratio.com/repository/paas/kms_utils/0.4.0/kms_utils-0.4.0.sh /kms_utils.sh
 WORKDIR /
 

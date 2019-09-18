@@ -13,6 +13,7 @@ import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.plugin.common.rest.RestUtils.ReplaceableFields
+import com.stratio.sparta.plugin.common.rest.SparkExecutorRestUtils.SparkExecutorRestUtils
 import com.stratio.sparta.plugin.common.rest.{RestGraph, RestUtils, SparkExecutorRestUtils}
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.plugin.helper.SchemaHelper
@@ -38,6 +39,8 @@ class RestTransformStepStreaming(
   extends RestTransformStep[DStream](
     name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) with SLF4JLogging {
 
+  val conf = xDSession.conf.getAll
+
   /**
     *
     * @param inputData Input steps data that the function receive. The key is the name of the step and the value is
@@ -60,7 +63,8 @@ class RestTransformStepStreaming(
 
         val correctRDD = inputRDD.mapPartitions { rowsIterator =>
 
-          implicit val restUtils: SparkExecutorRestUtils = SparkExecutorRestUtils.getOrCreate(restConfig.akkaHttpProperties)
+          implicit val restUtils: SparkExecutorRestUtils = SparkExecutorRestUtils.getOrCreate(
+            restConfig.akkaHttpProperties, conf)
 
           import restUtils.Implicits._
 
@@ -77,9 +81,9 @@ class RestTransformStepStreaming(
             restConfig.preservationPolicy match {
               case JUST_EXTRACTED =>
                 (new GenericRowWithSchema(Array(response), restFieldSchema): Row, oldRow)
-              case _ =>
+              case _ => // TODO handle errors with null schemas // reproduce using debug Test uri localhost:9090/${ra}
                 (new GenericRowWithSchema(oldRow.toSeq.toArray ++ Array(response),
-                  StructType(oldRow.schema.fields ++ restFieldSchema)): Row, oldRow) // TODO handle errors with null schemas // reproduce using debug Test uri localhost:9090/${ra}
+                  StructType(oldRow.schema.fields ++ restFieldSchema)): Row, oldRow)
             }
           }
         }

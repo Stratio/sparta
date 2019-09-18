@@ -12,6 +12,7 @@ import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.plugin.common.rest.RestUtils.ReplaceableFields
+import com.stratio.sparta.plugin.common.rest.SparkExecutorRestUtils.SparkExecutorRestUtils
 import com.stratio.sparta.plugin.common.rest.{RestGraph, RestUtils, SparkExecutorRestUtils}
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.plugin.helper.SchemaHelper
@@ -38,6 +39,8 @@ class RestTransformStepBatch(
   extends RestTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
+  val conf = xDSession.conf.getAll
+
   /**
     *
     * @param inputData Input steps data that the function receive. The key is the name of the step and the value is
@@ -59,14 +62,16 @@ class RestTransformStepBatch(
       }
 
       val correctRDD = inputRDD.mapPartitions { rowsIterator =>
-
-        implicit val restUtils: SparkExecutorRestUtils = SparkExecutorRestUtils.getOrCreate(restConfig.akkaHttpProperties)
+        implicit val restUtils: SparkExecutorRestUtils =
+          SparkExecutorRestUtils.getOrCreate(restConfig.akkaHttpProperties, conf)
 
         import restUtils.Implicits._
 
         // We wait for the future containing our rows & results to complete ...
         val seqSolRow =
-          Await.result(RestGraph(restConfig, restUtils).createTransformationGraph(rowsIterator, replaceableFields.uri, replaceableFields.body, Some(transformationStepsManagement)).run(), Duration.Inf).toIterator
+          Await.result(
+            RestGraph(restConfig, restUtils).createTransformationGraph(
+              rowsIterator, replaceableFields.uri, replaceableFields.body, Some(transformationStepsManagement)).run(), Duration.Inf).toIterator
 
         /** ... we create the output RDD with the rows according to the chosen preservation policy preserving
           * the old row because mapPartitions has as output only a RDD[T]
