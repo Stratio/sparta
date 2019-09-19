@@ -61,6 +61,24 @@
          "required": false,
          "qa": "fragment-details-xls-infer-schema"
        },
+       {
+         "propertyId": "dateFormat",
+         "propertyName": "_DATE_FORMAT_",
+         "propertyType": "text",
+         "tooltip": "Treat nulls as empty value",
+         "default": "dd-mm-yyyy",
+         "required": false,
+         "qa": "fragment-details-xls-date-format"
+       },
+       {
+         "propertyId": "timestampFormat",
+         "propertyName": "_TIMESTAMP_",
+         "propertyType": "text",
+         "tooltip": "Treat nulls as empty value",
+         "default": "dd-mm-yyyy hh:mm:ss.000",
+         "required": false,
+         "qa": "fragment-details-xls-timestamp"
+       },
         {
            "propertyId": "inputOptions",
            "propertyName": "_OPTION_PROPERTIES_",

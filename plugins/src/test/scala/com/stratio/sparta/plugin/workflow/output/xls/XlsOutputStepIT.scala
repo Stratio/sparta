@@ -43,7 +43,7 @@ class XlsOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
   }
   val dataRange="A1"
   trait WithEventData extends CommonValues {
-    val properties = Map("location" -> tmpPath, "useHeader" -> "true", "sheetName"->"Person","dataRange"->dataRange,"inferSchema"->"false")
+    val properties = Map("location" -> tmpPath, "useHeader" -> "false", "sheetName"->"Person","dataRange"->dataRange,"inferSchema"->"false")
     val output = new XlsOutputStep("csv-test", sparkSession, properties)
   }
 

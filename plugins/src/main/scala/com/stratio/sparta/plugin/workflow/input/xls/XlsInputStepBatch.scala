@@ -22,6 +22,7 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
+import scala.collection.immutable
 import scala.util.Try
 
 class XlsInputStepBatch(
@@ -33,15 +34,20 @@ class XlsInputStepBatch(
                        )
   extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with HdfsLineage {
 
-  lazy val treatEmptyValuesAsNulls: Option[String] = properties.getString("treatEmptyValuesAsNulls",None).notBlank
   lazy val location: Option[String] = properties.getString("location",None).notBlank
+  lazy val treatEmptyValuesAsNulls: Option[String] = properties.getString("treatEmptyValuesAsNulls",None).notBlank
   lazy val sheetName: Option[String] = properties.getString("sheetName",None).notBlank
   lazy val useHeader = Try(properties.getString("useHeader", "false").toBoolean).getOrElse(false)
   lazy val dataRange : Option[String] = properties.getString("dataRange", None).notBlank
-  lazy val dateFormat = Try(properties.getString("useHeader", "dd/mm/yyyy")).getOrElse(false)
-  val sheetKey="sheetName"
-  val dataRangeKey="dataRange"
-  val locationKey="location"
+  lazy val dateFormat = properties.getString("dateFormat", None)
+  lazy val timestampFormat = properties.getString("timestampFormat", None)
+
+
+  lazy val sheetData: Option[String] = for {
+    name <- sheetName
+    range <- dataRange
+  } yield s"'$name'!$range"
+
   override lazy val lineagePath: String = location.getOrElse("")
 
   override lazy val lineageResourceSuffix: Option[String] = Option(".xls")
@@ -64,7 +70,7 @@ class XlsInputStepBatch(
     if (location.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"location cannot be empty", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"Location cannot be empty", name)
       )
     if (dataRange.isEmpty)
       validation = ErrorValidations(
@@ -89,20 +95,28 @@ class XlsInputStepBatch(
   override def lineageProperties(): Map[String, String] = getHdfsLineageProperties(InputStep.StepType)
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
-    require(location.nonEmpty, "The input path cannot be empty")
+    require(location.nonEmpty, "The input is not defined")
+    require(dataRange.nonEmpty, "Data range is not defined (start_cell:end_cell)")
+    require(sheetName.nonEmpty, "Sheet name is not defined")
 
-    val userOptions = propertiesWithCustom.flatMap { case (key, value) =>
-      if(key==locationKey || key==sheetKey || key==dataRangeKey)
-        None
-      else
-        Option(key -> value.toString)
+    val templateOptions: Map[String, String] = Map(
+      "useHeader" -> Some(useHeader.toString),
+      "treatEmptyValuesAsNulls" -> treatEmptyValuesAsNulls,
+      "dataAddress" -> sheetData,
+      "dateFormat" -> dateFormat,
+      "timestampFormat" -> timestampFormat
+    ).flatMap {
+      case (k, v) => v.map(value => Option(k -> value))
+    }.flatten.toMap
+
+    val userOptions: Map[String, String] = propertiesWithCustom
+      .flatMap {
+        case (key, value) if value.toString.checkIfEmpty => Option(key -> value.toString)
+        case (_,_) => None
     }
 
-    val sheetData= "'"+sheetName.getOrElse(false).toString +"'!"+ dataRange.getOrElse(false).toString
 
-    val userOptions2 :Map[String,String]= userOptions + ("dataAddress" -> sheetData)
-
-    val df = xDSession.read.format("com.crealytics.spark.excel").options(userOptions2).load(location.get)
+    val df = xDSession.read.format("com.crealytics.spark.excel").options(templateOptions ++ userOptions).load(location.get)
     (df.rdd, Option(df.schema))
   }
 

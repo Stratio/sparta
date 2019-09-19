@@ -39,7 +39,7 @@ class FileSystemInputStepStreaming(
   override lazy val lineagePath: String = path
 
   override lazy val lineageResourceSuffix: Option[String] = {
-    val regex = ".*\\.(csv|avro|json|xml|txt)$"
+    val regex = ".*\\.(csv|avro|json|xml|txt|xls|xlsx)$"
 
     if (lineagePath.matches(regex))
       lineagePath.split("/").lastOption

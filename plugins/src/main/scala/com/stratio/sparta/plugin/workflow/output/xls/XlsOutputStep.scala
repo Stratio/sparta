@@ -25,15 +25,21 @@ class XlsOutputStep(
                      properties: Map[String, JSerializable]
                    ) extends OutputStep(name, xDSession, properties) with CsvBase with HdfsLineage {
 
+
   lazy val dataRange: Option[String] = properties.getString("dataRange",None).notBlank
   lazy val sheetName:  Option[String] = properties.getString("sheetName", None).notBlank
-
   lazy val location: String = properties.getString("location", "").trim
   lazy val useHeader = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
+  lazy val treatEmptyValuesAsNulls: Option[String] = properties.getString("treatEmptyValuesAsNulls",None).notBlank
   lazy val inferSchema = Try(properties.getString("inferSchema", "false").toBoolean).getOrElse(false)
   lazy val compressExtension = propertiesWithCustom.getString("compressExtension", None).notBlank.getOrElse(".gz")
-  lazy val dateFormat = Try(properties.getString("useHeader", "dd/mm/yyyy")).getOrElse(false)
+  lazy val dateFormat = properties.getString("dateFormat", None)
+  lazy val timestampFormat = properties.getString("timestampFormat", None)
   override lazy val lineagePath: String = location
+  lazy val sheetData: Option[String] = for {
+    sh_name <- sheetName
+    range <- dataRange
+  } yield s"'$sh_name'!$range"
 
   override lazy val lineageResourceSuffix: Option[String] = None
 
@@ -44,7 +50,7 @@ class XlsOutputStep(
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
     val validationSeq = Seq(
-      location.isEmpty -> "destination path cannot be empty",
+      location.isEmpty -> "Destination path cannot be empty",
       dataRange.isEmpty -> "The location of data  cannot be empty",
       sheetName.isEmpty -> "Sheet name cannot be empty"
     )
@@ -55,21 +61,35 @@ class XlsOutputStep(
   override def lineageProperties(): Map[String, String] = getHdfsLineageProperties(OutputStep.StepType)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    require(location.nonEmpty, "Input location cannot be empty")
-//    require(dataAddress.nonEmpty, "The location of data needs to be specified")
+    require(location.nonEmpty, "The input is not defined")
+    require(dataRange.nonEmpty, "Data range is not defined (start_cell:end_cell)")
+    require(sheetName.nonEmpty, "Sheet name is not defined")
+
     val locationParsed = if (location.endsWith("/")) location else location + "/"
     val tableName = getTableNameFromOptions(options)
-    val data= "'"+sheetName.getOrElse(false).toString +"'!"+ dataRange.getOrElse(false).toString
-    val optionsParsed =
-      Map(
-        "useHeader" -> useHeader.toString,
-        "inferSchema" -> inferSchema.toString,
-        "dataAddress" -> data
-      )
+    val data= s"'${sheetName.getOrElse(false)}'!${dataRange.getOrElse(false)}"
+
+
+    val templateOptions: Map[String, String] = Map(
+      "useHeader" -> Some(useHeader.toString),
+      "treatEmptyValuesAsNulls" -> treatEmptyValuesAsNulls,
+      "dataAddress" -> sheetData,
+      "dateFormat" -> dateFormat,
+      "inferschema" ->Some(inferSchema.toString),
+      "timestampFormat" -> timestampFormat
+    ).flatMap {
+      case (k, v) => v.map(value => Option(k -> value))
+    }.flatten.toMap
+
+    val userOptions: Map[String, String] = propertiesWithCustom
+      .flatMap {
+        case (key, value) if value.toString.checkIfEmpty => Option(key -> value.toString)
+        case (_,_) => None
+      }
 
     val fullLocation = s"$locationParsed$tableName.xls"
     validateSaveMode(saveMode)
-    val dataFrameWriter = dataFrame.write.format("com.crealytics.spark.excel").options(optionsParsed).mode(getSparkSaveMode(saveMode))
+    val dataFrameWriter = dataFrame.write.format("com.crealytics.spark.excel").options(templateOptions ++ userOptions).mode(getSparkSaveMode(saveMode))
 
     applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).save(fullLocation)
   }

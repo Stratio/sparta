@@ -268,6 +268,10 @@ object ValidatingPropertyMap {
 
   implicit def stringToJsoneyString(str: String): JsoneyString = JsoneyString(str)
 
+  implicit class NotBlankString(s: String) {
+    def checkIfEmpty: Boolean = s.trim.isEmpty
+  }
+
   implicit def map2ValidatingPropertyMap[K, V](m: Map[K, V]): ValidatingPropertyMap[K, V] =
     new ValidatingPropertyMap[K, V](m)
 

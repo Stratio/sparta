@@ -824,6 +824,8 @@
   "_INFER_SCHEMA_":"Infer schema" ,
   "_ADD_COLOR_COLUMNS_":"Add color columns" ,
   "_DATA_RANGE_":"Cell location of data to read or write",
+  "_DATE_FORMAT_":"Date format",
+  "_TIMESTAMP_":"Timestamp format",
 
   "FORM_TABS": {
     "STREAMINGSETTINGS": "Streaming",

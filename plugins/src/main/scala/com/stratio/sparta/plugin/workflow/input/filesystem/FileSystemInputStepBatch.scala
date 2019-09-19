@@ -39,7 +39,7 @@ class FileSystemInputStepBatch(
   override lazy val lineagePath: String = path.getOrElse("")
 
   override lazy val lineageResourceSuffix: Option[String] = {
-    val regex = ".*\\.(csv|avro|json|xml|txt|parquet)$"
+    val regex = ".*\\.(csv|avro|json|xml|txt|parquet|xls|xlsx)$"
 
     if (lineagePath.matches(regex))
       lineagePath.split("/").lastOption

@@ -80,7 +80,7 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.crealytics</groupId>
-            <artifactId>spark-excel_2.11</artifactId>
+            <artifactId>spark-excel_${scala.binary.version}</artifactId>
             <version>0.11.1</version>
         </dependency>
         <dependency>
