@@ -6,10 +6,12 @@
 
 package com.stratio.sparta.serving.core.dao
 
-import com.stratio.sparta.core.models.{DebugResults, SpartaQualityRule}
+import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum.QualityRuleType
+import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
+import com.stratio.sparta.serving.core.models.enumerators.ExecutionTypeEnum.ExecutionType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
@@ -195,4 +197,28 @@ object CustomColumnTypes extends SpartaSerializer {
     objToDeSerialize => read[Seq[SpartaQualityRule]](objToDeSerialize)
   )
 
+  implicit val executionTypeSerializer = MappedColumnType.base[ExecutionType, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[ExecutionType](objToDeSerialize)
+  )
+
+  implicit val spartaQualityRuleThresholdType = MappedColumnType.base[SpartaQualityRuleThreshold, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[SpartaQualityRuleThreshold](objToDeSerialize)
+  )
+
+  implicit val spartaQualityRulePredicateType = MappedColumnType.base[Seq[SpartaQualityRulePredicate], String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[Seq[SpartaQualityRulePredicate]](objToDeSerialize)
+  )
+
+  implicit val plannedQueryType = MappedColumnType.base[PlannedQuery, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[PlannedQuery](objToDeSerialize)
+  )
+
+  implicit val qualityRuleEnumType = MappedColumnType.base[QualityRuleType, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[QualityRuleType](objToDeSerialize)
+  )
 }

@@ -14,7 +14,7 @@ import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.lang.IgniteBiPredicate
 import slick.jdbc.PostgresProfile
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.core.constants.AppConstant.DefaultGroup
+import com.stratio.sparta.serving.core.constants.AppConstant.{DefaultGroup, DefaultSystemGroup}
 import com.stratio.sparta.serving.core.dao.GroupDao
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
@@ -31,11 +31,13 @@ class GroupPostgresDao extends GroupDao {
   import profile.api._
 
   override def initializeData(): Unit = {
-    log.debug("Initializing default group")
+    log.debug("Initializing default groups")
     for {
       _ <- upsert(DefaultGroup)
+      _ <- upsert(DefaultSystemGroup)
     } yield {
-      log.debug("The default group initialization has been completed")
+      log.debug(s"The default groups initialization has been completed. " +
+        s"Groups created: ${DefaultGroup.name} & ${DefaultSystemGroup.name}")
     }
     initialCacheLoad()
   }

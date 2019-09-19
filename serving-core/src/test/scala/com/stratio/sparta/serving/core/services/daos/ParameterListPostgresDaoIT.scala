@@ -24,7 +24,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
-class ParameterListPostgresDaoT extends DAOConfiguration
+class ParameterListPostgresDaoIT extends DAOConfiguration
   with Matchers
   with WordSpecLike
   with BeforeAndAfterAll

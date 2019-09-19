@@ -1000,6 +1000,13 @@
     "_RESTARTABLE_":"Restartable",
     "_WORKFLOW_STATUS_LISTENER_ENABLED_":"Workflow status listener enabled"
   },
+  "QUALITY_RULES": {
+    "TITLE_FAIL": "If Quality score fails…",
+    "DESCRIPTION_FAIL": "write only the correct records to the destination dataset",
+    "TITLE_EVIDENCES": "If the rule find evidences…",
+    "DESCRIPTION_MOVED": "It will move failed items to Evidence folder",
+    "DESCRIPTION_PASS": "Pass through"
+  },
   "_RETRY_DELAY_SECONDS_":"Retry delay seconds",
   "_RETRY_COUNT_":"Retry count",
   "_START_DELAY_":"Start delay",

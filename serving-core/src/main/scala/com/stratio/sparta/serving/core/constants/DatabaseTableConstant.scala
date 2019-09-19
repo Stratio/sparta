@@ -18,4 +18,5 @@ object DatabaseTableConstant {
   val WorkflowExecutionTableName =  "workflow_execution"
   val ScheduledWorkflowTaskTableName = "scheduled_workflow_task"
   val QualityRuleResultTable = "quality_rule_result"
+  val PlannedQualityRuleTable = "planned_quality_rule"
 }

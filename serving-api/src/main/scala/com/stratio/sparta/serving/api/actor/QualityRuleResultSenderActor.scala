@@ -61,7 +61,7 @@ class QualityRuleResultSenderActor extends Actor with HttpRequestUtils with Spar
 
   override def receive: Receive = {
     case GovernancePushTick =>
-      log.debug(s"Received GovernancePushTickand LINEAGE_ENABLED is set to $enabled")
+      log.debug(s"Received GovernancePushTick with LINEAGE_ENABLED var is set to $enabled")
       governancePushRest()
     case workflowExecutionStatusChange: ExecutionStatusChange =>
       if (

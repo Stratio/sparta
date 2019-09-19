@@ -36,6 +36,25 @@ case class ParameterList(
   def getParameterValue(name: String): Option[String] =
     parameters.find(variable => variable.name == name).flatMap(_.value)
 
+  import ParameterList._
+
+  def +(that: ParameterVariable): ParameterList = {
+    val oldParams =  parametersToMap(this.parameters)
+    val newParams: Map[String, ParameterVariable] = oldParams ++ Map(that.name -> that)
+    this.copy(parameters = newParams.values.toSeq)
+  }
+
+  def ++(that: Seq[ParameterVariable]): ParameterList = {
+    val oldParams =  parametersToMap(this.parameters)
+    val newParams: Map[String, ParameterVariable] = oldParams ++ parametersToMap(that)
+    this.copy(parameters = newParams.values.toSeq)
+  }
+
+  def ++(that: Map[String,ParameterVariable]): ParameterList = {
+    val oldParams =  parametersToMap(this.parameters)
+    val newParams: Map[String, ParameterVariable] = oldParams ++ that
+    this.copy(parameters = newParams.values.toSeq)
+  }
 }
 
 object ParameterList {

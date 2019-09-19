@@ -21,6 +21,8 @@ import com.stratio.sparta.serving.core.models.parameters._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
 
+import scala.util.{Properties, Try}
+
 class ParameterListPostgresDao extends ParameterListDao {
 
   override val profile = PostgresProfile
@@ -29,19 +31,20 @@ class ParameterListPostgresDao extends ParameterListDao {
   import profile.api._
 
   lazy val workflowService = PostgresDaoFactory.workflowPgService
+  lazy val spartaInstanceWithPlannedQR : Boolean =
+    Try(Properties.envOrElse("ENABLE_SCHEDULING_PLANNED_QUALITY_RULES","false").toBoolean).getOrElse(false)
 
+  //scalastyle:off
   override def initializeData(): Unit = {
     val customDefaultsFuture = findByName(CustomExampleParameterList)
+    val customResourcesParentFuture = findByName(DefaultPlannedQRParameterList)
+    val customResourcesFuture = findByParent(DefaultPlannedQRParameterList)
     val environmentFuture = findByName(EnvironmentParameterListName)
 
     customDefaultsFuture.onFailure { case _ =>
       log.debug("Initializing custom defaults list")
       for {
-        _ <- createFromParameterList(ParameterList(
-          id = CustomExampleParameterListId,
-          name = CustomExampleParameterList,
-          parameters = DefaultCustomExampleParameters
-        ))
+        _ <- createFromParameterList(customParameterList)
       } yield {
         log.debug("The custom defaults list initialization has been completed")
       }
@@ -52,9 +55,63 @@ class ParameterListPostgresDao extends ParameterListDao {
         !variablesNames.contains(variable.name)
       }
       log.debug(s"Variables not present in the custom defaults list: $variablesToAdd")
-      update(paramList.copy(
-        parameters = (DefaultCustomExampleParametersMap ++ ParameterList.parametersToMap(paramList.parameters)).values.toSeq
-      ))
+      update(customParameterList ++ ParameterList.parametersToMap(paramList.parameters))
+    }
+    if(spartaInstanceWithPlannedQR) {
+      customResourcesParentFuture.onFailure { case _ =>
+        log.debug("Initializing custom defaults list")
+        for {
+          _ <- createFromParameterList(plannedQRParameterList)
+        } yield {
+          log.debug("Initialization of the planned QR resource list parent: completed")
+        }
+      }
+      customResourcesParentFuture.onSuccess { case paramList =>
+        update(plannedQRParameterList ++ paramList.parameters)
+        log.debug("Update of the planned QR resource list parent: completed")
+      }
+      customResourcesFuture.onFailure { case _ =>
+        log.debug("Initializing planned QR resources defaults lists")
+        for {
+          _ <- createFromParameterList(plannedQRParameterListSmall)
+          _ <- createFromParameterList(plannedQRParameterListMedium)
+          _ <- createFromParameterList(plannedQRParameterListLarge)
+          _ <- createFromParameterList(plannedQRParameterListExtraLarge)
+        } yield {
+          log.debug("The custom planned quality rule resource parameter lists initialization has been completed")
+        }
+      }
+      customResourcesFuture.onSuccess {
+        case resParamList: Seq[ParameterList] if resParamList.nonEmpty =>
+          val missingSizes = sizeResourcesPlannedQR -- resParamList.map(_.name)
+
+          missingSizes.foreach {
+            case x if x == smallSize =>
+              for {
+                _ <- createFromParameterList(plannedQRParameterListSmall)
+              } yield {
+                log.debug(s"The QR resource parameter lists of size $x was successfully created")
+              }
+            case x if x == mediumSize =>
+              for {
+                _ <- createFromParameterList(plannedQRParameterListMedium)
+              } yield {
+                log.debug(s"The QR resource parameter lists of size $x was successfully created")
+              }
+            case x if x == largeSize =>
+              for {
+                _ <- createFromParameterList(plannedQRParameterListLarge)
+              } yield {
+                log.debug(s"The QR resource parameter lists of size $x was successfully created")
+              }
+            case x if x == extraLargeSize =>
+              for {
+                _ <- createFromParameterList(plannedQRParameterListExtraLarge)
+              } yield {
+                log.debug(s"The QR resource parameter lists of size $x was successfully created")
+              }
+          }
+      }
     }
     environmentFuture.onFailure { case _ =>
       log.debug("Initializing environment list")

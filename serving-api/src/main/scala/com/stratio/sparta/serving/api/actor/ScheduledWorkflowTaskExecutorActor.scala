@@ -17,7 +17,6 @@ import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType._
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType._
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.orchestrator.ScheduledWorkflowTask
 import com.stratio.sparta.serving.core.models.workflow.{RunExecutionSettings, WorkflowIdExecutionContext}
 import com.stratio.sparta.serving.core.utils.SpartaClusterUtils
@@ -27,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 //scalastyle:off
-class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor with SLF4JLogging with SpartaClusterUtils {
+class ScheduledWorkflowTaskExecutorActor  (launcherActor: ActorRef) extends Actor with SLF4JLogging with SpartaClusterUtils {
 
   implicit val executionContext: ExecutionContext = context.dispatcher
   val executionPgService = PostgresDaoFactory.executionPgService

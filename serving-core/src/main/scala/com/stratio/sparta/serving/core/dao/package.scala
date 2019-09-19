@@ -6,31 +6,35 @@
 
 package com.stratio.sparta.serving.core
 
-import scala.util.Try
-import org.joda.time.DateTime
-import com.stratio.sparta.core.models.{DebugResults, ResultStep, SpartaQualityRule}
+import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum.QualityRuleType
+import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.dao.CustomColumnTypes
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
-import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterVariable}
-import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.constants.DatabaseTableConstant._
-import com.stratio.sparta.serving.core.models.authorization.{HeaderAuthUser, LoggedUser}
+import com.stratio.sparta.serving.core.dao.CustomColumnTypes
+import com.stratio.sparta.serving.core.models.authorization.HeaderAuthUser
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
+import com.stratio.sparta.serving.core.models.enumerators.ExecutionTypeEnum.ExecutionType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.governance.QualityRuleResult
 import com.stratio.sparta.serving.core.models.orchestrator.ScheduledWorkflowTask
 import com.stratio.sparta.serving.core.models.workflow.migration._
+import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterVariable}
+import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.models.workflow.migration.{SettingsOrion, TemplateElementOrion, WorkflowOrion}
+import org.joda.time.DateTime
+
+import scala.util.Try
 //scalastyle:off
 package object daoTables {
 
-  import slick.jdbc.PostgresProfile.api._
   import CustomColumnTypes._
+  import slick.jdbc.PostgresProfile.api._
 
   val dbSchemaName: Option[String] = {
 
@@ -395,9 +399,11 @@ package object daoTables {
 
     def executedFromExecution = column[Option[String]]("executed_from_execution")
 
+    def executionType = column[Option[ExecutionType]]("execution_type")
+
     def qualityRules = column[Seq[SpartaQualityRule]]("quality_rules")
 
-    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived, resumedDate, resumedStatus, executionEngine, searchText, qualityRules, executedFromScheduler, executedFromExecution) <>
+    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived, resumedDate, resumedStatus, executionEngine, searchText, qualityRules, executedFromScheduler, executedFromExecution, executionType) <>
       ((WorkflowExecution.apply _).tupled, WorkflowExecution.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
@@ -497,5 +503,57 @@ package object daoTables {
     def executionIndex = index(s"idx_${tableName}_execution", executionId)
   }
 
-}
+  class PlannedQualityRuleTable(tag: Tag) extends Table[SpartaQualityRule](tag, dbSchemaName, PlannedQualityRuleTable){
 
+    import CustomColumnTypes._
+
+    def id = column[Long]("planned_quality_rule_id")
+
+    def metadataPath = column[String]("metadata_path")
+
+    def name =  column[String]("quality_rule_name")
+
+    def qualityRuleScope = column[String]("quality_rule_scope")
+
+    def logicalOperator =  column[Option[String]]("logical_operator")
+
+    def enable = column[Boolean]("enabled_quality_rule")
+
+    def threshold = column[SpartaQualityRuleThreshold]("quality_rule_threshold")
+
+    def predicates = column[Seq[SpartaQualityRulePredicate]]("quality_rule_predicates")
+
+    def stepName = column[String]("transformation_step_name")
+
+    def outputName =  column[String]("output_step_name")
+
+    def executionId = column[Option[String]]("execution_id")
+
+    def qualityRuleType = column[QualityRuleType]("quality_rule_type")
+
+    def plannedQuery =  column[Option[PlannedQuery]]("planned_query")
+
+    def tenant =  column[Option[String]]("tenant")
+
+    def creationDate =  column[Option[Long]]("creation_date")
+
+    def modificationDate =  column[Option[Long]]("modification_date")
+
+    def initDate =  column[Option[Long]]("initialization_date")
+
+    def period =  column[Option[Long]]("period")
+
+    def sparkResourcesSize = column[Option[String]]("spark_resources_size")
+
+    def taskId = column[Option[String]]("task_id")
+
+    def * = (id, metadataPath, name, qualityRuleScope, logicalOperator, enable, threshold,
+      predicates, stepName, outputName, executionId, qualityRuleType, plannedQuery, tenant, creationDate,
+      modificationDate, initDate, period, sparkResourcesSize, taskId) <>
+      ((SpartaQualityRule.apply _).tupled, SpartaQualityRule.unapply _)
+
+    def pk = primaryKey(s"pk_$tableName", id)
+
+    def qrModificationDateIndex = index(s"idx_${tableName}_modification_date", modificationDate)
+  }
+}

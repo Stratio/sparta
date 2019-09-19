@@ -7,6 +7,7 @@ package com.stratio.sparta.serving.core.services.migration.r9
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.ExceptionHelper
+import com.stratio.sparta.serving.core.constants.DatabaseTableConstant.WorkflowExecutionTableName
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.services.dao.{BasicPostgresService, WorkflowPostgresDao}
@@ -35,7 +36,9 @@ class R9MigrationService(hydraPegasoMigrationService: HydraPegasoMigrationServic
     Try {
       basicPostgresService.dbSchemaName.foreach { schema =>
         val schemaName = basicPostgresService.profile.quoteIdentifier(schema)
-
+        val createTypeExecutionSql =
+          s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS execution_type character varying;"
+        basicPostgresService.executeSql(createTypeExecutionSql)
         //TODO with new fields and updates
       }
     } match {

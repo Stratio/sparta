@@ -71,7 +71,7 @@ trait HttpServiceBaseTest extends WordSpec
     getFragmentModel(None)
 
   protected def getEnvironmentModel(): GlobalParameters =
-    GlobalParameters(Seq(new ParameterVariable("foo", "var")))
+    GlobalParameters(Seq(ParameterVariable.create("foo", "var")))
 
   protected def getGroupModel(): Group =
     Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
@@ -80,7 +80,7 @@ trait HttpServiceBaseTest extends WordSpec
     ParameterList("plist", Option("id"))
 
   protected def getEnvironmentVariableModel(): ParameterVariable =
-    new ParameterVariable("foo", "var")
+    ParameterVariable.create("foo", "var")
 
   protected def getValidWorkflowValidation(): WorkflowValidation = {
     new WorkflowValidation(valid = true)

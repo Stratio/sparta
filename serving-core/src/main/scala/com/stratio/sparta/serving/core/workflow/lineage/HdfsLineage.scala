@@ -7,9 +7,9 @@ package com.stratio.sparta.serving.core.workflow.lineage
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.constants.SdkConstants._
+import com.stratio.sparta.core.utils.RegexUtils._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.StringHelper._
 import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.hadoop.fs.{FileSystem, Path}
 

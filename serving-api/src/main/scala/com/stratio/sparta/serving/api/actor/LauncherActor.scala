@@ -20,12 +20,13 @@ import com.stratio.sparta.serving.core.actor.LauncherActor._
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor.{ValidateExecutionContextToWorkflow, ValidateExecutionContextToWorkflowId}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.constants.SparkConstant.SpartaDriverClass
+import com.stratio.sparta.serving.core.constants.{AppConstant, SparkConstant}
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
+import com.stratio.sparta.serving.core.models.enumerators.ExecutionTypeEnum._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
@@ -327,6 +328,8 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
 
     val launchDate = new DateTime()
     val sparkUri = LinkHelper.getClusterLocalLink
+    val typeExecution = if(isSystemWorkflow(workflow)) SystemExecution else UserExecution
+
     val newExecution = WorkflowExecution(
       genericDataExecution = GenericDataExecution(
         workflow = workflow,
@@ -340,7 +343,8 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
       ),
       localExecution = Option(LocalExecution(sparkURI = sparkUri)),
       executedFromScheduler = runExecutionSettings.flatMap(_.executedFromScheduler),
-      executedFromExecution = runExecutionSettings.flatMap(_.executedFromExecution)
+      executedFromExecution = runExecutionSettings.flatMap(_.executedFromExecution),
+      executionType = Some(typeExecution)
     )
 
     for {
@@ -372,6 +376,7 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
     log.info(s"Creating marathon execution for workflow ${workflow.name}")
 
     val launcherExecutionSettings = getLauncherExecutionSettings(workflow)
+    val typeExecution = if(isSystemWorkflow(workflow)) SystemExecution else UserExecution
 
     import launcherExecutionSettings._
 
@@ -397,7 +402,8 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
         description = runExecutionSettings.flatMap(_.description)
       ),
       executedFromScheduler = runExecutionSettings.flatMap(_.executedFromScheduler),
-      executedFromExecution = runExecutionSettings.flatMap(_.executedFromExecution)
+      executedFromExecution = runExecutionSettings.flatMap(_.executedFromExecution),
+      executionType = Some(typeExecution)
     )
 
     for {
@@ -453,4 +459,8 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
     else Future.successful(Seq.empty[SpartaQualityRule])
   }
 
+  private def isSystemWorkflow(workflow: Workflow): Boolean = {
+    //Check if the id of the workflow is the Planned query one
+    workflow.id.fold(false){ wID => wID.equals(AppConstant.DefaultPlannedQRWorkflowId)}
+  }
 }

@@ -10,6 +10,7 @@ import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
 import com.stratio.sparta.serving.core.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper.HasError
@@ -135,7 +136,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
     }
 
   def validateGroupName(implicit workflow: Workflow): WorkflowValidation = {
-    if (workflow.group.name.matches(regexGroups))
+    if (workflow.group.name.matches(regexGroups) || workflow.group.name.equals(AppConstant.DefaultSystemGroup.name))
       this
     else {
       val msg = messages :+ WorkflowValidationMessage("The workflow group is invalid")

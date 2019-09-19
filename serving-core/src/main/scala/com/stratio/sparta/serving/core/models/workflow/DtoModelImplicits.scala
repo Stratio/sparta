@@ -43,7 +43,8 @@ object DtoModelImplicits {
       execution.executionEngine,
       execution.searchText,
       execution.executedFromScheduler,
-      execution.executedFromExecution
+      execution.executedFromExecution,
+      execution.executionType
     )
 
   implicit def executionToDtoTuple(executionTuple: (WorkflowExecution, Int)): WorkflowExecutionDto =
@@ -62,6 +63,7 @@ object DtoModelImplicits {
           execution.searchText,
           execution.executedFromScheduler,
           execution.executedFromExecution,
+          execution.executionType,
           totalCount
         )
     }

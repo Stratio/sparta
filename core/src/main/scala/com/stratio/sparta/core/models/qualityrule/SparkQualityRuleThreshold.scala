@@ -31,11 +31,11 @@ class SparkQualityRuleThreshold(spartaQualityRuleThreshold: SpartaQualityRuleThr
 
    def applyOperations(operation: String, firstOperand: Double, thresholdValue: Double): Boolean = {
      operation match {
-       case "=" => roundTwoDecimalPositions(firstOperand) == roundTwoDecimalPositions(thresholdValue)
-       case ">" => roundTwoDecimalPositions(firstOperand) > roundTwoDecimalPositions(thresholdValue)
-       case ">=" => roundTwoDecimalPositions(firstOperand) >= roundTwoDecimalPositions(thresholdValue)
-       case "<" => roundTwoDecimalPositions(firstOperand) < roundTwoDecimalPositions(thresholdValue)
-       case "<=" => roundTwoDecimalPositions(firstOperand) <= roundTwoDecimalPositions(thresholdValue)
+       case "=" => truncateTwoDecimalPositions(firstOperand) == truncateTwoDecimalPositions(thresholdValue)
+       case ">" => truncateTwoDecimalPositions(firstOperand) > truncateTwoDecimalPositions(thresholdValue)
+       case ">=" => truncateTwoDecimalPositions(firstOperand) >= truncateTwoDecimalPositions(thresholdValue)
+       case "<" => truncateTwoDecimalPositions(firstOperand) < truncateTwoDecimalPositions(thresholdValue)
+       case "<=" => truncateTwoDecimalPositions(firstOperand) <= truncateTwoDecimalPositions(thresholdValue)
      }
    }
 
@@ -48,5 +48,6 @@ class SparkQualityRuleThreshold(spartaQualityRuleThreshold: SpartaQualityRuleThr
     }
   }
 
-  private def roundTwoDecimalPositions(numberToRound: Double): Double = math.round(numberToRound * hundredDouble * hundredDouble)/hundredDouble * hundredDouble
+  // This method expects a double contained in [0.00, 1.00] to be cast to a percentage with two decimal precision
+  def truncateTwoDecimalPositions(numberToRound: Double): Double = math.floor(numberToRound * hundredDouble * hundredDouble)/hundredDouble
 }

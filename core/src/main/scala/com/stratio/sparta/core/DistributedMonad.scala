@@ -11,13 +11,15 @@ import java.util.Calendar
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
-import com.stratio.sparta.core.DistributedMonad.{StepName, saveOptionsFromOutputOptions}
+import com.stratio.sparta.core.DistributedMonad.saveOptionsFromOutputOptions
+import com.stratio.sparta.core.enumerators.QualityRuleActionEnum._
 import com.stratio.sparta.core.enumerators.{SaveModeEnum, WhenError}
 import com.stratio.sparta.core.helpers.SdkSchemaHelper._
-import com.stratio.sparta.core.helpers.{CastingHelper, QualityRuleActionEnum, SdkSchemaHelper}
+import com.stratio.sparta.core.helpers.{CastingHelper, SdkSchemaHelper}
 import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.models.qualityrule._
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.core.workflow.step._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
@@ -31,8 +33,6 @@ import org.apache.spark.util.LongAccumulator
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
-import QualityRuleActionEnum._
-import OutputStep._
 
 /**
  * This is a typeclass interface whose goal is to abstract over DStreams, RDD, Datasets and whichever
@@ -225,22 +225,43 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
           log.info(s"Quality rules to be executed for step ${outputOptions.stepName} and table ${outputOptions.tableName} : ${qualityRules.mkString(",")}" )
 
-          val sparkRules: Seq[SparkQualityRule[Row]] = qualityRules.map(rule => new SparkQualityRule[Row](rule, schemaExtracted))
+          val seq_simpleQRs : Seq[SpartaQualityRule] = qualityRules.filter(_.predicates.nonEmpty)
 
-          val rowCountAccumulator: LongAccumulator = xdSession.sparkContext.longAccumulator("Accumulator_row_count")
+          val seq_advancedQRs: Seq[SpartaQualityRule] = qualityRules.filter(_.plannedQuery.isDefined)
 
-          val mapAccumulators: Map[Long, LongAccumulator] =
-            sparkRules.map(rule => rule.id -> xdSession.sparkContext.longAccumulator(s"Accumulator_QR_${rule.id}")).toMap
-
-          xdSession.sparkContext.broadcast(mapAccumulators)
-          xdSession.sparkContext.broadcast(sparkRules)
-
-          val cachedRDD: DataFrame = dataFrame.cache()
 
           val executionTime = CastingHelper.castingToSchemaType(TimestampType,
             Timestamp.from(Instant.now).getTime)
 
           val executionId = Try(qualityRules.head.executionId.get).toOption.getOrElse("")
+
+          val mapAccumulators: Map[Long, LongAccumulator] =
+            qualityRules.map(rule => rule.id -> xdSession.sparkContext.longAccumulator(s"Accumulator_QR_${rule.id}")).toMap
+
+          xdSession.sparkContext.broadcast(mapAccumulators)
+
+          val cachedRDD: DataFrame = dataFrame.cache()
+
+          /**
+            * Let us execute the advanced QR: we just expect queries like select count(*) so that we can just get
+            * the first record inside the first field
+            */
+          seq_advancedQRs.foreach{ advancedQualityRule =>
+            val resultQuery = cachedRDD.sqlContext.sql(advancedQualityRule.retrieveQueryReplacedResource).first().getLong(0)
+            mapAccumulators(advancedQualityRule.id).add(resultQuery)
+          }
+
+          /**
+            * Let us execute the simple QR that needs to be translated to Spark functions.
+            * Here everything is related to seq_simpleQRs
+          */
+
+          val sparkRules: Seq[SparkQualityRule[Row]] = seq_simpleQRs.map(rule => new SparkQualityRule[Row](rule, schemaExtracted))
+
+          val rowCountAccumulator: LongAccumulator = xdSession.sparkContext.longAccumulator("Accumulator_row_count")
+
+          xdSession.sparkContext.broadcast(sparkRules)
+
 
           val qualityRulesStructFields: Array[StructField] = Array(
             StructField("passingQualityRules", ArrayType(StringType)),
@@ -251,36 +272,62 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
           val schemaWithQualityRulesNewFields = StructType(cachedRDD.schema.fields ++ qualityRulesStructFields)
 
-          val qualityRulesPassingDataFrame = cachedRDD.filter { row =>
+          val qualityRulesPassingDataFrame: Dataset[Row] = cachedRDD.filter { row =>
             sparkRules.forall(rule => rule.composedPredicates(row))
           }
 
-          val qualityRulesFailingDataFrame = cachedRDD.map { row =>
-            val failingQRs = sparkRules.filter(rule => !rule.composedPredicates(row)).map(_.id.toString)
+          val qualityRulesFailingDataFrame: Dataset[Row] =
+            if(seq_simpleQRs.nonEmpty) {
+              cachedRDD.map { row =>
+                val failingQRs = sparkRules.filter(rule => !rule.composedPredicates(row)).map(_.id.toString)
             val passingQRs = sparkRules.filterNot(x => failingQRs.contains(x.id.toString)).map(_.id.toString)
-            if(failingQRs.nonEmpty)
-              Row.fromSeq(row.toSeq ++ Seq(passingQRs) ++ Seq(failingQRs) ++ Seq(executionId) ++ Seq(executionTime))
-            else Row.empty
-          } (RowEncoder(schemaWithQualityRulesNewFields)).filter(_.toSeq.nonEmpty)
+                if(failingQRs.nonEmpty)
+                  Row.fromSeq(row.toSeq ++ Seq(passingQRs) ++ Seq(failingQRs) ++ Seq(executionId) ++ Seq(executionTime))
+                else Row.empty
+              } (RowEncoder(schemaWithQualityRulesNewFields)).filter(_.toSeq.nonEmpty)
+            } else xdSession.createDataset(Seq.empty[Row])(RowEncoder(schemaWithQualityRulesNewFields))
 
-          cachedRDD.foreach { row =>
-            sparkRules.foreach(rule => if (rule.composedPredicates(row)) mapAccumulators(rule.id).add(1))
-            rowCountAccumulator.add(1)
-          }
 
-          val seqThresholds: Map[Long, (Boolean, String, SpartaQualityRuleThresholdActionType)] =
+          if(seq_simpleQRs.nonEmpty)
+            cachedRDD.foreach { row =>
+              sparkRules.foreach(rule => if (rule.composedPredicates(row)) mapAccumulators(rule.id).add(1))
+              rowCountAccumulator.add(1)
+            }
+
+          /**
+            * No matter if a quality rule is an advanced or a simple one and if it is planned or not,
+            * we still have to check if the threshold is satisfied.
+            * In case of a planned QR, the action will always be a ActionPassthrough and
+            * the rowCountAccumulator was never incremented row by row, so we need a count
+            * */
+
+          if(seq_simpleQRs.isEmpty) rowCountAccumulator.add(cachedRDD.count())
+
+          val seqThresholds: Map[Long, QRThresholdResults] =
             qualityRules.map { rule =>
               val validationThreshold = new SparkQualityRuleThreshold(rule.threshold, mapAccumulators(rule.id).value, rowCountAccumulator.value)
               val validationResult =
-                if (validationThreshold.valid && validationThreshold.isThresholdSatisfied) (true, s"${validationThreshold.toString}", rule.threshold.actionType)
-                else (false, s"${validationThreshold.toString}", rule.threshold.actionType)
+                if (validationThreshold.valid && validationThreshold.isThresholdSatisfied)
+                  QRThresholdResults(
+                    thresholdSatisfied = true,
+                    s"${validationThreshold.toString}",
+                    rule.threshold.actionType,
+                    rule.qualityRuleType)
+                else
+                  QRThresholdResults(
+                    thresholdSatisfied =false,
+                    s"${validationThreshold.toString}",
+                    rule.threshold.actionType,
+                    rule.qualityRuleType)
               rule.id -> validationResult
             }.toMap
 
           val strictestPolicy = findOutputMode(seqThresholds)
 
           res ++= qualityRules.map { qr =>
-            val stringConditions = qr.predicates.mkString(s"\n${qr.logicalOperator.toUpperCase} ")
+            val stringConditions =
+              if (qr.predicates.isEmpty) qr.plannedQuery.get.query
+              else qr.predicates.mkString(s"\n${qr.logicalOperator.get.toUpperCase}")
 
             SparkQualityRuleResults(
               dataQualityRuleId = qr.id.toString,
@@ -290,8 +337,8 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
               metadataPath = qr.metadataPath,
               transformationStepName = qr.stepName,
               outputStepName = qr.outputName,
-              satisfied = seqThresholds(qr.id)._1,
-              condition = seqThresholds(qr.id)._2,
+              satisfied = seqThresholds(qr.id).thresholdSatisfied,
+              condition = seqThresholds(qr.id).thresholdCondition,
               successfulWriting = true,
               qualityRuleName = qr.name,
               conditionsString = stringConditions,

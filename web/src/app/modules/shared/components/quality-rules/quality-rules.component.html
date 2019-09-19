@@ -75,17 +75,17 @@
         </div>
 
         <div class="rule__detail" *ngIf="qualityRule.globalAction === QUALITY_RULE_ACT_NOT_PASS" >
-          <div class="rule__title-primary" >If Quality score fails…</div>
-          <div class="rule__value" >write only the correct records to the destination dataset</div>
-          <div class="rule__title-primary" >If the rule find evidences…</div>
-          <div class="rule__value" >It will move failed items to Evidence folde</div>
+          <div class="rule__title-primary" >{{'QUALITY_RULES.TITLE_FAIL' | translate}}</div>
+          <div class="rule__value" >{{'QUALITY_RULES.DESCRIPTION_FAIL' | translate}}</div>
+          <div class="rule__title-primary" >{{'QUALITY_RULES.TITLE_EVIDENCES' | translate}}</div>
+          <div class="rule__value" >{{'QUALITY_RULES.DESCRIPTION_MOVED' | translate}}</div>
         </div>
 
         <div class="rule__detail" *ngIf="qualityRule.globalAction === QUALITY_RULE_ACT_PASS" >
-          <div class="rule__title-primary" >If Quality score fails…</div>
-          <div class="rule__value" >Write anyway the failed items to the destination dataset</div>
-          <div class="rule__title-primary" >If the rule find evidences...</div>
-          <div class="rule__value" >It will move failed items to Evidence folder</div>
+          <div class="rule__title-primary" >{{'QUALITY_RULES.TITLE_FAIL' | translate}}</div>
+          <div class="rule__value" >{{'QUALITY_RULES.DESCRIPTION_FAIL' | translate}}</div>
+          <div class="rule__title-primary" >{{'QUALITY_RULES.TITLE_EVIDENCES' | translate}}</div>
+          <div class="rule__value" >{{'QUALITY_RULES.DESCRIPTION_PASS' | translate}}</div>
         </div>
       </div>
       <hr class="section" />

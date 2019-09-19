@@ -5,11 +5,15 @@
  */
 package com.stratio.sparta.serving.core.models.parameters
 
-case class ParameterVariable(name: String, value: Option[String] = None) {
+object ParameterVariable {
 
-  def this(name: String, value: String) {
-    this(name, Option(value))
-  }
+  def create(name: String, value: String): ParameterVariable = ParameterVariable(name, Option(value))
+
+  def create(name: String, value: Int): ParameterVariable = ParameterVariable(name, Option(value.toString))
+
+}
+
+case class ParameterVariable(name: String, value: Option[String] = None) {
 
   def findAndEscapeQuotes(): ParameterVariable = {
     val regex = "(\"|\\\\\")".r
@@ -19,7 +23,7 @@ case class ParameterVariable(name: String, value: Option[String] = None) {
     }
     this.copy(value = quotedValues)
   }
-
 }
+
 
 

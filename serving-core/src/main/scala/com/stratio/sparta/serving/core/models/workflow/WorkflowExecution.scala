@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.core.models.workflow
 import com.stratio.sparta.core.models.{SpartaQualityRule, WorkflowError}
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.dto.Dto
+import com.stratio.sparta.serving.core.models.enumerators.ExecutionTypeEnum._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
@@ -30,7 +31,8 @@ case class WorkflowExecution(
                               searchText: Option[String] = None,
                               qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule],
                               executedFromScheduler: Option[String] = None,
-                              executedFromExecution: Option[String] = None
+                              executedFromExecution: Option[String] = None,
+                              executionType: Option[ExecutionType] = Some(UserExecution)
                             ) extends EntityAuthorization {
 
   def authorizationId: String = genericDataExecution.workflow.authorizationId
@@ -102,6 +104,7 @@ case class WorkflowExecutionDto(
                                  searchText: Option[String] = None,
                                  executedFromScheduler: Option[String] = None,
                                  executedFromExecution: Option[String] = None,
+                                 executionType: Option[ExecutionType] = Some(UserExecution),
                                  totalCount :Int = 0
                                ) extends Dto with EntityAuthorization {
 

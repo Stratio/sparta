@@ -10,7 +10,6 @@ import javax.cache.Cache
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.ExceptionHelper
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
@@ -109,7 +108,7 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
   def count: Future[Int] =
     db.run(table.size.result)
 
-  def upsert(item: SpartaEntity): Future[_] = {
+  def  upsert(item: SpartaEntity): Future[_] = {
     val dbioAction = DBIO.seq(upsertAction(item)).transactionally
 
     db.run(txHandler(dbioAction))

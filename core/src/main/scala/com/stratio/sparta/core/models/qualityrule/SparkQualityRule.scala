@@ -39,7 +39,7 @@ class SparkQualityRule[U <: Row](spartaQualityRule: SpartaQualityRule,
 
   val functionSequence: Seq[Function1[U,Boolean]] = predicates.map(_.getOperation)
 
-  val composedPredicates: Function1[U,Boolean] = functionComposed(functionSequence, spartaQualityRule.logicalOperator)
+  val composedPredicates: Function1[U,Boolean] = functionComposed(functionSequence, spartaQualityRule.logicalOperator.get)
 }
 
 

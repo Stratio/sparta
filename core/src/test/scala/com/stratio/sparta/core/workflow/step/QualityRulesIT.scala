@@ -9,24 +9,26 @@ import java.sql.{Date, Timestamp}
 import java.util.TimeZone
 
 import com.github.nscala_time.time.Imports.DateTimeZone
-import com.stratio.sparta.core.{DistributedMonad, TemporalSparkContext}
+import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models._
+import com.stratio.sparta.core.{DistributedMonad, TemporalSparkContext}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.{DataFrame, Row}
+import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
-import com.stratio.sparta.core.DistributedMonad.Implicits._
-import org.joda.time.DateTime
 
 @RunWith(classOf[JUnitRunner])
 class QualityRulesIT extends TemporalSparkContext with Matchers {
 
   var classTest: Option[DistributedMonad.Implicits.RDDDistributedMonad] = None
   var dataSet: Option[RDD[Row]] = None
+  val testTable = "myTable"
 
   val fakeTimestamp: Timestamp = Timestamp.valueOf("2019-03-15 13:30:00.06")
   val dt = DateTime.now
@@ -34,13 +36,25 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
   val fakeDate: Date = new Date(dt.getMillis)
 
   val errorManagement = ErrorsManagement()
-  val outputOptions = OutputWriterOptions.defaultOutputOptions("tableA", None, Option("tableName"))
+  val outputOptions = OutputWriterOptions.defaultOutputWriterOptions("tableA", None, Option("tableName"))
   val defaultThreshold: SpartaQualityRuleThreshold = SpartaQualityRuleThreshold(
     value = 3.0,
     operation = ">=",
     `type` = "abs",
     actionType = SpartaQualityRuleThresholdActionType(path = Some("error"), `type` = "ACT_PASS")
   )
+
+  val defaultQR: SpartaQualityRule = SpartaQualityRule(id = 1,
+    metadataPath = "blabla1",
+    name = "",
+    qualityRuleScope = "data",
+    logicalOperator = Some("and"),
+    enable = true,
+    threshold = defaultThreshold,
+    predicates = Seq.empty[SpartaQualityRulePredicate],
+    stepName = "tableA",
+    outputName = "",
+    qualityRuleType = Reactive)
 
   val percentageThreshold: SpartaQualityRuleThreshold = SpartaQualityRuleThreshold(
     value = 90.0,
@@ -76,6 +90,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
       classTest= Option(new RDDDistributedMonad(dataSet.get) {
         xdSession = sparkSession
+        dataSet.get.registerAsTable(xdSession, inputSchema, s"$testTable")
       })
 
       val qr_predicate1 = SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("10.0"), field = "price", operation = ">")
@@ -85,17 +100,11 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       val seqQualityRules = Seq(qr_predicate1, qr_predicate2)
 
 
-      val qualityRule1 = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-        name = "greater 10 less 13.5", qualityRuleScope = "data", logicalOperator = "and",
-        enable = true,
-        threshold = defaultThreshold,
-        predicates = seqQualityRules,
-        stepName = "tableA",
-        outputName = "")
+      val qualityRule1 = defaultQR.copy(name = "greater 10 less 13.5", predicates = seqQualityRules)
 
 
       val result1 = classTest.get.writeRDDTemplate(dataSet.get,
-        outputOptions.outputStepWriterOptions("tableA", ""),
+        outputOptions,
         errorManagement,
         Seq.empty[OutputStep[RDD]],
         Seq("input1", "transformation1"),
@@ -119,17 +128,13 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
      val seqQualityRules = Seq(qr_predicate1, qr_predicate2)
 
-    val qualityRule1 = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "greater 10 less 13.5", qualityRuleScope = "data", logicalOperator = "or",
-      enable = true,
+    val qualityRule1 = defaultQR.copy(name = "not null greater than 14.0 price",
+      logicalOperator = Some("or"),
       threshold = percentageThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+      predicates = seqQualityRules)
 
-
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+     val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -149,20 +154,15 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("1"), field = "section_id", operation = "="))
 
-    val qualityRuleIsNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must be equal", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleEqual = defaultQR.copy(name = "must be equal", predicates = seqQualityRules)
+
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNull),
+      Seq(qualityRuleEqual),
       emptyFunction)
 
     result should not be empty
@@ -179,20 +179,14 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("12.0"), field = "price", operation = ">="),
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("14.0"), field = "price", operation = "<="))
 
-    val qualityRuleIsNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must be greater or equal", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleGEq_MEq = defaultQR.copy(name = "must be greater or equal", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNull),
+      Seq(qualityRuleGEq_MEq),
       emptyFunction)
 
     result should not be empty
@@ -209,20 +203,14 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("L"), field = "author_surname", operation = ">"),
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("N"), field = "author_surname", operation = "<"))
 
-    val qualityRuleIsNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must start with a letter after L but before N", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleGt_Mt = defaultQR.copy(name = "must start with a letter after L but before N", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNull),
+      Seq(qualityRuleGt_Mt),
       emptyFunction)
 
     result should not be empty
@@ -239,16 +227,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = primaryColours, field = "color", operation = "IN"))
 
-    val qualityRuleLike = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "only primary", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleLike = defaultQR.copy(name = "only primary", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -268,16 +250,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "stock", operation = "IS null"))
 
-    val qualityRuleIsNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must be null", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleIsNull = defaultQR.copy(name = "must be null", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -297,16 +273,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "launchDate", operation = "is DAte"))
 
-    val qualityRuleIsNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must be a date", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleIsNull = defaultQR.copy(name = "must be a date", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -326,16 +296,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "publicationDate", operation = "is NOT DaTe"))
 
-    val qualityRuleIsNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must not be a date", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleIsNull = defaultQR.copy(name = "must not be a date", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -355,16 +319,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "author_surname", operation = "is NOT TiMeStAMp"))
 
-    val qualityRuleIsNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must not be a timestamp", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleIsNull = defaultQR.copy(name = "must not be a timestamp", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -384,16 +342,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "publicationDate", operation = "is TiMeStAMp"))
 
-    val qualityRuleIsNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must be a timestamp", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleIsNull = defaultQR.copy(name = "must be a timestamp", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -415,16 +367,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq(irishPrefix), field = "author_surname", operation = "lIKe"))
 
-    val qualityRuleLike = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "gaelic stile", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleLike = defaultQR.copy(name = "gaelic stile", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -444,16 +390,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("fantasy"), field = "section", operation = "<>"))
 
-    val qualityRuleIsNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must be different than", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleIsNull = defaultQR.copy(name = "must be different than", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -474,16 +414,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = nonPrimaryColours, field = "color", operation = "NOT IN"))
 
-    val qualityRuleLike = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "only NON-primary", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleLike = defaultQR.copy(name = "only NON-primary", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -505,16 +439,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq(irishPrefix), field = "author_surname", operation = "NOT lIKe"))
 
-    val qualityRuleLike = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "no gaelic stile", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleLike = defaultQR.copy(name = "no gaelic stile", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -534,16 +462,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "stock", operation = "is NOT null"))
 
-    val qualityRuleIsNotNull = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "must not be null", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleIsNotNull = defaultQR.copy(name = "must not be null", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -565,16 +487,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq(irishPrefixRegex), field = "author_surname", operation = "regEX"))
 
-    val qualityRuleReg = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "gaelic stile", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = defaultThreshold,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleReg = defaultQR.copy(name = "gaelic stile", predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -594,16 +510,10 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("yellow"), field = "color", operation = "NOT lIKe"))
 
-    val qualityRuleLike = SpartaQualityRule(id = 1, metadataPath = "blabla1",
-      name = "no yellow", qualityRuleScope = "data", logicalOperator = "and",
-      enable = true,
-      threshold = percentageThresholdNotToRound,
-      predicates = seqQualityRules,
-      stepName = "tableA",
-      outputName = "")
+    val qualityRuleLike = defaultQR.copy(name = "no yellow",threshold = percentageThresholdNotToRound, predicates = seqQualityRules)
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions.outputStepWriterOptions("tableA", ""),
+      outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],
       Seq("input1", "transformation1"),
@@ -616,6 +526,65 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     result.head.numPassedEvents shouldEqual 4
     result.head.numTotalEvents shouldEqual 5
     result.head.satisfied shouldEqual false
+  }
+
+  it should "execute correctly a planned complex QR" in {
+
+    val qualityRuleComplex = defaultQR.copy( name = "must be equal",
+      qualityRuleType = Planned,
+      plannedQuery = Some(PlannedQuery(
+        query = s"select count(*) from $testTable WHERE price > 10.0 AND PRICE < 13.5",
+        queryReference = "",
+        metadatapathResource= "",
+        resource = "testTable",
+        urlResource = "")
+      )
+    )
+
+    val result1 = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleComplex),
+      emptyFunction)
+
+    result1 should not be empty
+
+    result1.head.numDiscardedEvents shouldEqual 2
+    result1.head.numPassedEvents shouldEqual 3
+    result1.head.numTotalEvents shouldEqual 5
+    result1.head.satisfied shouldEqual true
+  }
+
+  it should "execute correctly a planned simple QR" in {
+
+    val qr_predicate1 = SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("10.0"), field = "price", operation = ">")
+
+    val qr_predicate2 = SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("13.5"), field = "price", operation = "<")
+
+    val seqQualityRules = Seq(qr_predicate1, qr_predicate2)
+
+
+    val qualityRule1 = defaultQR.copy(name = "greater 10 less 13.5", predicates = seqQualityRules)
+
+
+    val qualityRuleComplex = defaultQR.copy( name = "must be equal", qualityRuleType = Planned, predicates = seqQualityRules)
+
+    val result1 = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleComplex),
+      emptyFunction)
+
+    result1 should not be empty
+
+    result1.head.numDiscardedEvents shouldEqual 2
+    result1.head.numPassedEvents shouldEqual 3
+    result1.head.numTotalEvents shouldEqual 5
+    result1.head.satisfied shouldEqual true
   }
 
 }

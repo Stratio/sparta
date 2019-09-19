@@ -11,7 +11,7 @@ import java.util.UUID
 import com.stratio.sparta.core.helpers.AggregationTimeHelper
 import com.stratio.sparta.serving.core.dao.{CustomColumnTypes, ScheduledWorkflowTaskDao}
 import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.authorization.{GosecUser, HeaderAuthUser, LoggedUser}
+import com.stratio.sparta.serving.core.models.authorization.{HeaderAuthUser, LoggedUser}
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.orchestrator._

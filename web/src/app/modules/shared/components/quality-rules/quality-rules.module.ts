@@ -8,9 +8,10 @@ import { CommonModule } from '@angular/common';
 import { QualityRulesComponent } from './quality-rules.component';
 import { StFullscreenLayoutModule } from '@stratio/egeo';
 import { ModalLayoutModule } from '@app/shared/components/modal-layout/modal-layout.module';
+import {TranslateModule} from '@ngx-translate/core';
 
 @NgModule({
-  imports: [ CommonModule, StFullscreenLayoutModule, ModalLayoutModule ],
+  imports: [ CommonModule, StFullscreenLayoutModule, ModalLayoutModule, TranslateModule ],
   declarations: [ QualityRulesComponent ],
   exports: [ QualityRulesComponent ],
   providers: [],

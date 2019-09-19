@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core.models.governance
 
 import com.stratio.sparta.core.models.SpartaQualityRule
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import org.json4s.native.Serialization.{read, write}
+import org.json4s.native.Serialization.read
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FlatSpec, ShouldMatchers}
@@ -25,7 +25,7 @@ class SpartaQualityRuleParserTest extends FlatSpec
 
     val actualSpartaQualityRule: Seq[SpartaQualityRule] = governanceQualityRule.parse("stepName","outputName")
 
-    val rules: Seq[Cond] = governanceQualityRule.content.head.parameters.filter.cond
+    val rules: Seq[Cond] = governanceQualityRule.content.head.parameters.filter.get.cond
     rules should have size(3)
 
 
@@ -168,7 +168,8 @@ class SpartaQualityRuleParserTest extends FlatSpec
       |         }
       |      ],
       |      "stepName":"stepName",
-      |      "outputName":"outputName"
+      |      "outputName":"outputName",
+      |      "qualityRuleType" : "EXE_PRO"
       |   }
       |]""".stripMargin
 

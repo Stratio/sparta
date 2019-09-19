@@ -3,11 +3,29 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.serving.core.helpers
+package com.stratio.sparta.core.utils
 
 import org.apache.commons.lang3.StringUtils
 
-object StringHelper {
+object RegexUtils {
+
+  def replaceWholeWord(inputText: String, wordToReplace: String, replacement: String): String = {
+    val patternWholeWord = s"\\b$wordToReplace\\b".r
+    patternWholeWord.replaceAllIn(inputText, replacement)
+  }
+
+  def containsWholeWord(inputText: String, wordToFind: String) : Boolean = {
+    val patternContainsWholeWord = s".*\\b$wordToFind\\b.*"
+    inputText.matches(patternContainsWholeWord)
+  }
+
+  def sizeAndUnit(sizeString: String): (Int, String) = {
+    val patternSizeUnit = "^(\\d*)\\s?([kmgtKMGT][Bb]*)$".r
+     sizeString match {
+       case patternSizeUnit(size, measureUnit) => (size.toInt, measureUnit)
+       case _ => throw new RuntimeException(s"Cannot extract size and unit of measure from string $sizeString")
+     }
+  }
 
   implicit class StringHelperSparta(inputString: String) {
 
@@ -26,6 +44,8 @@ object StringHelper {
 
     def containsIgnoreCase(regex: String): Boolean =
       StringUtils.containsIgnoreCase(inputString, regex)
+
+    def trimAndNormalizeString: String = inputString.trim.replaceAll("\\s+", " ")
   }
 
 }

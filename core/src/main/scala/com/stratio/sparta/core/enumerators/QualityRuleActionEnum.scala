@@ -3,10 +3,10 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+package com.stratio.sparta.core.enumerators
 
-package com.stratio.sparta.core.helpers
-
-import com.stratio.sparta.core.models.SpartaQualityRuleThresholdActionType
+import com.stratio.sparta.core.models.qualityrule.QRThresholdResults
+import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum._
 
 
 object QualityRuleActionEnum extends Enumeration {
@@ -19,9 +19,11 @@ object QualityRuleActionEnum extends Enumeration {
   val ActionCopy        = Value(2, "ACT_COP")
   val ActionMove        = Value(3, "ACT_MOV")
 
-  def findOutputMode(mapPassedThresholds: Map[Long,(Boolean, String, SpartaQualityRuleThresholdActionType)]): QualityRuleActionEnum =
-    mapPassedThresholds.map { case (_, (isPassing, _, action)) => {
-      if (isPassing) ActionPassthrough else withName(action.`type`)
-    } }.max
+  def findOutputMode(mapPassedThresholds: Map[Long, QRThresholdResults]): QualityRuleActionEnum =
+    mapPassedThresholds.map { case (_, qrThresholdResults) =>
+      if (qrThresholdResults.thresholdSatisfied || qrThresholdResults.qualityRuleType == Planned)
+        ActionPassthrough
+      else
+        withName(qrThresholdResults.thresholdActionType.`type`)
+    }.max
 }
-

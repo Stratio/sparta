@@ -51,9 +51,9 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
   lazy val enabled = Try(SpartaConfig.getDetailConfig().get.getString("lineage.enable").toBoolean).getOrElse(false)
   lazy val uri = Try(SpartaConfig.getGovernanceConfig().get.getString("http.uri"))
     .getOrElse("https://governance.labs.stratio.com/dictionary")
-  lazy val getEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.get.endpoint"))
+  lazy val getQREndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.get.endpoint"))
     .getOrElse("v1/quality/quality/searchByMetadataPathLike?metadataPathLike=")
-  lazy val getXDEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.get.crossdata.endpoint"))
+  lazy val getXdQREndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.get.crossdata.endpoint"))
     .getOrElse("v1/quality/quality/searchFederationByMetadataPathLike?metadataPathLike=")
   lazy val noTenant = Some("NONE")
   lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
@@ -64,10 +64,10 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
       log.debug(s"Received RetrieveQualityRules($workflow) and LINEAGE_ENABLED is set to $enabled")
       val currentSender = sender()
 
-      val qualityRules: Future[Seq[SpartaQualityRule]] =
-        if (enabled)
+      val qualityRules = if (enabled)
           retrieveQualityRules(workflow)
-        else Future(Seq.empty[SpartaQualityRule])
+        else
+          Future(Seq.empty[SpartaQualityRule])
 
       qualityRules.onComplete {
         case Success(value) =>
@@ -78,7 +78,7 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
       }
   }
 
-  def getQualityRulesFromApi(stepName: String,
+  private def getQualityRulesFromApi(stepName: String,
                              outputName: String,
                              metadataPath: String): Future[StepOutputRule] = {
 
@@ -87,7 +87,7 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
 
     val resultGet = doRequest(
       uri = uri,
-      resource = getEndpoint.concat(query),
+      resource = getQREndpoint.concat(query),
       method = HttpMethods.GET,
       body = None,
       cookies = Seq.empty,
@@ -100,7 +100,7 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
     }
   }
 
-  def getXDQualityRulesFromApi(stepName: String,
+  private def getXDQualityRulesFromApi(stepName: String,
                                outputName: String,
                                metadataPath: String): Future[StepOutputRule] = {
 
@@ -109,7 +109,7 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
 
     val resultGet = doRequest(
       uri = uri,
-      resource = getXDEndpoint.concat(query),
+      resource = getXdQREndpoint.concat(query),
       method = HttpMethods.GET,
       body = None,
       cookies = Seq.empty,
@@ -122,7 +122,7 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
     }
   }
 
-  def retrieveQualityRules(workflow: Workflow): Future[Seq[SpartaQualityRule]] = {
+  private def retrieveQualityRules(workflow: Workflow): Future[Seq[SpartaQualityRule]] = {
     val inputOutputGraphNodes: Seq[(NodeGraph, Map[String, String])] = retrieveInputOutputGraphNodes(workflow)
     val graphOutputPredecessorsWithTableName: Seq[Map[NodeGraph, (NodeGraph, String)]] = getOutputPredecessorsWithTableName(workflow)
     val graphOutputPredecessorsWithTableNameAndProperties: Seq[(String, (String, String, Map[String, String]))] =
@@ -147,7 +147,8 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
   }
 
 
-  def retrieveQualityRulesFromGovernance(metadataPaths: Map[String, (String, String)], isXDMetadapaths: Boolean): Future[Seq[SpartaQualityRule]] = {
+  private def retrieveQualityRulesFromGovernance(metadataPaths: Map[String, (String, String)],
+                                                 isXDMetadapaths: Boolean): Future[Seq[SpartaQualityRule]] = {
     import org.json4s.native.Serialization.read
 
     val rulesFromApi: Seq[Future[StepOutputRule]] = metadataPaths.toSeq.map {
@@ -172,6 +173,9 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
 object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSerializer {
 
   case class RetrieveQualityRules(workflow: Workflow)
+
+  //TODO check if date will be a string after all or change it to the right type
+  case class RetrievePlannedQualityRules(modifiedDate: String = "EPOCH TIME")
 
   val AllowedDataGovernanceOutputs = Seq("Postgres", "Jdbc", "Avro", "Csv", "FileSystem", "Parquet", "Xml", "Json", "Text")
 

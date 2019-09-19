@@ -33,5 +33,5 @@ object PostgresDaoFactory {
   lazy val templatePgService = new TemplatePostgresDao()
   lazy val qualityRuleResultPgService = new QualityRuleResultPostgresDao()
   lazy val scheduledWorkflowTaskPgService = new ScheduledWorkflowTaskPostgresDao()
-
+  lazy val plannedQualityRulePgService = new PlannedQualityRulePostgresDao()
 }

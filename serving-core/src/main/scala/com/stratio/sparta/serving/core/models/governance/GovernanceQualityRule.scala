@@ -33,7 +33,11 @@ case class Content(id: Long,
                    resultOperation: String,
                    resultOperationType: String,
                    resultAction: ResultAction,
-                   resultExecute: ResultExecute)
+                   resultExecute: ResultExecute,
+                   tenant: String,
+                   createdAt: String,
+                   modifiedAt: String
+                  )
 
 case class Cond(order: Int,
                 attribute: String,
@@ -43,7 +47,9 @@ case class Cond(order: Int,
                 )
 
 case class Parameters(catalogAttributeType: String,
-                      filter: Filter)
+                      filter: Option[Filter],
+                      advanced: Option[Advanced]
+                     )
 
 case class NameValue(name: String, value: String)
 
@@ -57,7 +63,9 @@ case class Filter(order: Double,
 case class ResultAction(path: Option[String],
                         `type`: String)
 
-case class ResultExecute(`type`: String)
+case class ResultExecute(`type`: String,
+                         config: Option[Configuration]
+                        )
 
 case class Pageable(
                      sort: Sort,
@@ -67,7 +75,22 @@ case class Pageable(
                      unpaged: Boolean,
                      paged: Boolean)
 
+case class Advanced(query: String,
+                    queryReference: String,
+                    resources: Resources
+                   )
 
+case class Resources(resource: String,
+                      metadataPath: String,
+                      url: String //Url is not enough, maybe add here fields like datastore type and tls connection?
+                    )
 
+case class Configuration(scheduling: Scheduling,
+                          executionOptions: ExecutionOptions)
 
+case class Scheduling(
+                     initialization: Long,
+                     period: Long
+                     )
 
+case class ExecutionOptions(size: String)
