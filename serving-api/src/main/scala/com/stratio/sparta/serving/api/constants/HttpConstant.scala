@@ -11,7 +11,7 @@ import scala.util.{Properties, Try}
 
 object HttpConstant {
 
-  final val SpartaRootPath = AppConstant.instanceNameHttpService
+  final val SpartaRootPath = AppConstant.tenantIdInstanceNameWithDefault
   final val DebugWorkflowsPath = "debug"
   final val DriverPath = "driver"
   final val PluginsPath = "plugins"

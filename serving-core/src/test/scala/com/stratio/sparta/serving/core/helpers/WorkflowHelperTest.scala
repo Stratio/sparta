@@ -41,7 +41,7 @@ class WorkflowHelperTest extends WordSpec with ShouldMatchers with Matchers with
 
     "a workflow execution is passed" should{
       "create correcly a path" in {
-        val expected = s"/sparta/$instanceNameHttpService/workflows/home/kafka-to-kafka/kafka-to-kafka-v2/1234-5678"
+        val expected = s"/sparta/$instanceNameWithDefault/workflows/home/kafka-to-kafka/kafka-to-kafka-v2/1234-5678"
         val execution = WorkflowExecution(
           id = Option("1234-5678"),
           statuses = Seq(ExecutionStatus()),

@@ -85,7 +85,7 @@ object WorkflowHelper extends SLF4JLogging {
     val companyLabelPrefix = Properties.envOrNone(DcosServiceCompanyLabelPrefix)
     val basicApplicationPath = {
       val baseApplicationPath = Properties.envOrElse(DcosServiceBaseApplicationPath, "/sparta")
-      s"$baseApplicationPath/$instanceNameHttpService/workflows"
+      s"$baseApplicationPath/$instanceNameWithDefault/workflows"
     }
 
     if(companyLabelPrefix.isDefined) {
@@ -95,7 +95,7 @@ object WorkflowHelper extends SLF4JLogging {
       ) match {
         case (Some(productPath), Some(appPath)) =>
           val baseApplicationPath = Properties.envOrElse(DcosServiceBaseApplicationPath, "project")
-          s"$baseApplicationPath/$productPath/$appPath/$instanceNameHttpService/workflows"
+          s"$baseApplicationPath/$productPath/$appPath/$instanceNameWithDefault/workflows"
         case _ =>
           basicApplicationPath
       }
@@ -119,7 +119,7 @@ object WorkflowHelper extends SLF4JLogging {
   def getVirtualPath: String = {
     Properties.envOrElse(
       MarathonConstant.NginxMarathonLBUserPathEnv,
-      Properties.envOrElse(MarathonConstant.NginxMarathonLBPathEnv, s"/workflows-${AppConstant.instanceNameHttpService}")
+      Properties.envOrElse(MarathonConstant.NginxMarathonLBPathEnv, s"/workflows-${AppConstant.instanceNameWithDefault}")
     )
   }
 
