@@ -32,11 +32,16 @@ export class WritersComponent implements OnInit {
       const customWriter = outputs[this.nodeWritersNames[key].classPrettyName].writer;
       this.writerTemplates.push([
         ...writerTemplate,
-        ...customWriter
+        ...(customWriter && customWriter.length ? [{
+          properties: customWriter,
+          propertyId: 'extraOptions'
+        }] : [])
       ]);
       const control = new FormControl(this.nodeWriters[key]);
       this.writersGroup.addControl(key, control);
       this.accordionStates.push(false);
     });
+
+    setTimeout(() => this.writersGroup.setValue(this.nodeWriters));
   }
 }

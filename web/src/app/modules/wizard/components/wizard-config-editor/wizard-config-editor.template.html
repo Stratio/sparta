@@ -60,10 +60,10 @@
             <div class="config__form-container">
               <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption.id === 'Global')">
                 <div class="col-sm-8" [ngClass]="{'error' : validatedName}">
-                    <sp-input name="name" (change)="resetValidation()" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}} *"
-                      fieldType="text" [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
-                      class="input-field st-form-field"></sp-input>
-                    <div class="st-input-error-message name-validation" *ngIf="validatedName">{{'WIZARD.NODE_NAME_VALIDATION' | translate}}</div>
+                  <sp-input name="name" (change)="resetValidation()" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}} *"
+                    fieldType="text" [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
+                    class="input-field st-form-field"></sp-input>
+                  <div class="st-input-error-message name-validation" *ngIf="validatedName">{{'WIZARD.NODE_NAME_VALIDATION' | translate}}</div>
                 </div>
               </div>
             </div>
@@ -72,6 +72,18 @@
                 <sp-textarea name="description" [(ngModel)]="entityFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
                     fieldType="text" [required]="false" qaTag="input-name" [forceValidations]="submitted" [errors]="errorsService.errors.inputErrors"
                     class="input-field st-form-field"></sp-textarea>
+              </div>
+            </div>
+            <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption.id === 'Global')" *ngIf="nodeWriters">
+              <div class="col-sm-8">
+                <sp-input name="errorTableName"
+                  [(ngModel)]="errorTableName"
+                  label="{{'_ERROR_TABLE_NAME_' | translate}}"
+                  fieldType="text"
+                  qaTag="error-table-name"
+                  [forceValidations]="submitted"
+                  [errors]="errorsService.errors.inputErrors"
+                  class="input-field st-form-field"></sp-input>
               </div>
             </div>
             <writers-config *ngIf="nodeWriters"

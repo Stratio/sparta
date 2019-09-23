@@ -104,8 +104,9 @@ export class WizardService {
             return {
               ...node,
               outputsWriter: Object.keys(nodeWriters).map(key => {
-                return {
+                return { // TODO: Change the saveMode position in nodeWriter model
                   ...nodeWriters[key],
+                  saveMode: nodeWriters[key].extraOptions && nodeWriters[key].extraOptions.saveMode ? nodeWriters[key].extraOptions.saveMode : undefined,
                   outputStepName: namesMap[key]
                 };
               })
@@ -117,6 +118,7 @@ export class WizardService {
         edges: wizard.edges,
         annotations: wizard.annotations
       },
+      writers: undefined,
       group: wizard.workflowGroup && wizard.workflowGroup.id ?
         wizard.workflowGroup : state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup,
       settings: wizard.settings.advancedSettings

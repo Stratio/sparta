@@ -8,8 +8,6 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  OnDestroy,
-  OnInit,
 } from '@angular/core';
 
 @Component({
@@ -23,9 +21,6 @@ export class ToolBarComponent {
     @Input() largeTools = false;
     @Input() fullToolbar = false;
     @Input() hideOnScroll = false;
-
-    public hiddenToolBar = false;
-    private _lastPosition = 0;
 
     constructor(private _cd: ChangeDetectorRef) { }
 

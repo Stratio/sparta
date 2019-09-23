@@ -80,6 +80,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
   public queryBuilder: any;
   public visualQueryBuilder = false;
   public nodeWritersNames$: Observable<any>;
+  public errorTableName = '';
 
   public writersGroup = new FormGroup({});
   public validatedName$: Observable<boolean>;
@@ -243,6 +244,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     this._cd.markForCheck();
     this.showCrossdataCatalog = !!(template.crossdataCatalog);
     this.basicSettings = template.properties;
+    this.errorTableName = this.entityFormModel.configuration.errorTableName || '';
     if (this.entityFormModel.nodeTemplate && this.entityFormModel.nodeTemplate.id && this.entityFormModel.nodeTemplate.id.length) {
       this.isTemplate = true;
       const nodeTemplate = this.entityFormModel.nodeTemplate;
@@ -276,6 +278,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }
     this.entityFormModel.relationType = this.config.editionType.data.relationType;
     this.entityFormModel.createdNew = false;
+    this.entityFormModel.configuration.errorTableName = this.errorTableName;
     if (this.entityFormModel.classPrettyName === 'QueryBuilder') {
       const queryConfiguration = this._wizardConfigEditorService.normalizeQueryConfiguration(this.queryBuilder);
       this.queryBuilder.outputSchemaFields = this.queryBuilder.outputSchemaFields.map(output => ({
@@ -285,8 +288,15 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
       const queryEntityFormModel = {
         ...this.entityFormModel,
-        configuration: { ...this.entityFormModel.configuration, visualQuery: queryConfiguration, backup: this.queryBuilder },
-        uiConfiguration: { ...this.entityFormModel.uiConfiguration, backup: this.queryBuilder }
+        configuration: {
+          ...this.entityFormModel.configuration,
+          visualQuery: queryConfiguration,
+          backup: this.queryBuilder
+        },
+        uiConfiguration: {
+          ...this.entityFormModel.uiConfiguration,
+          backup: this.queryBuilder
+        }
       };
       this._store.dispatch(new wizardActions.SaveEntityAction({
         oldName: this.config.editionType.data.name,

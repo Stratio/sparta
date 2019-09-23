@@ -14,13 +14,5 @@
     "required": false,
     "tooltip": "Name used to save the discarded data in a table, topic or similar. If this field is left blank Sparta will use the transformation name with '_discard' instead.",
     "qa": "table-name-writer-discardTableName"
-  },
-   {
-      "propertyId": "errorTableName",
-      "propertyName": "_ERROR_TABLE_NAME_",
-      "propertyType": "text",
-      "required": false,
-      "tooltip": "Name used to save the error data in a table, topic or similar. If this field is left blank Sparta will use the transformation name instead.",
-      "qa": "table-name-writer-errorTableName"
-   }
+  }
 ]

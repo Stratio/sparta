@@ -34,7 +34,7 @@ import { getWritersState, getEditionConfig, getNodesMap, getEdges } from '../red
           obj[key] = nodeWriters[key];
           return obj;
         }, {});
-      return filteredWriters;
+      return filteredWriters && Object.keys(filteredWriters).length ? filteredWriters : null;
     }
     return null;
   }

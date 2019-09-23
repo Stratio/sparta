@@ -2,7 +2,7 @@
       <form [formGroup]="stFormGroup" class="form-generator">
          <ng-container *ngFor="let prop of formDataValues; let i = index;">
            <div class="col-sm-12">
-            <div *ngIf="prop.field.properties" class="form-category" [ngClass]="{'first-level' : subFormNumber === 0, 'form-category--collapsed' : categories.indexOf(i) < 0}">
+            <div *ngIf="prop.field.properties && (prop.field.name || prop.field.propertyName)" class="form-category" [ngClass]="{'first-level' : subFormNumber === 0, 'form-category--collapsed' : categories.indexOf(i) < 0}">
                <h2 (click)="toggleCategory(i)"
                [ngClass]="'title form-category__title subform-title-' + subFormNumber">{{('WIZARD.' + ((prop.field.name | uppercase) || prop.field.propertyName)) | translate}}</h2>
                <form-generator
@@ -15,6 +15,19 @@
                  [forceValidations]="submitted"
                  [formData]="prop.field.properties"></form-generator>
                </div>
+            </div>
+            <div *ngIf="prop.field.properties && !prop.field.name && !prop.field.propertyName">
+              <div class="col-sm-12">
+                <form-generator
+                  class="form-category__value"
+                  [valueDictionary]="valueDictionary"
+                  [subFormNumber]="subFormNumber + 1"
+                  [showVars]="showVars"
+                  [variableList]="variableList"
+                  [formControl]="prop.formControl"
+                  [forceValidations]="submitted"
+                  [formData]="prop.field.properties"></form-generator>
+                </div>
             </div>
             <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [hidden]="prop.field.hidden === true" [ngClass]="prop.field.classed">
                <form-field [disabledForm]="disabledForm"
