@@ -27,7 +27,7 @@ case class WriterGraph(
     val calculatedTableName = tableName.notBlank.getOrElse(nodeName)
 
     OutputWriterOptions(
-      saveMode = SaveModeEnum.Append,
+      saveMode = saveMode,
       outputStepName = OutputWriterOptions.OutputStepNameNA,
       stepName = nodeName,
       tableName = calculatedTableName,
@@ -66,7 +66,7 @@ case class OutputWriter(
     val calculatedTableName = tableName.notBlank.getOrElse(nodeName)
 
     OutputWriterOptions(
-      saveMode = SaveModeEnum.Append,
+      saveMode = saveMode,
       outputStepName = outputStepName,
       stepName = nodeName,
       tableName = calculatedTableName,
