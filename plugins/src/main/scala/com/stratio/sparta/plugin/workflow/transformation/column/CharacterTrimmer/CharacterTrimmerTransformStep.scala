@@ -71,6 +71,15 @@ abstract class CharacterTrimmerTransformStep[Underlying[Row]](
     ErrorValidationsHelper.validate(validationSeq, name)
   }
 
+  def finalStringTrimedLeft(string: String,charsToTrim: String): String = {
+    ("^" + Pattern.quote(charsToTrim)).r.replaceAllIn(string, "")
+  }
+
+  def finalStringTrimedRight(string: String,charsToTrim: String): String = {
+
+    Pattern.quote(charsToTrim).r.replaceAllIn(string, "") + "$"
+  }
+
 
   def applyTrim(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType], Option[StructType]) = {
     Try {
@@ -82,25 +91,22 @@ abstract class CharacterTrimmerTransformStep[Underlying[Row]](
           val newDataFrame = columnsToOperate.foldLeft(df)({
             case (df2, columnToOperate: CharacterTrimmerModel) =>
 
-              val specialFormatedString = columnToOperate.characterToTrim.flatMap(char => "[" + char + "]")
-              val regexLeft = s"^${specialFormatedString}"
-              val regexRight   = s"${specialFormatedString}$$"
-
               columnToOperate.trimType match {
                 case TrimType.TRIM_LEFT =>
                   df2.withColumn(
                     columnToOperate.name,
-                    regexp_replace(col(columnToOperate.name), regexLeft, "")
-                  )
+                    regexp_replace(col(columnToOperate.name), "^" + Pattern.quote(columnToOperate.characterToTrim), "")
+                    )
                 case TrimType.TRIM_RIGHT =>
                   df2.withColumn(
                     columnToOperate.name,
-                    regexp_replace(col(columnToOperate.name), regexRight, "")
+                    regexp_replace(col(columnToOperate.name),  Pattern.quote(columnToOperate.characterToTrim) + "$", "")
                   )
                 case TrimType.TRIM_BOTH =>
                 df2.withColumn(
                   columnToOperate.name,
-                  regexp_replace(regexp_replace(col(columnToOperate.name), regexRight, ""), regexLeft, "")
+                  regexp_replace(regexp_replace(col(columnToOperate.name), "^" + Pattern.quote(columnToOperate.characterToTrim), ""),
+                    Pattern.quote(columnToOperate.characterToTrim) + "$", "")
                 )
                 case _ => df2
               }

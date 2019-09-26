@@ -77,7 +77,7 @@ class CharacterTrimmerTransformStepBatchIT extends TemporalSparkContext with Mat
 
     val fields =
       """[{"name": "Column1",
-        |"characterToTrim": "e",
+        |"characterToTrim": "$",
         |"trimType": "TRIM_RIGHT"
         |},
         |{"name": "Column2",
@@ -91,13 +91,13 @@ class CharacterTrimmerTransformStepBatchIT extends TemporalSparkContext with Mat
 
     val dataIn: Seq[Row] =
       Seq(
-        new GenericRowWithSchema(Array("baae", "  whitespace  "), inputSchema),
+        new GenericRowWithSchema(Array("baae$", "whitespace$"), inputSchema),
         new GenericRowWithSchema(Array("boae", "whitespace "), inputSchema)
       ).map(_.asInstanceOf[Row])
 
     val dataOut = Seq(
-      new GenericRowWithSchema(Array("baa", "  whitespace"), outputSchema),
-      new GenericRowWithSchema(Array("boa", "whitespace"), outputSchema)
+      new GenericRowWithSchema(Array("baae", "whitespace$"), outputSchema),
+      new GenericRowWithSchema(Array("boae", "whitespace"), outputSchema)
     )
 
     val dataSet: RDD[Row] = sc.parallelize(dataIn)
@@ -141,13 +141,13 @@ class CharacterTrimmerTransformStepBatchIT extends TemporalSparkContext with Mat
 
     val dataIn: Seq[Row] =
       Seq(
-        new GenericRowWithSchema(Array("ebe", "  whitespace "), inputSchema),
-        new GenericRowWithSchema(Array("ebe", "    whitespace  "), inputSchema)
+        new GenericRowWithSchema(Array("ebe", " whitespace "), inputSchema),
+        new GenericRowWithSchema(Array("ebe", "   whitespace  "), inputSchema)
       ).map(_.asInstanceOf[Row])
 
     val dataOut = Seq(
       new GenericRowWithSchema(Array("b", "whitespace"), outputSchema),
-      new GenericRowWithSchema(Array("b", "whitespace"), outputSchema)
+      new GenericRowWithSchema(Array("b", "  whitespace "), outputSchema)
     )
 
     val dataSet: RDD[Row] = sc.parallelize(dataIn)
