@@ -32,7 +32,6 @@ class XlsOutputStep(
   lazy val useHeader = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
   lazy val treatEmptyValuesAsNulls: Option[String] = properties.getString("treatEmptyValuesAsNulls",None).notBlank
   lazy val inferSchema = Try(properties.getString("inferSchema", "false").toBoolean).getOrElse(false)
-  lazy val compressExtension = propertiesWithCustom.getString("compressExtension", None).notBlank.getOrElse(".gz")
   lazy val dateFormat = properties.getString("dateFormat", None)
   lazy val timestampFormat = properties.getString("timestampFormat", None)
   override lazy val lineagePath: String = location
@@ -67,7 +66,6 @@ class XlsOutputStep(
 
     val locationParsed = if (location.endsWith("/")) location else location + "/"
     val tableName = getTableNameFromOptions(options)
-    val data= s"'${sheetName.getOrElse(false)}'!${dataRange.getOrElse(false)}"
 
 
     val templateOptions: Map[String, String] = Map(
