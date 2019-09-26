@@ -7,7 +7,6 @@
 package com.stratio.sparta.plugin.workflow.input.xls
 import java.io.{Serializable => JSerializable}
 
-import com.crealytics.spark.excel._
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
@@ -15,14 +14,11 @@ import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.InputStep
-import com.stratio.sparta.plugin.common.csv.CsvBase
 import com.stratio.sparta.serving.core.workflow.lineage.HdfsLineage
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
-
-import scala.collection.immutable
 import scala.util.Try
 
 class XlsInputStepBatch(
