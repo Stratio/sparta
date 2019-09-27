@@ -89,5 +89,3 @@ object GuardianActor {
   case object TickCheck extends GuardianInternalMessages
 
 }
-
-

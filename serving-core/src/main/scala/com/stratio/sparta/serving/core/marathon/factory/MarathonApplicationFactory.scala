@@ -78,6 +78,8 @@ object MarathonApplicationFactory {
       .addSpartaExtraEnv
       .addPostgresEnv
       .addZookeeperEnv
+      .addSpartaMarathonEnv
+      .addMarathonEnv
       .addSpartaConfigEnv
       .addIntelligenceEnv
       .addActorEnv

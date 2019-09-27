@@ -318,7 +318,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
     }
   }
 
-  private[core] def extractAppsId(json: String): Option[Seq[String]] =
+  def extractAppsId(json: String): Option[Seq[String]] =
     extractAppIDs(json) match {
       case seq if seq.nonEmpty => Some(seq)
       case _ => None

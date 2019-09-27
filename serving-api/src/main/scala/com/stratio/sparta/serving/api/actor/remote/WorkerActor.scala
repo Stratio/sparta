@@ -12,14 +12,19 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Publish
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.pipe
+import akka.stream.ActorMaterializer
 import com.stratio.sparta.serving.api.actor.remote.WorkerActor._
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, MarathonConstant}
+import com.stratio.sparta.serving.core.marathon.service.{MarathonService, MarathonUpAndDownComponent}
 import com.stratio.sparta.serving.core.models.RocketModes.RocketMode
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.utils.AkkaClusterUtils
+import com.typesafe.config.Config
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 trait WorkerActor extends Actor with SLF4JLogging with SpartaSerializer {
 
@@ -33,11 +38,27 @@ trait WorkerActor extends Actor with SLF4JLogging with SpartaSerializer {
 
   lazy val dispatcherActor = AkkaClusterUtils.proxyInstanceForName(dispatcherActorName,  AkkaConstant.MasterRole)
 
+  lazy val spartaServerMarathonAppId = sys.env.getOrElse(MarathonConstant.SpartaServerMarathonAppId,
+    throw new RuntimeException("The container should provide a MARATHON_APP_ID environment variable"))
+
+  lazy val marathonDeploymentGroup = spartaServerMarathonAppId.split("/")
+    .dropRight(1)
+    .mkString("/") + "/" + rocketMode.toString.toLowerCase
+
+  lazy val marathonDeploymentTaskId = s"$marathonDeploymentGroup/${rocketMode.toString.toLowerCase}-worker"
+
+  lazy val marathonConfig: Config = SpartaConfig.getMarathonConfig().get
+  lazy val marathonUpAndDownComponent = MarathonUpAndDownComponent(marathonConfig)(context.system, ActorMaterializer())
+  lazy val marathonService = new MarathonService(marathonUpAndDownComponent)
+
   val cluster = Cluster(context.system)
   val mediator = DistributedPubSub(context.system).mediator
 
-  lazy val WorkerTickInitialDelay = 0 seconds
-  lazy val WorkerNodeTickInterval = 500 milli
+  val WorkerTickInitialDelay = 0 seconds
+  val WorkerNodeTickInterval = 500 milli
+
+  val WorkerAutokillTickInitialDelay = 0 seconds
+  val WorkerAutokillNodeTickInterval = 20 seconds
 
   def workerPreStart(): Unit
 
@@ -46,6 +67,7 @@ trait WorkerActor extends Actor with SLF4JLogging with SpartaSerializer {
   override def preStart(): Unit = {
     workerPreStart()
     context.system.scheduler.schedule(WorkerTickInitialDelay, WorkerNodeTickInterval, self, StatusTick)
+    context.system.scheduler.schedule(WorkerAutokillTickInitialDelay, WorkerAutokillNodeTickInterval, self, AutokillTick)
     log.info("Worker actor initiated")
   }
 
@@ -55,6 +77,9 @@ trait WorkerActor extends Actor with SLF4JLogging with SpartaSerializer {
     case StatusTick =>
       log.trace(s"Publishing free message from ${self.path}")
       mediator ! Publish(workerTopic, Free)
+
+    case AutokillTick =>
+      autoKillIfNotExists
 
     case WorkerStartJob(job, jobSender) =>
       mediator ! Publish(workerTopic, Busy)
@@ -67,9 +92,34 @@ trait WorkerActor extends Actor with SLF4JLogging with SpartaSerializer {
     case StatusTick =>
       log.trace(s"Publishing busy message from ${self.path}")
       mediator ! Publish(workerTopic, Busy)
+
+    case AutokillTick =>
+      autoKillIfNotExists
+
     case JobFinished =>
       mediator ! Publish(workerTopic, Free)
       context.become(freeBehaviour)
+  }
+
+  def autoKillIfNotExists: Unit = {
+    val futureApplicationDeployments: Future[String] = for {
+      applicationDeployments <- marathonUpAndDownComponent.marathonAPIUtils.retrieveApps(spartaServerMarathonAppId)
+    } yield { applicationDeployments }
+
+    futureApplicationDeployments.onComplete {
+      case Success(value) =>
+
+        val result: Option[Seq[String]] = marathonUpAndDownComponent.marathonAPIUtils.extractAppsId(value)
+
+        if(result.isEmpty || result.get.size == 0) {
+          log.info(s"There are not any deployment for id : $spartaServerMarathonAppId. Autokilling this instance!")
+          marathonService.kill(marathonDeploymentTaskId)
+        } else {
+          log.trace(s"There are a deployment for id: $spartaServerMarathonAppId. Nothing to do")
+        }
+      case Failure(ex) =>
+        log.error(ex.getLocalizedMessage, ex)
+    }
   }
 
 }
@@ -89,6 +139,8 @@ object WorkerActor {
   sealed trait WorkerInternalMessages
 
   case object StatusTick
+
+  case object AutokillTick
 
   case object JobFinished
 

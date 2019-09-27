@@ -239,7 +239,6 @@ object WorkflowBuilderImplicits {
       }
     }
 
-
     def addIntelligenceEnv: MarathonApplication = addEnv {
       sys.env.filterKeys { key =>
         key.contains("INTELLIGENCE")
@@ -266,6 +265,12 @@ object WorkflowBuilderImplicits {
     def addSpartaMarathonEnv: MarathonApplication = addEnv {
       sys.env.filterKeys { key =>
         key.startsWith("SPARTA_MARATHON")
+      }
+    }
+
+    def addMarathonEnv: MarathonApplication = addEnv {
+      sys.env.filterKeys { key =>
+        key.startsWith("MARATHON")
       }
     }
 
