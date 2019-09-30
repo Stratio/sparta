@@ -16,7 +16,7 @@ class IsDateOperation[T, U](ordering: Ordering[T])(implicit predicate : SpartaQu
   override val spartaPredicate: SpartaQualityRulePredicate = predicate
   override val schema: StructType = schemaDF
 
- override def operation[_]: Row => Boolean = (_: Row)  => {
+ override def operation[_]: Row => Boolean = nullPointerExceptionHandler((_: Row)  => {
    if (fieldType == DateType) true else false
-  }
+  })
 }

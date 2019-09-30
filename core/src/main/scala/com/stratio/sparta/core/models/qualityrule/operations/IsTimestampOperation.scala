@@ -19,7 +19,7 @@ class IsTimestampOperation[T, U](ordering: Ordering[T])(implicit predicate : Spa
   override val spartaPredicate: SpartaQualityRulePredicate = predicate
   override val schema: StructType = schemaDF
 
- override def operation[_]: Row => Boolean = (_: Row)  => {
+ override def operation[_]: Row => Boolean = nullPointerExceptionHandler((_: Row)  => {
    if (fieldType == TimestampType) true else false
-  }
+  })
 }

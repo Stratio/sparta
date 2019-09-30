@@ -16,8 +16,8 @@ class MinorEqualOperation[T,U](ordering: Ordering[T])(implicit predicate : Spart
   override val spartaPredicate: SpartaQualityRulePredicate = predicate
   override val schema: StructType = schemaDF
 
-  override def operation[_]: Row => Boolean = (row: Row) => {
+  override def operation[_]: Row => Boolean = nullPointerExceptionHandler((row: Row) => {
     ordering.lteq(row.getAs[T](row.fieldIndex(field)),
       castingToSchemaType(fieldType, secondOperand).asInstanceOf[T])
-  }
+  })
 }

@@ -16,7 +16,7 @@ class IsNullOperation[T, U](ordering: Ordering[T])(implicit predicate : SpartaQu
   override val spartaPredicate: SpartaQualityRulePredicate = predicate
   override val schema: StructType = schemaDF
 
- override def operation[_]: Row => Boolean = (row: Row)  => {
+ override def operation[_]: Row => Boolean = nullPointerExceptionHandler((row: Row)  => {
      row.getAs[T](row.fieldIndex(field)) == null
-  }
+  })
 }

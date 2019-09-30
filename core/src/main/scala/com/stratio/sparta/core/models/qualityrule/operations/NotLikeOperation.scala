@@ -22,12 +22,12 @@ class NotLikeOperation[T, U](ordering: Ordering[T])(implicit predicate : SpartaQ
   override val spartaPredicate: SpartaQualityRulePredicate = predicate
   override val schema: StructType = schemaDF
 
- override def operation[_]: Row => Boolean = (row: Row)  => {
+ override def operation[_]: Row => Boolean = nullPointerExceptionHandler((row: Row)  => {
     if ( fieldType != StringType ) throw new RuntimeException(s"Cannot apply a Like operand to field $field whose type is $fieldType : the only allowed type is StringType")
     else {
       !matches(createPattern(secondOperand), row.getString(row.fieldIndex(field)))
     }
-  }
+  }, ifNull = true)
 }
 
 

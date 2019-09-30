@@ -17,7 +17,7 @@ class NotEqualOperation[T, U](ordering: Ordering[T])(implicit predicate : Sparta
   override val spartaPredicate: SpartaQualityRulePredicate = predicate
   override val schema: StructType = schemaDF
 
- override def operation[_]: Row => Boolean = (row: Row)  => {
+ override def operation[_]: Row => Boolean = nullPointerExceptionHandler((row: Row)  => {
     row.getAs[T](row.fieldIndex(field)) != castingToSchemaType(fieldType, secondOperand).asInstanceOf[T]
-  }
+  }, ifNull = true)
 }

@@ -17,9 +17,9 @@ class NotInOperation[T, U](ordering: Ordering[T])(implicit predicate : SpartaQua
   override val spartaPredicate: SpartaQualityRulePredicate = predicate
   override val schema: StructType = schemaDF
 
- override def operation[_]: Row => Boolean = (row: Row)  => {
+ override def operation[_]: Row => Boolean = nullPointerExceptionHandler((row: Row)  => {
      val element = row.getAs[T](row.fieldIndex(field))
      val castedOperands = operands.map(castingToSchemaType(fieldType, _).asInstanceOf[T])
      !castedOperands.contains(element)
-  }
+  })
 }

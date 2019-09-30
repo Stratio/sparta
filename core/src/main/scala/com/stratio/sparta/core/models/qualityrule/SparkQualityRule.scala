@@ -52,7 +52,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
 
   lazy val ruleOperand: String = spartaQualityRulePredicate.operation
 
-  val allowedOperations: Set[String] = Set("=", ">", ">=","<", "<=", "<>", "IS NOT NULL", "IS NULL", "IN", "NOT IN", "LIKE", "NOT LIKE", "REGEX", "IS DATE", "IS NOT DATE", "IS TIMESTAMP", "IS NOT TIMESTAMP")
+  val allowedOperations: Set[String] = Set("=", ">", ">=","<", "<=", "<>", "IS NOT NULL", "IS NULL", "IN", "NOT IN", "LIKE", "NOT LIKE", "REGEX", "IS DATE", "IS NOT DATE", "IS TIMESTAMP", "IS NOT TIMESTAMP", "IS EMPTY", "IS NOT EMPTY")
 
   def valid = if (allowedOperations.contains(ruleOperand.trim.toUpperCase)) true else false
 
@@ -282,6 +282,32 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case _ => new IsNotTimestampOperation[String, U](Ordering[String])
         }
         isNotTimestampOperation.operation
+      case s if s matches "(?i)is empty" =>
+        val isEmptyOperation = fieldType match {
+          case StringType => new IsEmptyOperation[String, U](Ordering[String])
+          case BooleanType => new IsEmptyOperation[Boolean, U](Ordering[Boolean])
+          case IntegerType => new IsEmptyOperation[Int, U](Ordering[Int])
+          case LongType => new IsEmptyOperation[Long,U](Ordering[Long])
+          case ShortType=> new IsEmptyOperation[Short,U](Ordering[Short])
+          case FloatType => new IsEmptyOperation[Float,U](Ordering[Float])
+          case DoubleType => new IsEmptyOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new IsEmptyOperation[Any, U](new DecimalOrdering(x))
+          case _ => new IsEmptyOperation[String, U](Ordering[String])
+        }
+        isEmptyOperation.operation
+      case s if s matches "(?i)is not empty" =>
+        val isNotEmptyOperation = fieldType match {
+          case StringType => new IsNotEmptyOperation[String, U](Ordering[String])
+          case BooleanType => new IsNotEmptyOperation[Boolean, U](Ordering[Boolean])
+          case IntegerType => new IsNotEmptyOperation[Int, U](Ordering[Int])
+          case LongType => new IsNotEmptyOperation[Long,U](Ordering[Long])
+          case ShortType=> new IsNotEmptyOperation[Short,U](Ordering[Short])
+          case FloatType => new IsNotEmptyOperation[Float,U](Ordering[Float])
+          case DoubleType => new IsNotEmptyOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new IsNotEmptyOperation[Any, U](new DecimalOrdering(x))
+          case _ => new IsNotEmptyOperation[String, U](Ordering[String])
+        }
+        isNotEmptyOperation.operation
     }
   }
 

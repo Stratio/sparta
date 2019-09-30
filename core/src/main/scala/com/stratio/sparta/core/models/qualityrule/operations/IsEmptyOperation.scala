@@ -6,18 +6,20 @@
 
 package com.stratio.sparta.core.models.qualityrule.operations
 
-import com.stratio.sparta.core.helpers.CastingHelper._
 import com.stratio.sparta.core.models.SpartaQualityRulePredicate
-import com.stratio.sparta.core.models.qualityrule.BinaryOperation
+import com.stratio.sparta.core.models.qualityrule.Operation
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types.{StringType, StructType}
 
-class EqualOperation[T, U](ordering: Ordering[T])(implicit predicate : SpartaQualityRulePredicate, schemaDF: StructType) extends BinaryOperation with Serializable {
+class IsEmptyOperation[T, U](ordering: Ordering[T])(implicit predicate : SpartaQualityRulePredicate, schemaDF: StructType) extends Operation with Serializable {
 
   override val spartaPredicate: SpartaQualityRulePredicate = predicate
   override val schema: StructType = schemaDF
 
  override def operation[_]: Row => Boolean = nullPointerExceptionHandler((row: Row)  => {
-    row.getAs[T](row.fieldIndex(field)) == castingToSchemaType(fieldType, secondOperand).asInstanceOf[T]
+   if ( fieldType != StringType ) throw new RuntimeException(s"Cannot apply a isEmpty operand to field $field whose type is $fieldType : the only allowed type is StringType")
+   else {
+     row.getString(row.fieldIndex(field)).trim.isEmpty
+   }
   })
 }

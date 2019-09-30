@@ -183,7 +183,7 @@ case class SpartaQualityRulePredicate(`type`: Option[String] = None,
   }
 
   private def prettyPrintOperation(operation: String) : String = {
-    val leaveUnchanged = Set("IS NOT NULL", "IS NULL", "IN", "NOT IN", "LIKE", "NOT LIKE", "REGEX", "IS DATE", "IS NOT DATE", "IS TIMESTAMP", "IS NOT TIMESTAMP")
+    val leaveUnchanged = Set("IS NOT NULL", "IS NULL", "IN", "NOT IN", "LIKE", "NOT LIKE", "REGEX", "IS DATE", "IS NOT DATE", "IS TIMESTAMP", "IS NOT TIMESTAMP", "IS EMPTY", "IS NOT EMPTY")
 
     operation match{
       case op if leaveUnchanged.contains(op.toUpperCase) => op.toLowerCase

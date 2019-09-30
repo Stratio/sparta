@@ -63,6 +63,8 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     actionType = SpartaQualityRuleThresholdActionType(path = Some("error"), `type` = "ACT_PASS")
   )
 
+  val totalEventsQRDataframe: Long = 7
+
   val percentageThresholdNotToRound: SpartaQualityRuleThreshold = SpartaQualityRuleThreshold(
     value = 79.98,
     operation = "<=",
@@ -83,6 +85,8 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
           new GenericRowWithSchema(Array("McDonald", "red", 11.0, 2,1.0, "sci-fi", fakeTimestamp, fakeDate), inputSchema),
           new GenericRowWithSchema(Array("MacCormic", "yellow", 13.0, null, null, "fantasy",fakeTimestamp, fakeDate), inputSchema),
           new GenericRowWithSchema(Array("Gomez", "cyan", 12.0, 10, 1.0, "fantasy", fakeTimestamp, fakeDate), inputSchema),
+          new GenericRowWithSchema(Array( null, "cyan", 12.0, 10, 1.0, "fantasy", fakeTimestamp, fakeDate), inputSchema),
+          new GenericRowWithSchema(Array( "", "cyan", 12.0, 10, 1.0, "fantasy", fakeTimestamp, fakeDate), inputSchema),
           new GenericRowWithSchema(Array("Fernandez", "purple", 14.0,null,null, "comedy",fakeTimestamp, fakeDate), inputSchema)
         )
       val dataInRow = dataIn.map(_.asInstanceOf[Row])
@@ -102,6 +106,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
       val qualityRule1 = defaultQR.copy(name = "greater 10 less 13.5", predicates = seqQualityRules)
 
+      val expectedDiscards = 1
 
       val result1 = classTest.get.writeRDDTemplate(dataSet.get,
         outputOptions,
@@ -114,13 +119,26 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       result1 should not be empty
 
       result1.head.numDiscardedEvents shouldEqual 2
-      result1.head.numPassedEvents shouldEqual 3
-      result1.head.numTotalEvents shouldEqual 5
+      result1.head.numPassedEvents shouldEqual 5
+      result1.head.numTotalEvents shouldEqual totalEventsQRDataframe
       result1.head.satisfied shouldEqual true
 
     }
 
    it should "execute correctly a complex QualityRule with (OR)" in {
+
+     /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+       **/
 
      val qr_predicate1 = SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "stock", operation = "IS Not null")
 
@@ -128,10 +146,13 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
      val seqQualityRules = Seq(qr_predicate1, qr_predicate2)
 
-    val qualityRule1 = defaultQR.copy(name = "not null greater than 14.0 price",
+    val qualityRule1 = defaultQR.copy(name = "not null greater or equal than 14.0 price",
       logicalOperator = Some("or"),
       threshold = percentageThreshold,
       predicates = seqQualityRules)
+
+
+     val expectedDiscards = 1
 
      val result = classTest.get.writeRDDTemplate(dataSet.get,
       outputOptions,
@@ -143,19 +164,33 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     result should not be empty
 
-    result.head.numDiscardedEvents shouldEqual 1
-    result.head.numPassedEvents shouldEqual 4
-    result.head.numTotalEvents shouldEqual 5
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
     result.head.satisfied shouldEqual false
   }
 
   it should "execute correctly the EqualOperation" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+     **/
 
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("1"), field = "section_id", operation = "="))
 
     val qualityRuleEqual = defaultQR.copy(name = "must be equal", predicates = seqQualityRules)
 
+    val expectedDiscards: Long = 2
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
       outputOptions,
@@ -167,19 +202,34 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     result should not be empty
 
-    result.head.numDiscardedEvents shouldEqual 2
-    result.head.numPassedEvents shouldEqual 3
-    result.head.numTotalEvents shouldEqual 5
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
     result.head.satisfied shouldEqual true
   }
 
   it should "execute correctly the GreaterEqualOperation and MinorEqualOperation" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
 
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("12.0"), field = "price", operation = ">="),
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("14.0"), field = "price", operation = "<="))
 
     val qualityRuleGEq_MEq = defaultQR.copy(name = "must be greater or equal", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 2
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
       outputOptions,
@@ -191,19 +241,34 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     result should not be empty
 
-    result.head.numDiscardedEvents shouldEqual 2
-    result.head.numPassedEvents shouldEqual 3
-    result.head.numTotalEvents shouldEqual 5
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
     result.head.satisfied shouldEqual true
   }
 
   it should "execute correctly the GreaterOperation and MinorOperation" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
 
     val seqQualityRules = Seq(
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("L"), field = "author_surname", operation = ">"),
       SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("N"), field = "author_surname", operation = "<"))
 
     val qualityRuleGt_Mt = defaultQR.copy(name = "must start with a letter after L but before N", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 4
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
       outputOptions,
@@ -215,13 +280,26 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     result should not be empty
 
-    result.head.numDiscardedEvents shouldEqual 2
-    result.head.numPassedEvents shouldEqual 3
-    result.head.numTotalEvents shouldEqual 5
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
     result.head.satisfied shouldEqual true
   }
 
   it should "execute correctly the InOperation (case insensitive)" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
 
     val primaryColours = Seq("red","yellow", "blue")
     val seqQualityRules = Seq(
@@ -229,145 +307,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     val qualityRuleLike = defaultQR.copy(name = "only primary", predicates = seqQualityRules)
 
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleLike),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 2
-    result.head.numPassedEvents shouldEqual 3
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual true
-  }
-
-  it should "execute correctly the isNullOperation (case insensitive)" in {
-
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "stock", operation = "IS null"))
-
-    val qualityRuleIsNull = defaultQR.copy(name = "must be null", predicates = seqQualityRules)
-
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNull),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 2
-    result.head.numPassedEvents shouldEqual 3
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual true
-  }
-
-  it should "execute correctly the isDateOperation (case insensitive)" in {
-
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "launchDate", operation = "is DAte"))
-
-    val qualityRuleIsNull = defaultQR.copy(name = "must be a date", predicates = seqQualityRules)
-
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNull),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 0
-    result.head.numPassedEvents shouldEqual 5
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual true
-  }
-
-  it should "execute correctly the isNotDateOperation (case insensitive)" in {
-
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "publicationDate", operation = "is NOT DaTe"))
-
-    val qualityRuleIsNull = defaultQR.copy(name = "must not be a date", predicates = seqQualityRules)
-
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNull),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 0
-    result.head.numPassedEvents shouldEqual 5
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual true
-  }
-
-  it should "execute correctly the isNotTimestampOperation (case insensitive)" in {
-
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "author_surname", operation = "is NOT TiMeStAMp"))
-
-    val qualityRuleIsNull = defaultQR.copy(name = "must not be a timestamp", predicates = seqQualityRules)
-
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNull),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 0
-    result.head.numPassedEvents shouldEqual 5
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual true
-  }
-
-  it should "execute correctly the isTimestampOperation (case insensitive)" in {
-
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "publicationDate", operation = "is TiMeStAMp"))
-
-    val qualityRuleIsNull = defaultQR.copy(name = "must be a timestamp", predicates = seqQualityRules)
-
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNull),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 0
-    result.head.numPassedEvents shouldEqual 5
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual true
-  }
-
-  it should "execute correctly the LikeOperation (case insensitive)" in {
-
-    val irishPrefix = "M%c%" //Matches Mac, Mc and M*c
-
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq(irishPrefix), field = "author_surname", operation = "lIKe"))
-
-    val qualityRuleLike = defaultQR.copy(name = "gaelic stile", predicates = seqQualityRules)
+    val expectedDiscards: Long = 4
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
       outputOptions,
@@ -379,115 +319,34 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     result should not be empty
 
-    result.head.numDiscardedEvents shouldEqual 2
-    result.head.numPassedEvents shouldEqual 3
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual true
-}
-
-  it should "execute correctly the NotEqualOperation" in {
-
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("fantasy"), field = "section", operation = "<>"))
-
-    val qualityRuleIsNull = defaultQR.copy(name = "must be different than", predicates = seqQualityRules)
-
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNull),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 3
-    result.head.numPassedEvents shouldEqual 2
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual false
-  }
-
-  it should "execute correctly the NotInOperation (case insensitive)" in {
-
-    val nonPrimaryColours = Seq("cyan", "purple")
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = nonPrimaryColours, field = "color", operation = "NOT IN"))
-
-    val qualityRuleLike = defaultQR.copy(name = "only NON-primary", predicates = seqQualityRules)
-
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleLike),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 2
-    result.head.numPassedEvents shouldEqual 3
-    result.head.numTotalEvents shouldEqual 5
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
     result.head.satisfied shouldEqual true
   }
 
-  it should "execute correctly the NotLikeOperation (case insensitive)" in {
+  it should "execute correctly the is empty (case insensitive)" in {
 
-    val irishPrefix = "M%c%" //Matches Mac, Mc and M*c
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
 
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq(irishPrefix), field = "author_surname", operation = "NOT lIKe"))
-
-    val qualityRuleLike = defaultQR.copy(name = "no gaelic stile", predicates = seqQualityRules)
-
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleLike),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 3
-    result.head.numPassedEvents shouldEqual 2
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual false
-  }
-
-  it should "execute correctly the NotNullOperation (case insensitive)" in {
 
     val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "stock", operation = "is NOT null"))
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "author_surname", operation = "is EMPty"))
 
-    val qualityRuleIsNotNull = defaultQR.copy(name = "must not be null", predicates = seqQualityRules)
+    val qualityRuleReg = defaultQR.copy(name = "is empty", predicates = seqQualityRules)
 
-    val result = classTest.get.writeRDDTemplate(dataSet.get,
-      outputOptions,
-      errorManagement,
-      Seq.empty[OutputStep[RDD]],
-      Seq("input1", "transformation1"),
-      Seq(qualityRuleIsNotNull),
-      emptyFunction)
-
-    result should not be empty
-
-    result.head.numDiscardedEvents shouldEqual 3
-    result.head.numPassedEvents shouldEqual 2
-    result.head.numTotalEvents shouldEqual 5
-    result.head.satisfied shouldEqual false
-  }
-
-  it should "execute correctly the RegexOperation (case insensitive)" in {
-
-    val irishPrefixRegex = "^M.*c*"
-
-    val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq(irishPrefixRegex), field = "author_surname", operation = "regEX"))
-
-    val qualityRuleReg = defaultQR.copy(name = "gaelic stile", predicates = seqQualityRules)
+    val expectedDiscards: Long = 6
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
       outputOptions,
@@ -499,18 +358,213 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     result should not be empty
 
-    result.head.numDiscardedEvents shouldEqual 2
-    result.head.numPassedEvents shouldEqual 3
-    result.head.numTotalEvents shouldEqual 5
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual false
+  }
+
+  it should "execute correctly the is NOT empty (case insensitive)" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
+
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "author_surname", operation = "is NOT EMPty"))
+
+    val qualityRuleReg = defaultQR.copy(name = "is NOT empty", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 2
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleReg),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
     result.head.satisfied shouldEqual true
   }
 
-  it should "not round more than 2 decimals" in {
+  it should "execute correctly the isNullOperation (case insensitive)" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
 
     val seqQualityRules = Seq(
-      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("yellow"), field = "color", operation = "NOT lIKe"))
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "stock", operation = "IS null"))
 
-    val qualityRuleLike = defaultQR.copy(name = "no yellow",threshold = percentageThresholdNotToRound, predicates = seqQualityRules)
+    val qualityRuleIsNull = defaultQR.copy(name = "must be null", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 4
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleIsNull),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+  }
+
+  it should "execute correctly the isDateOperation (case insensitive)" in {
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "launchDate", operation = "is DAte"))
+
+    val qualityRuleIsNull = defaultQR.copy(name = "must be a date", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 0
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleIsNull),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+  }
+
+  it should "execute correctly the isNotDateOperation (case insensitive)" in {
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "publicationDate", operation = "is NOT DaTe"))
+
+    val qualityRuleIsNull = defaultQR.copy(name = "must not be a date", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 0
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleIsNull),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+  }
+
+  it should "execute correctly the isNotTimestampOperation (case insensitive)" in {
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "author_surname", operation = "is NOT TiMeStAMp"))
+
+    val qualityRuleIsNull = defaultQR.copy(name = "must not be a timestamp", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 0
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleIsNull),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+  }
+
+  it should "execute correctly the isTimestampOperation (case insensitive)" in {
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "publicationDate", operation = "is TiMeStAMp"))
+
+    val qualityRuleIsNull = defaultQR.copy(name = "must be a timestamp", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 0
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleIsNull),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+  }
+
+  it should "execute correctly the LikeOperation (case insensitive)" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
+
+
+    val irishPrefix = "M%c%" //Matches Mac, Mc and M*c
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq(irishPrefix), field = "author_surname", operation = "lIKe"))
+
+    val qualityRuleLike = defaultQR.copy(name = "gaelic stile", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 4
 
     val result = classTest.get.writeRDDTemplate(dataSet.get,
       outputOptions,
@@ -522,13 +576,259 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     result should not be empty
 
-    result.head.numDiscardedEvents shouldEqual 1
-    result.head.numPassedEvents shouldEqual 4
-    result.head.numTotalEvents shouldEqual 5
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+}
+
+  it should "execute correctly the NotEqualOperation" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("fantasy"), field = "section", operation = "<>"))
+
+    val qualityRuleIsNull = defaultQR.copy(name = "must be different than", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 5
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleIsNull),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual false
+  }
+
+  it should "execute correctly the NotInOperation (case insensitive)" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
+
+    val nonPrimaryColours = Seq("cyan", "purple")
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = nonPrimaryColours, field = "color", operation = "NOT IN"))
+
+    val qualityRuleLike = defaultQR.copy(name = "only NON-primary", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 4
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleLike),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+  }
+
+  it should "execute correctly the NotLikeOperation (case insensitive)" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
+
+    val irishPrefix = "M%c%" //Matches Mac, Mc and M*c
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq(irishPrefix), field = "author_surname", operation = "NOT lIKe"))
+
+    val qualityRuleLike = defaultQR.copy(name = "no gaelic stile", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 3
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleLike),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+  }
+
+  it should "execute correctly the NotNullOperation (case insensitive)" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq.empty[String], field = "stock", operation = "is NOT null"))
+
+    val qualityRuleIsNotNull = defaultQR.copy(name = "must not be null", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 3
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleIsNotNull),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+  }
+
+  it should "execute correctly the RegexOperation (case insensitive)" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
+
+    val irishPrefixRegex = "^M.*c*"
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq(irishPrefixRegex), field = "author_surname", operation = "regEX"))
+
+    val qualityRuleReg = defaultQR.copy(name = "gaelic stile", predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 4
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleReg),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
+    result.head.satisfied shouldEqual true
+  }
+
+  it should "not round more than 2 decimals" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("yellow"), field = "color", operation = "NOT lIKe"))
+
+    val qualityRuleLike = defaultQR.copy(name = "no yellow",threshold = percentageThresholdNotToRound, predicates = seqQualityRules)
+
+    val expectedDiscards: Long = 1
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleLike),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual expectedDiscards
+    result.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result.head.numTotalEvents shouldEqual totalEventsQRDataframe
     result.head.satisfied shouldEqual false
   }
 
   it should "execute correctly a planned complex QR" in {
+
+    /**+--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |author_surname| color|price|stock|section_id|section|     publicationDate|launchDate|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+        |      McNamara|  blue| 15.0| null|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |      McDonald|   red| 11.0|    2|       1.0| sci-fi|2019-03-15 13:30:...|2019-09-29|
+        |     MacCormic|yellow| 13.0| null|      null|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |         Gomez|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |          null|  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |              |  cyan| 12.0|   10|       1.0|fantasy|2019-03-15 13:30:...|2019-09-29|
+        |     Fernandez|purple| 14.0| null|      null| comedy|2019-03-15 13:30:...|2019-09-29|
+        +--------------+------+-----+-----+----------+-------+--------------------+----------+
+      **/
 
     val qualityRuleComplex = defaultQR.copy( name = "must be equal",
       qualityRuleType = Planned,
@@ -549,11 +849,13 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
       Seq(qualityRuleComplex),
       emptyFunction)
 
+    val expectedDiscards: Long = 2
+
     result1 should not be empty
 
-    result1.head.numDiscardedEvents shouldEqual 2
-    result1.head.numPassedEvents shouldEqual 3
-    result1.head.numTotalEvents shouldEqual 5
+    result1.head.numDiscardedEvents shouldEqual expectedDiscards
+    result1.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result1.head.numTotalEvents shouldEqual totalEventsQRDataframe
     result1.head.satisfied shouldEqual true
   }
 
@@ -565,9 +867,7 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     val seqQualityRules = Seq(qr_predicate1, qr_predicate2)
 
-
-    val qualityRule1 = defaultQR.copy(name = "greater 10 less 13.5", predicates = seqQualityRules)
-
+    val expectedDiscards: Long = 2
 
     val qualityRuleComplex = defaultQR.copy( name = "must be equal", qualityRuleType = Planned, predicates = seqQualityRules)
 
@@ -581,9 +881,9 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
     result1 should not be empty
 
-    result1.head.numDiscardedEvents shouldEqual 2
-    result1.head.numPassedEvents shouldEqual 3
-    result1.head.numTotalEvents shouldEqual 5
+    result1.head.numDiscardedEvents shouldEqual expectedDiscards
+    result1.head.numPassedEvents shouldEqual totalEventsQRDataframe - expectedDiscards
+    result1.head.numTotalEvents shouldEqual totalEventsQRDataframe
     result1.head.satisfied shouldEqual true
   }
 
