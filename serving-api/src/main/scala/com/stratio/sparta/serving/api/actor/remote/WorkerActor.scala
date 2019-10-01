@@ -17,8 +17,8 @@ import com.stratio.sparta.serving.api.actor.remote.WorkerActor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.marathon.service.{MarathonService, MarathonUpAndDownComponent}
-import com.stratio.sparta.serving.core.models.RocketModes.RocketMode
-import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.RocketModes.{Remote, RocketMode}
+import com.stratio.sparta.serving.core.models.{RocketModes, SpartaSerializer}
 import com.stratio.sparta.serving.core.utils.AkkaClusterUtils
 import com.typesafe.config.Config
 
@@ -67,7 +67,10 @@ trait WorkerActor extends Actor with SLF4JLogging with SpartaSerializer {
   override def preStart(): Unit = {
     workerPreStart()
     context.system.scheduler.schedule(WorkerTickInitialDelay, WorkerNodeTickInterval, self, StatusTick)
-    context.system.scheduler.schedule(WorkerAutokillTickInitialDelay, WorkerAutokillNodeTickInterval, self, AutokillTick)
+
+    if(RocketModes.retrieveRocketMode != RocketModes.Local)
+      context.system.scheduler.schedule(WorkerAutokillTickInitialDelay, WorkerAutokillNodeTickInterval, self, AutokillTick)
+
     log.info("Worker actor initiated")
   }
 
