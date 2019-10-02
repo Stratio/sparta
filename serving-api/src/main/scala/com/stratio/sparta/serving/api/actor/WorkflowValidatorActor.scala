@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.Props
 import akka.pattern.ask
-import com.stratio.sparta.core.models.WorkflowValidationMessage
+import com.stratio.sparta.core.models.{WorkflowValidationMessage, WorkflowValidationReply}
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor._
@@ -134,6 +134,7 @@ object WorkflowValidatorActor {
                                                )
 
   case class WorkflowValidationResponse(valid: Boolean, messages: Seq[WorkflowValidationMessage])
+    extends WorkflowValidationReply(valid, messages)
 
   def props: Props = Props[WorkflowValidatorActor]
 

@@ -5,4 +5,4 @@
  */
 package com.stratio.sparta.core.models
 
-case class ErrorValidations(valid: Boolean, messages: Seq[WorkflowValidationMessage]) extends WorkflowValidationReply(valid, messages)
+abstract class WorkflowValidationReply(valid: Boolean, messages: Seq[WorkflowValidationMessage]) extends Serializable

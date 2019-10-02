@@ -11,6 +11,7 @@ import java.util.UUID
 import javax.ws.rs.Path
 
 import akka.pattern.ask
+import com.stratio.sparta.core.models.WorkflowValidationReply
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -27,7 +28,7 @@ import spray.routing._
 import com.stratio.sparta.serving.api.constants.HttpConstant._
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 @Api(value = HttpConstant.WorkflowsPath, description = "Operations over workflows")
 trait WorkflowHttpService extends BaseHttpService {
@@ -410,7 +411,7 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? ValidateWorkflow(workflow, user))
-                  .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
+                  .mapTo[Either[Try[WorkflowValidationReply], UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
             }
           }
@@ -440,7 +441,7 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? ValidateWorkflowSteps(workflow, user))
-                  .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
+                  .mapTo[Either[Try[WorkflowValidationReply], UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
             }
           }
@@ -469,7 +470,7 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? ValidateWorkflowIdWithExContext(workflowIdExecutionContext, user))
-                  .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
+                  .mapTo[Either[Try[WorkflowValidationReply], UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
             }
           }
@@ -499,7 +500,7 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? ValidateWorkflowWithoutExContext(workflow, user))
-                  .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
+                  .mapTo[Either[Try[WorkflowValidationReply], UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
             }
           }

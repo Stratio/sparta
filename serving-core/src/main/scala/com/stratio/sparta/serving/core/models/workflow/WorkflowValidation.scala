@@ -7,14 +7,14 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.core.models.WorkflowValidationMessage
+import com.stratio.sparta.core.models.{WorkflowValidationMessage, WorkflowValidationReply}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
 import com.stratio.sparta.serving.core.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper.HasError
-import com.stratio.sparta.serving.core.helpers.{ErrorValidationsHelper, JarsHelper, WorkflowHelper}
+import com.stratio.sparta.serving.core.helpers.{ErrorValidationsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.DeployMode
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
@@ -23,24 +23,19 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.
 import com.stratio.sparta.serving.core.services.dao.WorkflowPostgresDao
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.dstream.DStream
-
-import scala.concurrent.{Await, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-
-import scala.util.Try
 import scalax.collection.Graph
 import scalax.collection.GraphTraversal.Visitor
 import scalax.collection.edge.LDiEdge
 
+import scala.util.Try
+
 case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMessage])
-  extends DistributedMonadImplicits with ContextBuilderImplicits {
+  extends WorkflowValidationReply(valid, messages) with DistributedMonadImplicits with ContextBuilderImplicits {
 
   def this(valid: Boolean) = this(valid, messages = Seq.empty[WorkflowValidationMessage])
 
-  def this() = this(valid = true)
+  def this() = this(valid = true, messages = Seq.empty[WorkflowValidationMessage])
 
   val InputMessage = "input"
   val OutputMessage = "output"

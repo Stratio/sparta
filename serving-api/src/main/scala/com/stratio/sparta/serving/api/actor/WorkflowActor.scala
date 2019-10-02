@@ -381,8 +381,6 @@ object WorkflowActor extends SLF4JLogging {
 
   type ResponseWorkflow = Try[Workflow]
 
-  type ResponseWorkflowValidation = Try[WorkflowValidation]
-
   type ResponseRunWithExecutionContextView = Try[RunWithExecutionContextView]
 
 }
