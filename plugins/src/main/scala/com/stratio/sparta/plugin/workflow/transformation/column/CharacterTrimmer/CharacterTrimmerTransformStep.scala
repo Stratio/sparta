@@ -71,15 +71,6 @@ abstract class CharacterTrimmerTransformStep[Underlying[Row]](
     ErrorValidationsHelper.validate(validationSeq, name)
   }
 
-  def finalStringTrimedLeft(string: String,charsToTrim: String): String = {
-    ("^" + Pattern.quote(charsToTrim)).r.replaceAllIn(string, "")
-  }
-
-  def finalStringTrimedRight(string: String,charsToTrim: String): String = {
-
-    Pattern.quote(charsToTrim).r.replaceAllIn(string, "") + "$"
-  }
-
 
   def applyTrim(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType], Option[StructType]) = {
     Try {
