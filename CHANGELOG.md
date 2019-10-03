@@ -2,7 +2,7 @@
 
 ## 2.11.0 (upcoming)
 Improvements and new features:
-    - @TODO
+    - [ROCK-742] Update ML Models repository client
     - @TODO
 
 
