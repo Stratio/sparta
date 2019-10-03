@@ -53,7 +53,7 @@ class CharacterTrimmerTransformStepStreamingIT extends TemporalSparkContext with
       ).map(_.asInstanceOf[Row])
 
     val dataOut = Seq(
-      new GenericRowWithSchema(Array("aae", "whitespace "), outputSchema),
+      new GenericRowWithSchema(Array("aae", " whitespace "), outputSchema),
       new GenericRowWithSchema(Array("ooe", "whitespace"), outputSchema)
     )
 
@@ -186,8 +186,8 @@ class CharacterTrimmerTransformStepStreamingIT extends TemporalSparkContext with
       ).map(_.asInstanceOf[Row])
 
     val dataOut = Seq(
-      new GenericRowWithSchema(Array("aa", "whitespace"), outputSchema),
-      new GenericRowWithSchema(Array("oo", "whitespace"), outputSchema)
+      new GenericRowWithSchema(Array("aa", "whitespace "), outputSchema),
+      new GenericRowWithSchema(Array("oo", "  whitespace"), outputSchema)
     )
 
     dataQueue += sc.parallelize(dataIn)

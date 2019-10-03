@@ -7,6 +7,7 @@
 package com.stratio.sparta.plugin.workflow.transformation.column.CharacterTrimmer
 
 import java.io.{Serializable => JSerializable}
+import java.util.regex.Pattern
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
@@ -70,6 +71,7 @@ abstract class CharacterTrimmerTransformStep[Underlying[Row]](
     ErrorValidationsHelper.validate(validationSeq, name)
   }
 
+
   def applyTrim(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType], Option[StructType]) = {
     Try {
       val inputSchema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
@@ -79,23 +81,23 @@ abstract class CharacterTrimmerTransformStep[Underlying[Row]](
 
           val newDataFrame = columnsToOperate.foldLeft(df)({
             case (df2, columnToOperate: CharacterTrimmerModel) =>
-              val regexLeft = s"^${columnToOperate.characterToTrim}+"
-              val regexRight   = s"${columnToOperate.characterToTrim}+$$"
+
               columnToOperate.trimType match {
                 case TrimType.TRIM_LEFT =>
                   df2.withColumn(
                     columnToOperate.name,
-                    regexp_replace(col(columnToOperate.name), regexLeft, "")
-                  )
+                    regexp_replace(col(columnToOperate.name), "^" + Pattern.quote(columnToOperate.characterToTrim), "")
+                    )
                 case TrimType.TRIM_RIGHT =>
                   df2.withColumn(
                     columnToOperate.name,
-                    regexp_replace(col(columnToOperate.name), regexRight, "")
+                    regexp_replace(col(columnToOperate.name),  Pattern.quote(columnToOperate.characterToTrim) + "$", "")
                   )
                 case TrimType.TRIM_BOTH =>
                 df2.withColumn(
                   columnToOperate.name,
-                  regexp_replace(regexp_replace(col(columnToOperate.name), regexRight, ""), regexLeft, "")
+                  regexp_replace(regexp_replace(col(columnToOperate.name), "^" + Pattern.quote(columnToOperate.characterToTrim), ""),
+                    Pattern.quote(columnToOperate.characterToTrim) + "$", "")
                 )
                 case _ => df2
               }
