@@ -12,6 +12,7 @@ import akka.routing.RoundRobinPool
 import akka.util.Timeout
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport, HeadersAuthSupport}
+import com.stratio.sparta.serving.api.http.directives.JwtAuthSupport
 import com.stratio.sparta.serving.api.oauth.OauthClient
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
@@ -25,13 +26,21 @@ import spray.http.StatusCodes._
 import spray.httpx.encoding.Gzip
 import spray.routing._
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.Try
 
-class ControllerActor()
-  extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient with HeadersAuthSupport {
+class ControllerActor() extends HttpServiceActor
+  with SLF4JLogging
+  with CorsSupport
+  with CacheSupport
+  with OauthClient
+  with HeadersAuthSupport
+  with JwtAuthSupport {
 
   override implicit def actorRefFactory: ActorContext = context
+
+  override implicit val executor: ExecutionContext = context.dispatcher
 
   override def supervisorStrategy: SupervisorStrategy = AllForOneStrategy(){
     case _ => Restart
@@ -105,6 +114,7 @@ class ControllerActor()
   private val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config()
   private val oauthEnabled: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   private val headersAuthEnabled: Boolean = headersAuthConfig.exists(_.enabled)
+  private val headersJwtAuthEnabled: Boolean = SpartaConfig.getJwtConfig().get.getBoolean("enabled")
 
   private lazy val logRequestEnabled: Boolean =
     Try(SpartaConfig.getApiConfig())
@@ -112,8 +122,8 @@ class ControllerActor()
       .exists(_.getBoolean("log-request"))
 
   require(
-    !oauthEnabled || !headersAuthEnabled,
-    "Authentication cannot be enabled to multiple options: oauth and headers"
+    !oauthEnabled || !headersAuthEnabled || !headersJwtAuthEnabled,
+    "Authentication cannot be enabled to multiple options: oauth, headers, jwt"
   )
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
@@ -139,6 +149,8 @@ class ControllerActor()
       secured (_ => webRoutes)
     } else if (headersAuthEnabled) {
       authorizeHeaders(_ => webRoutes)
+    } else if (headersJwtAuthEnabled) {
+      authorizeJwtHeaders(_ => webRoutes)
     } else {
       webRoutes
     }
@@ -200,6 +212,7 @@ class ControllerActor()
           }
         } ~ getFromResourceDirectory("web")
     }
+
 }
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {

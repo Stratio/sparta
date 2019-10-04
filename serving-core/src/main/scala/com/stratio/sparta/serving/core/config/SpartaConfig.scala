@@ -40,6 +40,7 @@ object SpartaConfig extends SLF4JLogging {
   private var debugConfig: Option[Config] = None
   private var validatorConfig: Option[Config] = None
   private var catalogConfig: Option[Config] = None
+  private var jwtConfig: Option[Config] = None
 
   def getSpartaConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initMainConfig(fromConfig)
@@ -139,10 +140,20 @@ object SpartaConfig extends SLF4JLogging {
     if(force) initValidatorConfig(fromConfig)
     else catalogConfig.orElse(initCatalogConfig(fromConfig))
 
+  def getJwtConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
+    if(force) initJwtConfig(fromConfig)
+    else catalogConfig.orElse(initJwtConfig(fromConfig))
+
   def daemonicAkkaConfig: Config = mainConfig match {
     case Some(mainSpartaConfig) =>
       mainSpartaConfig.withFallback(ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on")))
     case None => ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on"))
+  }
+
+  private[config] def initJwtConfig(fromConfig: Option[Config] = None): Option[Config] = {
+    val configFactory = SpartaConfigFactory(fromConfig)
+    jwtConfig = initConfig(ConfigJwt, configFactory)
+    jwtConfig
   }
 
 

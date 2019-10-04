@@ -128,6 +128,7 @@ This software – including all its source code – contains proprietary informa
         <slick.version>3.3.1</slick.version>
         <junit.version>4.12</junit.version>
         <ignite.version>2.6.0</ignite.version>
+        <com.pauldijou.jwt-core.version>4.0.0</com.pauldijou.jwt-core.version>
         <license.header>LICENSE.txt</license.header>
         <mlmodelrep.version>1.6.0-e285083</mlmodelrep.version>
         <olthu.version>1.0.1</olthu.version>

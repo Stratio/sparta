@@ -8,7 +8,6 @@ package com.stratio.sparta.serving.api.headers
 
 import com.stratio.sparta.serving.core.config.{AuthViaHeadersConfig, SpartaConfig}
 import com.stratio.sparta.serving.core.models.authorization.HeaderAuthUser
-import spray.http.StatusCodes.Unauthorized
 import spray.http._
 import spray.routing._
 
@@ -30,9 +29,12 @@ trait HeadersAuthSupport {
     } yield HeaderAuthUser(user, group)
   }
 
-  val authorizeHeaders: Directive1[HeaderAuthUser] = extractHeaders.flatMap{ headersInfo =>
-    headersInfo.map(hinfo => provide(hinfo)).getOrElse(complete(HeadersAuthSupport.UnauthorizedTemplate))
-  }
+  val authorizeHeaders: Directive1[HeaderAuthUser] =
+    extractHeaders.flatMap { headersInfo =>
+      headersInfo.map(hinfo =>
+        provide(hinfo)
+      ).getOrElse(complete(HeadersAuthSupport.UnauthorizedTemplate))
+    }
 
   private def optionalValue(header: String): PartialFunction[HttpHeader, String] = {
     case HttpHeader(`header`, value) ⇒ value
