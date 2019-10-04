@@ -1,4 +1,3 @@
-
 About [Stratio Sparta](http://www.stratio.com/a-data-centric-product/)
 ============
 

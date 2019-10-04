@@ -126,6 +126,13 @@ class WorkflowPostgresDao extends WorkflowDao {
           s"Workflow with name ${workflow.name}," +
             s" version ${workflow.version} and group ${workflow.group.name} exists." +
             s" The created workflow has id ${workflow.id.get}")
+
+      workflowUpdate.ciCdLabel.find(_ == "Released").map(_ =>{
+        throw new ServerException(
+          s"Workflow with name ${workflow.name}," +
+            s" ciCdLabel ${workflow.ciCdLabel} is 'Released' and it isn't editable")
+      })
+
       val workflowWithFields = addSpartaVersion(addParametersUsed(addUpdateDate(workflow.copy(groupId = workflow.group.id.orElse(workflow.groupId)))))
       upsert(workflowWithFields)
       workflowWithFields

@@ -30,7 +30,8 @@ case class Workflow(
                      versionSparta: Option[String] = None,
                      parametersUsedInExecution: Option[Map[String, String]] = None,
                      executionId: Option[String] = None,
-                     groupId: Option[String] = None
+                     groupId: Option[String] = None,
+                     ciCdLabel: Option[String] = None
                    ) extends EntityAuthorization {
 
   def authorizationId: String = s"${group.name}/$name"
@@ -50,7 +51,8 @@ case class WorkflowDto(
                         version: Long,
                         group: String,
                         tags: Option[Seq[String]] = None,
-                        parametersUsedInExecution: Option[Map[String, String]] = None
+                        parametersUsedInExecution: Option[Map[String, String]] = None,
+                        ciCdLabel: Option[String] = None
                       ) extends Dto with EntityAuthorization {
 
   def authorizationId: String = s"$group/$name"

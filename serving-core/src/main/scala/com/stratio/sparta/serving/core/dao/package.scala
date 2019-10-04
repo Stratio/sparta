@@ -114,8 +114,10 @@ package object daoTables {
 
     def groupId = column[Option[String]]("group_id")
 
+    def ciCdLabel = column[Option[String]]("ci_cd_label")
+
     def * = (id.?, name, description, settings, pipelineGraph, executionEngine, uiSettings, creationDate, lastUpdateDate,
-      version, group, tags, debugMode, versionSparta, parametersUsedInExecution, executionId, groupId) <> ((Workflow.apply _).tupled, Workflow.unapply _)
+      version, group, tags, debugMode, versionSparta, parametersUsedInExecution, executionId, groupId, ciCdLabel) <> ((Workflow.apply _).tupled, Workflow.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
 

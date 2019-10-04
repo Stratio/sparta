@@ -20,7 +20,8 @@ object DtoModelImplicits {
       version = workflow.version,
       group = workflow.group.name,
       tags = workflow.tags,
-      parametersUsedInExecution = workflow.parametersUsedInExecution
+      parametersUsedInExecution = workflow.parametersUsedInExecution,
+      ciCdLabel = workflow.ciCdLabel
     )
 
   implicit def globalSettingsToDto(globalSettings: GlobalSettings): GlobalSettingsDto =
