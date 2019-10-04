@@ -11,6 +11,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.workflow.input.avro.AvroInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.sql.SQLInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.csv.CsvInputStepBatch
+import com.stratio.sparta.plugin.workflow.input.xls.XlsInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.filesystem.FileSystemInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.json.JsonInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.parquet.ParquetInputStepBatch
@@ -48,6 +49,9 @@ abstract class DummyDebugInputStep[Underlying[Row]](
       }.initWithSchema()
       case Some(CSV) => new CsvInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
         override lazy val path: Option[String] = parsedPath
+      }.initWithSchema()
+      case Some(XLS) => new XlsInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
+        override lazy val location: Option[String] = parsedPath
       }.initWithSchema()
       case Some(PARQUET) => new ParquetInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
         override lazy val path: Option[String] = parsedPath

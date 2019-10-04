@@ -32,6 +32,7 @@ import runWorkflowTemplate from './outputs/runWorkflow.json';
 import sftpTemplate from './outputs/sftp.json';
 import textTemplate from './outputs/text.json';
 import xmlTemplate from './outputs/xml.json';
+import xlsTemplate from './outputs/xls.json';
 
 
 export const outputs = [
@@ -60,6 +61,7 @@ export const outputs = [
     runWorkflowTemplate,
     sftpTemplate,
     textTemplate,
+    xlsTemplate,
     xmlTemplate
 ];
 

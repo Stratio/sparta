@@ -61,6 +61,7 @@ export const icons: any = {
     DropNulls: '\ue084',
     QueryBuilder: '\uE932',
     Xml: '\ue969',
+    Xls: '\ue103',
     Rest: '\ue650',
     SFTP: '\uE97E',
     Pivot: '\uE9cb',

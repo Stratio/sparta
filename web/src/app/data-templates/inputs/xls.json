@@ -1,0 +1,108 @@
+  {
+     "name": "Xls",
+     "icon": "Xls",
+     "className": "XlsInputStep",
+     "classPrettyName": "Xls",
+     "arity": ["NullaryToNary"],
+     "supportedEngines": ["Batch"],
+     "supportedDataRelations": ["ValidData"],
+     "description": "Allows you to load data from Xls files",
+     "properties": [
+
+       {
+         "propertyId": "location",
+         "propertyName": "_LOCATION_",
+         "propertyType": "text",
+         "tooltip": "Path to an Xls file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
+         "required": true,
+         "qa": "fragment-details-xls-location"
+       },
+       {
+         "propertyId": "sheetName",
+         "propertyName": "_SHEET_NAME_",
+         "propertyType": "text",
+         "tooltip": "Location of file",
+         "required": false,
+         "qa": "fragment-details-xls-sheet-name"
+       },
+       {
+         "propertyId": "dataRange",
+         "propertyName": "_DATA_RANGE_",
+         "propertyType": "text",
+         "tooltip": "Location of data to write",
+         "default": "A1",
+         "required": true,
+         "qa": "fragment-details-xls-data-address"
+       },
+        {
+           "propertyId": "useHeader",
+           "propertyName": "_HEADER_",
+           "propertyType": "boolean",
+           "required": true,
+           "default": false,
+           "tooltip": "If checked, the first row must contain the header which will be used later to construct the data schema.",
+           "qa": "workflow-transformation-xls-header"
+        },
+       {
+         "propertyId": "treatEmptyValuesAsNulls",
+         "propertyName": "_TREAT_EMPTY_VALUES_AS_NULLS_",
+         "propertyType": "boolean",
+         "tooltip": "Treat nulls as empty value",
+         "default": true,
+         "required": false,
+         "qa": "fragment-details-xls-treat-nulls"
+       },
+       {
+         "propertyId": "inferSchema",
+         "propertyName": "_INFER_SCHEMA_",
+         "propertyType": "boolean",
+         "tooltip": "Infer type of fields",
+         "default": false,
+         "required": false,
+         "qa": "fragment-details-xls-infer-schema"
+       },
+       {
+         "propertyId": "dateFormat",
+         "propertyName": "_DATE_FORMAT_",
+         "propertyType": "text",
+         "tooltip": "Treat nulls as empty value",
+         "default": "dd-mm-yyyy",
+         "required": false,
+         "qa": "fragment-details-xls-date-format"
+       },
+       {
+         "propertyId": "timestampFormat",
+         "propertyName": "_TIMESTAMP_",
+         "propertyType": "text",
+         "tooltip": "Treat nulls as empty value",
+         "default": "dd-mm-yyyy hh:mm:ss.000",
+         "required": false,
+         "qa": "fragment-details-xls-timestamp"
+       },
+        {
+           "propertyId": "inputOptions",
+           "propertyName": "_OPTION_PROPERTIES_",
+           "propertyType": "list",
+           "required": false,
+           "qa": "custom-input-properties",
+           "fields": [
+              {
+                 "propertyId": "inputOptionsKey",
+                 "propertyName": "_OPTION_KEY_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-key"
+              },
+              {
+                 "propertyId": "inputOptionsValue",
+                 "propertyName": "_OPTION_VALUE_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-value"
+              }
+           ]
+        }
+     ]
+  }

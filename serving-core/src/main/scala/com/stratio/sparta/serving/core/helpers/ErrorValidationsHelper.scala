@@ -40,7 +40,5 @@ object ErrorValidationsHelper {
     }
   }
 
-  //scalastyle:on
-
 
 }
