@@ -135,7 +135,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitMemoryFractionConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
         sparkMemoryFraction.notBlank,
       SubmitExecutorDockerImageConf -> Properties.envOrNone("SPARK_EXECUTOR_BASE_IMAGE").notBlank
-        .orElse(Option("qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.5.0-84c385f")),
+        .orElse(Option("qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.5.1-6bc6f53")),
       SubmitExecutorDockerVolumeConf -> Option("/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
         "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +
         "/etc/pki/ca-trust/extracted/java/cacerts/:" +

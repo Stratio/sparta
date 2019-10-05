@@ -16,8 +16,8 @@ import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.SdkSchemaHelper.discardExtension
 import com.stratio.sparta.core.helpers.{AggregationTimeHelper, SdkSchemaHelper}
-import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, SpartaQualityRule, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step._
@@ -109,7 +109,6 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
   /**
     * *
-    *
     * @param inOutNodes sequence of input and output names cointained in the workflow
     * @return a Map(stepName -> Map(xdLineageKey -> xdLineageValue)) for every input and output with a non-empty
     *         lineage property map. The values contained in this map will be used to built the step metadataPath.
@@ -136,7 +135,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     *         by catalog tableNames. First, all the outputs and its lineage maps are filtered out. Then,
     *         for the remaining steps the second filtering is applied.
     *
-    *         `xDStepsWithFilteredMetadataPaths` returns a Seq(stepName, Map(xdLineageKey -> xdLineageValue)).
+    *         `xDOutputPropertiesWithMetadataPath` returns a Seq(stepName, Map(xdLineageKey -> xdLineageValue)).
     *         Every outputName will appear as many times as predecessor it has. The XD metadataPath builder
     *         "getLineageTable" is called for each outputName occurrence
     *         using the tablename parameter and is stored in a Seq(metadataPath).
@@ -148,10 +147,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
       val xdLineageOutProps = getXDOutStepsLineageProps(xdOutNodesWithWriter)
-      val xDOutputPropertiesWithMetadataPath = xdOutNodesWithWriter.map { case (stepName, tableName, _) =>
-        val newXDProps = xdLineageOutProps.getOrElse(stepName, Map.empty[String, Seq[String]])
+      val  xDOutputPropertiesWithMetadataPath = xdOutNodesWithWriter.map { case (stepName, tableName, _) =>
 
-        newXDProps.map { case prop@(k, v) =>
+        val newXDProps = xdLineageOutProps.getOrElse(stepName, Map.empty[String,Seq[String]]).map{case prop@(k, v) =>
           if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
             ProvidedMetadatapathKey -> Seq(getXDSession().fold(EmptyMetadataPath)(_.getLineageTable(tableName)))
           else
@@ -165,7 +163,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         val newXDProps = xdProps.map { case prop@(k, v) =>
           if (k.equals(ProvidedMetadatapathKey))
             ProvidedMetadatapathKey ->
-              v.filterNot { path => steps.map(step => path.endsWith(step.name + ":")).fold(false)(_ | _) }
+              v.filterNot{ path => steps.map(step => path.endsWith(step.name + ":")).fold(false)(_|_)}
           else
             prop
         }
@@ -196,23 +194,19 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     *         property map. If the map returns an empty value the XD metadataPath builder "getLineageTable"
     *         is called for each outputName occurrence and is stored in a Seq(metadataPath).
     *
-    *
-    * spartaWorkflow.getStepsWithXDOutputNodesAndProperties(
-    *         xdOutNodesWithWriter,
-    *spartaWorkflow.getXDOutStepsLineageProps(xdOutNodesWithWriter))
     */
   def getStepsWithXDOutputNodesAndProperties(xdOutNodesWithWriter: Seq[(String, String, Option[String])])
-  : Seq[Map[String, (String, String)]] = {
+  :Seq[Map[String, (String, String)]] = {
     xdOutNodesWithWriter.map { case (outputName, tableName, predecessorName) =>
-      val xdOutputWithProps = getXDOutStepsLineageProps(xdOutNodesWithWriter).getOrElse(outputName, Map.empty[String, Seq[String]])
+      val xdOutputWithProps = getXDOutStepsLineageProps(xdOutNodesWithWriter).getOrElse(outputName, Map.empty[String,Seq[String]])
 
       xdOutputWithProps.map { case (k, v) =>
-        val metadataPath =
-          if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
-            getXDSession().fold("")(_.getLineageTable(tableName))
-          else
-            ""
-        predecessorName.getOrElse(tableName) -> (outputName, metadataPath)
+          val metadataPath =
+            if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
+              getXDSession().fold("")(_.getLineageTable(tableName))
+            else
+              ""
+          predecessorName.getOrElse(tableName) -> (outputName, metadataPath)
       }
     }
   }
@@ -224,7 +218,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
       workflow.pipelineGraph.nodes
         .filter(node => node.stepType.toLowerCase == OutputStep.StepType || node.stepType.toLowerCase == InputStep.StepType)
-        .map(node => (node, steps.find(_.name == node.name).fold(Map.empty[String, String])(_.lineageProperties())))
+        .map(node => (node, steps.find(_.name == node.name).fold(Map.empty[String,String])(_.lineageProperties())))
     }
   }
 
@@ -370,7 +364,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     * @param workflowContext The Spark Contexts used in the steps creation
     */
   def executeWorkflow(qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule])(implicit workflowContext: WorkflowContext,
-                                                                                           customClasspathClasses: Map[String, String]): Seq[SparkQualityRuleResults] = {
+                      customClasspathClasses: Map[String, String] ) : Seq[SparkQualityRuleResults] = {
 
     import com.stratio.sparta.serving.core.helpers.GraphHelperImplicits._
 

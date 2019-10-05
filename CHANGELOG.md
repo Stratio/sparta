@@ -5,12 +5,12 @@ Improvements and new features:
     - [ROCK-742] Update ML Models repository client
     - @TODO
 
+## 2.10.0 (September 30, 2019)
 
-## 2.10.0 (upcoming)
-Improvements and new features:
-    - [SPARTA-3346] Create Crossdata and SQL input.
-    - @TODO
-
+* Improvements and new features:
+    - Support MultiHDFS
+    - Mutual TLS in Rest input/output/transformation
+    - [SPARTA-3346] Create Crossdata and SQL input
 
 ## 2.9.0 (July 13, 2019)
 
@@ -36,6 +36,7 @@ Improvements and new features:
     - JDBC & Postgres output - Disable caseSensitive by default and retreive default schema
     - [SPARTA-3093] Add user to jdbc connection string if not specified
     - [INTELL-2148] Fix Model repository method to download Spark pipeline models from repository
+    - Added session cache in Crossdata with false by default
 
 ## 2.8.1 (June 04, 2019)
 

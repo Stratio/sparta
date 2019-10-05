@@ -104,7 +104,7 @@ This software – including all its source code – contains proprietary informa
         <scalaj.version>2.4.1</scalaj.version>
         <commons-configuration.version>1.6</commons-configuration.version>
         <apache.spark.version>2.2.0</apache.spark.version>
-        <stratio.spark.version>2.5.0-84c385f</stratio.spark.version>
+        <stratio.spark.version>2.5.1-6bc6f53</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <crossdata.dyplon.legacy.version>0.19.1-e67b2ab</crossdata.dyplon.legacy.version>
         <crossdata.dyplon.facade.version>1.3.0-8eedf02</crossdata.dyplon.facade.version>
@@ -114,7 +114,7 @@ This software – including all its source code – contains proprietary informa
         <dg.commons.version>1.0.0-0c72260</dg.commons.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.17.0-37178fc</crossdata.version>
+        <crossdata.version>2.17.0-eea2a1f</crossdata.version>
         <postgres.version>42.2.5</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>

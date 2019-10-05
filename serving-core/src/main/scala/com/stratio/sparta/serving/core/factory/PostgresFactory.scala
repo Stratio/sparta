@@ -60,7 +60,9 @@ object PostgresFactory extends SLF4JLogging {
       ClasspathHelper.forPackage(packageDao),
       new SubTypesScanner()
     )
-    reflections.getSubTypesOf(classOf[DaoUtils]).filterNot(_.isInterface)
+    reflections.getSubTypesOf(classOf[DaoUtils]).filterNot{ subType =>
+      subType.isInterface || subType.getCanonicalName.contains("migration")
+    }
       .map { daoClazz =>
         val postgresDao = daoClazz.newInstance()
         (daoClazz, postgresDao)
