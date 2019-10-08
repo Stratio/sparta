@@ -50,7 +50,7 @@ class PlannedQualityRuleActor extends Actor
   lazy val uri = Try(SpartaConfig.getGovernanceConfig().get.getString("http.uri"))
     .getOrElse("https://governance.labs.stratio.com/dictionary")
   lazy val getPlannedQREndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.planned.http.get.endpoint"))
-    .getOrElse("v1/quality/quality/searchByModifiedAt?modifiedAtAfter=")
+    .getOrElse("user/quality/v1/quality/v1/quality/quality/searchProactiveByModifiedAt?modifiedAt=")
   lazy val noTenant = Some("NONE")
   lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
   lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))

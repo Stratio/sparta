@@ -46,7 +46,7 @@ class QualityRuleResultSenderActor extends Actor with HttpRequestUtils with Spar
   lazy val uri = Try(SpartaConfig.getGovernanceConfig().get.getString("http.uri"))
     .getOrElse("https://governance.labs.stratio.com/dictionary")
   lazy val postEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.post.endpoint"))
-    .getOrElse("v1/quality/metrics")
+    .getOrElse("user/quality/v1/metrics")
   lazy val governancePushDuration: FiniteDuration = 15 minute
   lazy val noTenant = Some("NONE")
   lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)

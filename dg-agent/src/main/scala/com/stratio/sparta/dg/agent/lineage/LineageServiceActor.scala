@@ -6,7 +6,7 @@
 
 package com.stratio.sparta.dg.agent.lineage
 
-import akka.actor.{Actor, ActorRef, ActorRefFactory, Props}
+import akka.actor.{Actor, ActorRefFactory, Props}
 import akka.cluster.Cluster
 import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.model.headers.RawHeader
@@ -46,9 +46,9 @@ class LineageServiceActor extends Actor
   lazy val uri = Try(SpartaConfig.getGovernanceConfig().get.getString("http.uri"))
     .getOrElse("https://governance.labs.stratio.com/dictionary")
   lazy val postEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("lineage.http.post.endpoint"))
-    .getOrElse("v1/lineage/actor")
+    .getOrElse("user/lineage/v1/actor")
   lazy val getEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("lineage.http.get.endpoint"))
-    .getOrElse("v1/lineage/actor/searchByTransactionId?transactionId=")
+    .getOrElse("user/lineage/v1/actor/searchByTransactionId?transactionId=")
   lazy val actorTypeKey = "SPARTA"
   lazy val noTenant = Some("NONE")
   lazy val current_tenant = AppConstant.EosTenant.orElse(noTenant)
