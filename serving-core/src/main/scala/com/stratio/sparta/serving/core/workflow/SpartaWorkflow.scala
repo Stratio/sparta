@@ -151,7 +151,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
         val newXDProps = xdLineageOutProps.getOrElse(stepName, Map.empty[String,Seq[String]]).map{case prop@(k, v) =>
           if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
-            ProvidedMetadatapathKey -> Seq(getXDSession().fold(EmptyMetadataPath)(_.getLineageTable(tableName)))
+            ProvidedMetadatapathKey -> Seq(getXDSession(userId).fold(EmptyMetadataPath)(_.getLineageTable(tableName)))
           else
             prop
         }
@@ -203,7 +203,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       xdOutputWithProps.map { case (k, v) =>
           val metadataPath =
             if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
-              getXDSession().fold("")(_.getLineageTable(tableName))
+              getXDSession(userId).fold("")(_.getLineageTable(tableName))
             else
               ""
           predecessorName.getOrElse(tableName) -> (outputName, metadataPath)

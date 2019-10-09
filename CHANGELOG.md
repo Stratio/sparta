@@ -10,7 +10,14 @@ Improvements and new features:
 * Improvements and new features:
     - Support MultiHDFS
     - Mutual TLS in Rest input/output/transformation
-    - [SPARTA-3346] Create Crossdata and SQL input
+    - Upgrade to Stratio Spark 2.2.0-2.5.1-6bc6f53
+    - Upgrade to Stratio Crossdata 2.17.0-eea2a1f
+    - Governed XD Collections are now supported
+    - Lineage on Crossdata inputs and outputs
+    
+* Bug fixing:
+    - Logged user is now being passed to XDSession for lineage and QR
+    - Fix Null pointers, ElasticSearch and blank table name
 
 ## 2.9.0 (July 13, 2019)
 

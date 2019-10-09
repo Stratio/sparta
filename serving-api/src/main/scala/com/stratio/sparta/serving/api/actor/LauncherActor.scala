@@ -349,7 +349,7 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
 
     for {
       qualityRules <-
-        if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow)
+        if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow, user.map(_.id))
         else Future.successful(Seq.empty[SpartaQualityRule])
       workflowExecution <- Future { newExecution.copy(qualityRules = qualityRules) }
       result <- executionService.createExecution(workflowExecution)
@@ -408,7 +408,7 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
 
     for {
       launcherExecutionSettings <- Future {newExecution}
-      qualityRules <- if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow)
+      qualityRules <- if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow, user.map(_.id))
       else Future(Seq.empty[SpartaQualityRule])
       workflowExecution <- Future {
         launcherExecutionSettings.copy(qualityRules = qualityRules)
@@ -453,9 +453,9 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
     LauncherExecutionSettings(driverFile, pluginJars, sparkHome, driverArgs, sparkSubmitArgs, sparkConfigurations)
   }
 
-  def retrieveQualityRules(workflow: Workflow): Future[Seq[SpartaQualityRule]] = {
+  def retrieveQualityRules(workflow: Workflow, loggedUser: Option[String]): Future[Seq[SpartaQualityRule]] = {
     if(qualityRulesEnabled)
-      (qualityRuleReceiverActor ? RetrieveQualityRules(workflow)).mapTo[Seq[SpartaQualityRule]]
+      (qualityRuleReceiverActor ? RetrieveQualityRules(workflow, loggedUser)).mapTo[Seq[SpartaQualityRule]]
     else Future.successful(Seq.empty[SpartaQualityRule])
   }
 

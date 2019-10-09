@@ -86,17 +86,17 @@ object LineageUtils extends ContextBuilderImplicits {
       }
   }
 
-  def getAllStepsProperties(workflow: Workflow): Map[String, Map[String, String]] = {
+  def getAllStepsProperties(workflow: Workflow, loggedUser: Option[String]): Map[String, Map[String, String]] = {
     val errorManager = PostgresNotificationManagerImpl(workflow)
     val inOutNodes = workflow.pipelineGraph.nodes.filter(node =>
       node.stepType.toLowerCase == OutputStep.StepType || node.stepType.toLowerCase == InputStep.StepType).map(_.name)
 
     if (workflow.executionEngine == Streaming) {
-      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, userId = loggedUser)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.lineageProperties(inOutNodes)
     } else if (workflow.executionEngine == Batch) {
-      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager, userId = loggedUser)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.lineageProperties(inOutNodes)
     } else Map.empty
@@ -135,10 +135,11 @@ object LineageUtils extends ContextBuilderImplicits {
   def generateLineageEventFromWfExecution(executionStatusChange: WorkflowExecutionStatusChange): Option[LineageWorkflow] = {
     val workflow = executionStatusChange.newExecution.getWorkflowToExecute
     val executionId = executionStatusChange.newExecution.getExecutionId
+    val loggedUser = executionStatusChange.newExecution.genericDataExecution.userId
 
     if (checkIfProcessableWorkflow(executionStatusChange)) {
       val executionProperties = setExecutionProperties(executionStatusChange.newExecution)
-      val lineageProperties = getAllStepsProperties(workflow)
+      val lineageProperties = getAllStepsProperties(workflow, loggedUser)
       val nodesOutGraph = getOutputNodeLineageEntities(workflow)
       val inputNodes = workflow.pipelineGraph.nodes.filter(_.stepType.toLowerCase == InputStep.StepType).map(_.name).toSet
       val inputNodesProperties = lineageProperties.filterKeys(inputNodes).toSeq

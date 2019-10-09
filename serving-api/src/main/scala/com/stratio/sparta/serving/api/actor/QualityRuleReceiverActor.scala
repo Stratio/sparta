@@ -60,14 +60,14 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
   lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))
 
   override def receive: Receive = {
-    case RetrieveQualityRules(workflow) =>
+    case RetrieveQualityRules(workflow, loggedUser) =>
       log.debug(s"Received RetrieveQualityRules($workflow) and LINEAGE_ENABLED is set to $enabled")
       val currentSender = sender()
 
-      val qualityRules = if (enabled)
-          retrieveQualityRules(workflow)
-        else
-          Future(Seq.empty[SpartaQualityRule])
+      val qualityRules: Future[Seq[SpartaQualityRule]] =
+        if (enabled)
+          retrieveQualityRules(workflow, loggedUser)
+        else Future(Seq.empty[SpartaQualityRule])
 
       qualityRules.onComplete {
         case Success(value) =>
@@ -122,14 +122,13 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
     }
   }
 
-  private def retrieveQualityRules(workflow: Workflow): Future[Seq[SpartaQualityRule]] = {
+  private def retrieveQualityRules(workflow: Workflow, loggedUser: Option[String]): Future[Seq[SpartaQualityRule]] = {
     val inputOutputGraphNodes: Seq[(NodeGraph, Map[String, String])] = retrieveInputOutputGraphNodes(workflow)
     val graphOutputPredecessorsWithTableName: Seq[Map[NodeGraph, (NodeGraph, String)]] = getOutputPredecessorsWithTableName(workflow)
     val graphOutputPredecessorsWithTableNameAndProperties: Seq[(String, (String, String, Map[String, String]))] =
       retrieveGraphOutputPredecessorsWithTableNameAndProperties(graphOutputPredecessorsWithTableName, inputOutputGraphNodes)
     val predecessorsMetadataPaths: Seq[Map[String, (String, String)]] =
-      retrievePredecessorsMetadataPaths(graphOutputPredecessorsWithTableNameAndProperties, workflow) ++
-        retrieveXDOutputMetadataPaths(workflow)
+      retrievePredecessorsMetadataPaths(graphOutputPredecessorsWithTableNameAndProperties, workflow)
 
     val resultF: Seq[Future[Seq[SpartaQualityRule]]] = for {
       predecessorsMetadataPath <- predecessorsMetadataPaths
@@ -138,7 +137,7 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
     }
 
     val resultFXD: Seq[Future[Seq[SpartaQualityRule]]] = for {
-      xdPredecessorsMetadataPath <- retrieveXDOutputMetadataPaths(workflow)
+      xdPredecessorsMetadataPath <- retrieveXDOutputMetadataPaths(workflow, loggedUser)
     } yield {
       retrieveQualityRulesFromGovernance(xdPredecessorsMetadataPath, true)
     }
@@ -172,10 +171,7 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
 
 object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSerializer {
 
-  case class RetrieveQualityRules(workflow: Workflow)
-
-  //TODO check if date will be a string after all or change it to the right type
-  case class RetrievePlannedQualityRules(modifiedDate: String = "EPOCH TIME")
+  case class RetrieveQualityRules(workflow: Workflow, loggedUser: Option[String])
 
   val AllowedDataGovernanceOutputs = Seq("Postgres", "Jdbc", "Avro", "Csv", "FileSystem", "Parquet", "Xml", "Json", "Text")
 
@@ -194,19 +190,19 @@ object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSeria
     } else Seq.empty[(NodeGraph, Map[String, String])]
   }
 
-  def retrieveXDOutputMetadataPaths(workflow: Workflow): Seq[Map[String, (String, String)]] = {
+  def retrieveXDOutputMetadataPaths(workflow: Workflow, loggedUser: Option[String]): Seq[Map[String, (String, String)]] = {
     import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
     val errorManager = PostgresNotificationManagerImpl(workflow)
     val outputNodesWithWriter = LineageUtils.getOutputNodeLineageEntities(workflow)
     val xdOutNodesWithWriter = LineageUtils.getXDOutputNodesWithWriter(workflow, outputNodesWithWriter)
 
     if (workflow.executionEngine == Streaming) {
-      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, userId = loggedUser)
 
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.getStepsWithXDOutputNodesAndProperties(xdOutNodesWithWriter)
     } else if (workflow.executionEngine == Batch) {
-      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager, userId = loggedUser)
 
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.getStepsWithXDOutputNodesAndProperties(xdOutNodesWithWriter)
