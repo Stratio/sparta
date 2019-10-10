@@ -1,0 +1,145 @@
+{
+  "name": "Postgres",
+  "icon": "Postgres",
+  "className": "PostgresInputStepBatch",
+  "classPrettyName": "Postgres",
+  "arity": ["NullaryToNary"],
+  "supportedEngines": ["Batch"],
+  "supportedDataRelations": ["ValidData"],
+  "description": "Allows you to load data from Postgres databases.",
+  "properties": [
+    {
+      "propertyId": "url",
+      "propertyName": "_POSTGRES_URL_",
+      "propertyType": "text",
+      "default": "{{{Environment.POSTGRES_URL}}}",
+      "required": true,
+      "tooltip": "Url to connect to one relational database with POSTGRES.",
+      "qa": "fragment-details-postgres-url"
+    },
+    {
+      "propertyId": "selectInput",
+      "propertyName": "_SELECT_INPUT_",
+      "required": true,
+      "propertyType": "select",
+      "default": "TABLE",
+      "values": [
+        {
+          "label": "By SQL expression",
+          "value": "QUERY"
+        },
+        {
+          "label": "By table",
+          "value": "TABLE"
+        }
+      ],
+      "qa": "workflow-transformation-select-input"
+    },
+    {
+      "propertyId": "dbtable",
+      "propertyName": "_TABLE_",
+      "propertyType": "text",
+      "required": false,
+      "visible": [
+        [
+          {
+            "propertyId": "selectInput",
+            "value": "TABLE"
+          }
+        ]
+      ],
+      "tooltip": "Table name to connect to.",
+      "qa": "fragment-details-postgres-table"
+    },
+    {
+      "propertyId": "selectExp",
+      "propertyName": "_QUERY_",
+      "propertyType": "textarea",
+      "contentType": "SQL",
+      "width": 12,
+      "required": false,
+      "visible": [
+        [
+          {
+            "propertyId": "selectInput",
+            "value": "QUERY"
+          }
+        ]
+      ],
+      "tooltip": "Select query for the input step",
+      "qa": "fragment-details-select-expression"
+    },
+    {
+      "propertyId": "isolationLevel",
+      "propertyName": "_ISOLATION_LEVEL_",
+      "propertyType": "select",
+      "values": [
+        {
+          "label": "None",
+          "value": "NONE"
+        },
+        {
+          "label": "Read Uncommitted",
+          "value": "READ_UNCOMMITTED"
+        },
+        {
+          "label": "Read Committed",
+          "value": "READ_COMMITTED"
+        },
+        {
+          "label": "Repeatable Read",
+          "value": "REPEATABLE_READ"
+        },
+        {
+          "label": "Serializable",
+          "value": "SERIALIZABLE"
+        }
+      ],
+      "default": "READ_UNCOMMITTED",
+      "required": true,
+      "tooltip": "Sets the isolation level when persisting data in the database. This feature follows the standard used in POSTGRES transactions.",
+      "qa": "fragment-postgres-isolation-level"
+    },
+    {
+      "propertyId": "tlsEnabled",
+      "propertyName": "_TLS_ENABLE_",
+      "propertyType": "boolean",
+      "tooltip": "Enable TLS protocol in order to connect to a secured POSTGRES database using certificates",
+      "default": false,
+      "qa": "fragment-details-postgres-tls"
+    },
+    {
+      "propertyId": "caseSensitiveEnabled",
+      "propertyName": "_CASE_SENSITIVE_ENABLED_",
+      "propertyType": "boolean",
+      "tooltip": "Sets whether the table name and schema should be case sensitive or not",
+      "default": true,
+      "qa": "fragment-details-postgres-tls"
+    },
+    {
+      "propertyId": "inputOptions",
+      "propertyName": "_OPTION_PROPERTIES_",
+      "propertyType": "list",
+      "required": false,
+      "qa": "custom-input-properties",
+      "fields": [
+        {
+          "propertyId": "inputOptionsKey",
+          "propertyName": "_OPTION_KEY_",
+          "propertyType": "text",
+          "required": false,
+          "width": 4,
+          "qa": "custom-input-properties-key"
+        },
+        {
+          "propertyId": "inputOptionsValue",
+          "propertyName": "_OPTION_VALUE_",
+          "propertyType": "text",
+          "required": false,
+          "width": 4,
+          "qa": "custom-input-properties-value"
+        }
+      ]
+    }
+  ]
+}

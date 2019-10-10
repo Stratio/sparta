@@ -39,6 +39,7 @@ import testStreamingTemplate from './inputs/testStreaming.json';
 import testBatchTemplate from './inputs/testBatch.json';
 import xmlBatchTemplate from './inputs/xml.json';
 import websocketTemplate from './inputs/websocket.json';
+import postgresTemplate from './inputs/postgresInputBatch.json';
 
 
 export const inputs = [
@@ -74,7 +75,8 @@ export const inputs = [
     testStreamingTemplate,
     xlsTemplate,
     xmlBatchTemplate,
-    websocketTemplate
+    websocketTemplate,
+    postgresTemplate
 ];
 
 

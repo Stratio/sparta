@@ -1298,7 +1298,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
 
 
   def quoteTable(tableName: String, connection: => Connection): String =
-    if (tableName.exists(_.isUpper)) {
+    if (tableName.exists(!_.isLower)) {
       "\"" + inferSchema(tableName, connection) +"\".\""+ inferTable(tableName) + "\""
     } else {
       tableName

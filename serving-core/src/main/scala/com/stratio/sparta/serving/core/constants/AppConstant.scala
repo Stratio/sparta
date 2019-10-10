@@ -224,7 +224,8 @@ object AppConstant extends ZookeeperUtils {
     ParameterVariable.create("KAFKA_RETRY_BACKOFF", "1000"),
     ParameterVariable.create("WEBSOCKET_URL", "ws://stream.meetup.com/2/rsvps"),
     ParameterVariable.create("REDIS_HOST", "localhost"),
-    ParameterVariable.create("REDIS_PORT", "6379")
+    ParameterVariable.create("REDIS_PORT", "6379"),
+    ParameterVariable.create("POSTGRES_DRIVER", "org.postgresql.Driver")
   )
   val DefaultEnvironmentParametersMap = ParameterList.parametersToMap(DefaultEnvironmentParameters)
 

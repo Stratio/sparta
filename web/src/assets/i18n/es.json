@@ -533,6 +533,7 @@
   "_POSTGRES_DELIMITER_": "Delimiter character",
   "_POSTGRES_NEW_LINE_SUBSTITUTION_": "Character to new line substitution",
   "_POSTGRES_SAVE_MODE_": "Postgres save mode",
+  "_POSTGRES_URL_": "Postgres url",
   "_DROP_TEMP_TABLE_SUCCESS_" : "Drop temporary table on success",
   "_DROP_TEMP_TABLE_FAILURE_" : "Drop temporary table on failure",
   "_JDBC_SAVE_MODE_": "Jdbc save mode",
