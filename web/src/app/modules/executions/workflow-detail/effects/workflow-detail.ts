@@ -10,7 +10,7 @@ import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Observable, of } from 'rxjs';
 import * as workflowDetailActions from '../actions/workflow-detail';
 import { switchMap, catchError, map } from 'rxjs/operators';
-import { ExecutionService } from 'services/execution.service';
+import { ExecutionService, InitializeWorkflowService } from 'services/execution.service';
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 
 @Injectable()
@@ -21,9 +21,10 @@ export class WorkflowDetailEffect {
     .pipe(ofType(workflowDetailActions.GET_WORKFLOW_DETAIL))
     .pipe(map((action: any) => action.executionId))
     .pipe(switchMap((executionId: string) => this._executionService.getExecutionById(executionId)
-    .pipe(map((execution: any) => new workflowDetailActions.GetWorkflowDetailCompleteAction(execution)
-
-    ))
+    .pipe(map((execution: any) => {
+      execution.genericDataExecution.workflow = this._initializeWorkflowService.getInitializedWorkflow(execution.genericDataExecution.workflow).workflow;
+      return new workflowDetailActions.GetWorkflowDetailCompleteAction(execution);
+    }))
     // .pipe(catchError(error => of(new workflowDetailActions.GetExecutionErrorAction())))
     )
   );
@@ -43,6 +44,7 @@ export class WorkflowDetailEffect {
   constructor(
     private actions$: Actions,
     private _executionService: ExecutionService,
+    private _initializeWorkflowService: InitializeWorkflowService,
     private _executionHelperService: ExecutionHelperService
   ) { }
 

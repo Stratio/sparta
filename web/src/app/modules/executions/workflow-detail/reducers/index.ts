@@ -10,7 +10,7 @@ import * as workflowDetailActions from '../actions/workflow-detail';
 import * as fromRoot from 'reducers';
 import { QualityRule, Edge } from '@app/executions/models';
 
-export interface State extends fromRoot.State{
+export interface State extends fromRoot.State {
   workflowDetail: WorkflowDetail;
 }
 
@@ -90,8 +90,8 @@ export const selectedEdgeState = createSelector(getWorkflowDetailIsLoading, stat
 
 export const filteredQualityRulesState = createSelector(selectedEdgeState, qualityRulesState,
   (selectedEdge, qualityRules) => qualityRules.filter(qualityRule =>
-      qualityRule.transformationStepName === selectedEdge.origin &&
-      qualityRule.outputStepName === selectedEdge.destination) || null
+    qualityRule.transformationStepName === selectedEdge.origin &&
+    qualityRule.outputStepName === selectedEdge.destination) || null
 );
 
 export const getExecution = createSelector(

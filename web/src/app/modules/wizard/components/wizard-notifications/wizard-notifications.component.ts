@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
 import { takeUntil } from 'rxjs/operators';
@@ -17,8 +17,9 @@ import * as wizardActions from './../../actions/wizard';
 
 @Component({
   selector: 'wizard-notifications',
-  styleUrls: ['wizard-notifications.styles.scss'],
-  templateUrl: 'wizard-notifications.template.html'
+  styleUrls: ['wizard-notifications.component.scss'],
+  templateUrl: 'wizard-notifications.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class WizardNotificationsComponent implements OnInit, OnDestroy {
