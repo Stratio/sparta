@@ -20,7 +20,7 @@
         "propertyName": "_SHEET_NAME_",
         "propertyType": "text",
         "tooltip": "Location of file",
-        "required": false,
+        "required": true,
         "qa": "fragment-details-xls-sheet-name"
       },
       {
