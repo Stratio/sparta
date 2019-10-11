@@ -112,15 +112,16 @@ object LineageUtils extends ContextBuilderImplicits {
     *         multiple tables, resulting in multiple metadataPaths.
     */
   def getAllXDStepsProperties(workflow: Workflow,
-                              xdOutNodesWithWriter: Seq[(String, String, Option[String])]): Seq[(String, Map[String, Seq[String]])] = {
+                              xdOutNodesWithWriter: Seq[(String, String, Option[String])],
+                              loggedUser: Option[String]): Seq[(String, Map[String, Seq[String]])] = {
     val errorManager = PostgresNotificationManagerImpl(workflow)
 
     if (workflow.executionEngine == Streaming) {
-      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, userId = loggedUser)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.lineageXDProperties(xdOutNodesWithWriter)
     } else if (workflow.executionEngine == Batch) {
-      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager, userId = loggedUser)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.lineageXDProperties(xdOutNodesWithWriter)
     } else Seq.empty
@@ -181,16 +182,16 @@ object LineageUtils extends ContextBuilderImplicits {
           jobType = mapSparta2GovernanceJobType(workflow.executionEngine),
           statusCode = govStatus,
           version = AppConstant.version,
-          listActorMetaData = listStepsMetadata.toList ++ getAllDataAssetsFromXDSteps(workflow)
+          listActorMetaData = listStepsMetadata.toList ++ getAllDataAssetsFromXDSteps(workflow, loggedUser)
         )
       }
 
     } else None
   }
 
-  private def getAllDataAssetsFromXDSteps(workflow: Workflow): List[ActorMetadata] = {
+  private def getAllDataAssetsFromXDSteps(workflow: Workflow, loggedUser: Option[String]): List[ActorMetadata] = {
     val xdOutNodesWithWriter = getXDOutputNodesWithWriter(workflow, getOutputNodeLineageEntities(workflow))
-    val xdStepsLineageProperties = getAllXDStepsProperties(workflow, xdOutNodesWithWriter)
+    val xdStepsLineageProperties = getAllXDStepsProperties(workflow, xdOutNodesWithWriter, loggedUser)
 
     xdStepsLineageProperties.flatMap { case (step, xdProps) =>
       val metadataPaths = xdProps.getOrElse(ProvidedMetadatapathKey, Seq.empty[String])
