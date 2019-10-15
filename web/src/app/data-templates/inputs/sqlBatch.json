@@ -1,7 +1,7 @@
 {
    "name": "SQL",
    "icon": "SQL",
-   "className": "SQLInputStep",
+   "className": "SQLInputStepBatch",
    "classPrettyName": "SQL",
    "arity": ["NullaryToNary"],
    "crossdataCatalog": true,

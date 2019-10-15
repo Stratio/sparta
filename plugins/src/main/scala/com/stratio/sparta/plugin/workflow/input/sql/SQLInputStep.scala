@@ -20,7 +20,7 @@ import org.apache.spark.streaming.StreamingContext
 import scala.util.{Failure, Success, Try}
 
 
-abstract class SQLInput[Underlying[Row]](
+abstract class SQLInputStep[Underlying[Row]](
                                           name: String,
                                           outputOptions: OutputOptions,
                                           ssc: Option[StreamingContext],

@@ -25,7 +25,7 @@ class SQLInputStepBatch(
                          xDSession: XDSession,
                          properties: Map[String, JSerializable]
                        )
-  extends SQLInput[RDD](name, outputOptions, ssc, xDSession, properties)
+  extends SQLInputStep[RDD](name, outputOptions, ssc, xDSession, properties)
     with CrossdataLineage
     with SLF4JLogging {
 

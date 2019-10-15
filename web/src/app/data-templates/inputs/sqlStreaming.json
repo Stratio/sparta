@@ -1,7 +1,7 @@
   {
     "name": "StreamingSQL",
     "icon": "SQL",
-    "className": "SQLInputStep",
+    "className": "SQLInputStepStreaming",
     "classPrettyName": "StreamingSQL",
     "crossdataCatalog": true,
     "arity": ["NullaryToNary"],

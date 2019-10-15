@@ -42,7 +42,7 @@ class SQLInputStepStreaming(
                              xDSession: XDSession,
                              properties: Map[String, JSerializable]
                            )
-  extends SQLInput[DStream](name, outputOptions, ssc, xDSession, properties)
+  extends SQLInputStep[DStream](name, outputOptions, ssc, xDSession, properties)
     with CrossdataLineage
     with SLF4JLogging
     with OneTransactionOffsetManager {

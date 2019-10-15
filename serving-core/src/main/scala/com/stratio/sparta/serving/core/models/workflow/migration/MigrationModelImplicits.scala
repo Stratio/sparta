@@ -36,7 +36,7 @@ object MigrationModelImplicits {
 
   implicit def hydraPipelineGraphToR9(pipelineGraph: PipelineGraphHydraPegaso): PipelineGraph = {
     val outputsWriters = pipelineGraph.edges.filter { edge =>
-      pipelineGraph.nodes.exists(node => node.name == edge.destination && node.stepType == OutputStep.StepType)
+      pipelineGraph.nodes.exists(node => node.name == edge.destination && node.stepType.equalsIgnoreCase(OutputStep.StepType))
     }.flatMap { edge =>
       pipelineGraph.nodes.find(node => node.name == edge.origin).map { node =>
         (node.name, OutputWriter(
