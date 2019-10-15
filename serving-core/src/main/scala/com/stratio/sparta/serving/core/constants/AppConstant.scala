@@ -204,6 +204,8 @@ object AppConstant extends ZookeeperUtils {
     ParameterVariable.create("JDBC_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
     ParameterVariable.create("JDBC_DRIVER", "org.postgresql.Driver"),
     ParameterVariable.create("POSTGRES_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
+    ParameterVariable.create("IGNITE_URL", "jdbc:ignite:thin://localhost:10800"),
+    ParameterVariable.create("IGNITE_DRIVER", "org.apache.ignite.IgniteJdbcThinDriver"),
     ParameterVariable.create("MONGODB_DB", "sparta"),
     ParameterVariable.create("MONGODB_HOST", "localhost"),
     ParameterVariable.create("MONGODB_PORT", "27017"),

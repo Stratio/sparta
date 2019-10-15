@@ -219,7 +219,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
           SpartaJdbcUtils.truncateTable(connectionProperties, name)
 
         synchronized {
-          SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
+          SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name, primaryKey = Seq.empty, Map("FLOAT8" -> "DOUBLE PRECISION"))
         }
       } match {
         case Success((tableExists, isNewTable)) =>

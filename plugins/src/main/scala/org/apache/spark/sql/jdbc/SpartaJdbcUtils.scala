@@ -16,9 +16,12 @@ import com.stratio.sparta.plugin.enumerations.TransactionTypes.TxType
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils._
 import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcUtils}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.{AnalysisException, DataFrame, Row}
+import slick.lifted.PrimaryKey
+import spire.math.Empty
 
 import scala.util.control.NonFatal
+import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 case class TxSaveMode(txType: TxType, failFast: Boolean)
@@ -43,12 +46,12 @@ object SpartaJdbcUtils extends SLF4JLogging {
     * Returns  tuple of  (exists table, was created in this method)
     */
 
-  def tableExists(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String): (Boolean, Boolean) = {
+  def tableExists(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String, primaryKey: Seq[String] = Seq.empty[String], replacements: Map[String, String] = Map.empty[String,String]): (Boolean, Boolean) = {
     synchronized {
       val conn = getConnection(connectionProperties, outputName)
       val exists = spartaTableExists(conn, connectionProperties)
       if (exists) (true, false)
-      else createTable(connectionProperties, dataFrame, outputName)
+      else createTable(connectionProperties, dataFrame, outputName, primaryKey, replacements)
     }
   }
 
@@ -121,30 +124,40 @@ object SpartaJdbcUtils extends SLF4JLogging {
       conn.setAutoCommit(true)
       val statement = conn.createStatement
       val tableToTruncate = tableName.getOrElse(connectionProperties.table)
+      val query = {
+        if(connectionProperties.driverClass.contains("ignite") || connectionProperties.url.contains("ignite")) "DELETE FROM"
+        else "TRUNCATE TABLE" }
 
-      if (spartaTableExists(conn, connectionProperties)) {
-        Try(statement.executeUpdate(s"TRUNCATE TABLE $tableToTruncate")) match {
-          case Success(_) =>
-            log.debug(s"Table $tableToTruncate has been properly truncated")
-            statement.close()
-          case Failure(e) =>
-            statement.close()
-            log.error(s"Error truncating table $tableToTruncate ${e.getLocalizedMessage} and output $outputName", e)
-            throw e
-        }
+      Try(statement.executeUpdate(s"$query $tableToTruncate")) match {
+        case Success(_) =>
+          log.debug(s"Table $tableToTruncate has been properly truncated")
+          statement.close()
+        case Failure(e) =>
+          statement.close()
+          log.error(s"Error truncating table $tableToTruncate ${e.getLocalizedMessage} and output $outputName", e)
+          throw e
       }
     }
   }
 
-  def createTable(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String): (Boolean, Boolean) = {
+  def createTable(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String, primaryKey: Seq[String] = Seq.empty[String], replacements: Map[String, String] = Map.empty[String, String]): (Boolean, Boolean) = {
     if (dataFrame.schema.fields.nonEmpty) {
       synchronized {
         val tableName = connectionProperties.table
         val conn = getConnection(connectionProperties, outputName)
         conn.setAutoCommit(true)
-        val schemaStr = JdbcUtils.schemaString(dataFrame, connectionProperties.url, connectionProperties.createTableColumnTypes)
-          .replace("FLOAT8[]", "DOUBLE PRECISION[]")
-        val sql = s"CREATE TABLE $tableName ($schemaStr)"
+        val ifNotExists = {
+          if(connectionProperties.driverClass.contains("postgres") || connectionProperties.url.contains("postgres"))
+            "IF NOT EXISTS"
+          else ""
+        }
+        var schemaStr = JdbcUtils.schemaString(dataFrame, connectionProperties.url, connectionProperties.createTableColumnTypes)
+
+        replacements.keys.foreach( i => schemaStr = schemaStr.replaceAll(s"""($i)\\b(?!\")""", replacements(i)))
+
+        val primaryKeyStr = primaryKey.headOption.map(_ => s", PRIMARY KEY (${primaryKey.mkString(",")})").getOrElse("")
+
+        val sql = s"CREATE TABLE $ifNotExists $tableName ($schemaStr $primaryKeyStr)"
         val statement = conn.createStatement
 
         Try(statement.executeUpdate(sql)) match {
@@ -175,7 +188,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
       conn.setAutoCommit(false)
       lazy val savePointTempTable: Savepoint = conn.setSavepoint(s"${connectionProperties.table}_temporal_savepoint")
       val temporalTableName = s"${connectionProperties.table}_tmp_${System.currentTimeMillis()}"
-      val sql = s"CREATE table $temporalTableName AS SELECT * FROM ${connectionProperties.table} WHERE 1 = 0"
+      val sql = s"CREATE TABLE $temporalTableName AS SELECT * FROM ${connectionProperties.table} WHERE 1 = 0"
       val stmt = conn.prepareStatement(sql)
       Try(stmt.execute()) match {
         case Success(_) =>
@@ -339,6 +352,36 @@ object SpartaJdbcUtils extends SLF4JLogging {
       } else log.debug(s"Upsert partition with empty rows")
     }
   }
+  def getInsertStatement(
+                          table: String,
+                          rddSchema: StructType,
+                          tableSchema: Option[StructType],
+                          isCaseSensitive: Boolean,
+                          dialect: JdbcDialect, insertMethod: String = "INSERT"): String = {
+    val columns = if (tableSchema.isEmpty) {
+      rddSchema.fields.map(x => dialect.quoteIdentifier(x.name)).mkString(",")
+    } else {
+      val columnNameEquality = if (isCaseSensitive) {
+        org.apache.spark.sql.catalyst.analysis.caseSensitiveResolution
+      } else {
+        org.apache.spark.sql.catalyst.analysis.caseInsensitiveResolution
+      }
+      // The generated insert statement needs to follow rddSchema's column sequence and
+      // tableSchema's column names. When appending data into some case-sensitive DBMSs like
+      // PostgreSQL/Oracle, we need to respect the existing case-sensitive column names instead of
+      // RDD column names for user convenience.
+      val tableColumnNames = tableSchema.get.fieldNames
+      rddSchema.fields.map { col =>
+        val normalizedName = tableColumnNames.find(f => columnNameEquality(f, col.name)).getOrElse {
+          throw new AnalysisException(s"""Column "${col.name}" not found in schema $tableSchema""")
+        }
+        dialect.quoteIdentifier(normalizedName)
+      }.mkString(",")
+    }
+    val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
+    s"$insertMethod INTO $table ($columns) VALUES ($placeholders)"
+  }
+
 
   /** PRIVATE METHODS **/
 

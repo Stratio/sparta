@@ -212,4 +212,20 @@ object SecurityHelper extends SLF4JLogging {
       )
     }
   } getOrElse Map.empty
+
+  def igniteSecurityUri(sparkConf: Map[String, String]): String = {
+      val keyStore = sparkConf.get("spark.ssl.datastore.keyStore")
+      val keyStorePassword = sparkConf.get("spark.ssl.datastore.keyStorePassword")
+      val trustStore = sparkConf.get("spark.ssl.datastore.trustStore")
+      val trustStorePassword = sparkConf.get("spark.ssl.datastore.trustStorePassword")
+
+      (keyStore, keyStorePassword, trustStore, trustStorePassword) match {
+        case (Some(keyStore), Some(keyStorePassword), Some(trustStore), Some(trustStorePassword)) =>
+          s"&sslMode=require&sslClientCertificateKeyStoreUrl=$keyStore" +
+            s"&sslClientCertificateKeyStorePassword=$keyStorePassword" +
+            s"&sslTrustCertificateKeyStoreUrl=$trustStore" +
+            s"&sslTrustCertificateKeyStorePassword=$trustStorePassword"
+        case _ => ""
+      }
+  }
 }

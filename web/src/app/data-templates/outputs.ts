@@ -18,6 +18,7 @@ import elasticSearchTemplate from './outputs/elastic-search.json';
 import fileutilsTemplate from './outputs/fileutils.json';
 import genericDatasourceTemplate from './outputs/genericDatasource.json';
 import httpTemplate from './outputs/http.json';
+import igniteTemplate from './outputs/ignite.json'
 import jdbcTemplate from './outputs/jdbc.json';
 import jsonTemplate from './outputs/json.json';
 import kafkaTemplate from './outputs/kafka.json';
@@ -48,6 +49,7 @@ export const outputs = [
     fileutilsTemplate,
     genericDatasourceTemplate,
     httpTemplate,
+    igniteTemplate,
     jdbcTemplate,
     jsonTemplate,
     kafkaTemplate,

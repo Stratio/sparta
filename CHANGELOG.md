@@ -1,9 +1,13 @@
 # Changelog
 
 ## 2.11.0 (upcoming)
-Improvements and new features:
+
+* Improvements and new features:
+    - [SPARTA-3383] Ignite input JDBC
+    - [SPARTA-3384] Ignite output JDBC
     - [ROCK-742] Update ML Models repository client
     - @TODO
+
 
 ## 2.10.0 (September 30, 2019)
 

@@ -64,8 +64,7 @@ abstract class OutputStep[Underlying[Row]](
   private[sparta] def supportedSaveModes: Seq[SaveModeEnum.Value] = SaveModeEnum.allSaveModes
 
   private[sparta] def validateSaveMode(saveMode: SaveModeEnum.Value): Unit = {
-    if (!supportedSaveModes.contains(saveMode))
-      log.warn(s"Save mode $saveMode selected not supported by the output $name." +
+    if (!supportedSaveModes.contains(saveMode)) log.warn(s"Save mode $saveMode selected not supported by the output $name." +
         s" Using the default mode ${SaveModeEnum.Append}"
       )
   }

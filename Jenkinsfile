@@ -86,7 +86,14 @@ hose {
                   'SCHEMA_REGISTRY_HOST_NAME=%%OWNHOSTNAME',
                   'SCHEMA_REGISTRY_LISTENERS=http://%%OWNHOSTNAME:8081']
              ]
+            ],
+            ['IGNITE': [
+                          'image': 'apacheignite/ignite:2.7.0',
+                          'sleep': 30,
+                          'healthcheck': 10800
+                        ]
             ]
+
     ]
 
     ITPARAMETERS = """
@@ -105,6 +112,7 @@ hose {
       |    -Dschemaregistry.host=%%SCHEMAREGISTRY
       |    -Darangodb.host=%%ARANGODB
       |    -Darandodb.port=8529
+      |    -Dignite.host=%%IGNITE
       | """
 
     DEV = { config ->

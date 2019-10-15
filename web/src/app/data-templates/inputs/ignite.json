@@ -1,0 +1,81 @@
+{
+  "name": "Ignite",
+  "icon": "Ignite",
+  "className": "IgniteInputStep",
+  "classPrettyName": "Ignite",
+  "category": "Database",
+  "arity": ["NullaryToNary"],
+  "supportedEngines": ["Batch"],
+  "supportedDataRelations": ["ValidData"],
+  "description": "Allows you to load data from Ignite databases.",
+  "properties": [
+    {
+      "propertyId": "host",
+      "propertyName": "_IGNITE_URL_",
+      "propertyType": "text",
+      "default": "{{{Environment.IGNITE_URL}}}",
+      "required": true,
+      "tooltip": "Host and port use for establishing the initial connection to Ignite",
+      "qa": "fragment-details-ignite-url"
+    },
+    {
+      "propertyId": "driver",
+      "propertyName": "_IGNITE_DRIVER_",
+      "propertyType": "text",
+      "default": "{{{Environment.IGNITE_DRIVER}}}",
+      "required": false,
+      "tooltip": "Driver class. This property has priority over the URL.",
+      "qa": "fragment-details-ignite-driver"
+    },
+    {
+      "propertyId": "dbtable",
+      "propertyName": "_IGNITE_TABLE_",
+      "propertyType": "text",
+      "required": true,
+      "tooltip": "Table name to connect to.",
+      "qa": "fragment-details-ignite-table"
+    },
+    {
+      "propertyId": "tlsEnabled",
+      "propertyName": "_TLS_ENABLE_",
+      "propertyType": "boolean",
+      "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection.",
+      "default": false,
+      "qa": "fragment-details-ignite-tls"
+    },
+    {
+      "propertyId": "fetchSize",
+      "propertyName": "_FETCH_SIZE_",
+      "propertyType": "text",
+      "required": true,
+      "default": "2000",
+      "tooltip": "Set the fetch size.",
+      "qa": "fragment-details-ignite-fetch-size"
+    },
+    {
+      "propertyId": "inputOptions",
+      "propertyName": "_OPTION_PROPERTIES_",
+      "propertyType": "list",
+      "required": false,
+      "qa": "custom-input-properties",
+      "fields": [
+        {
+          "propertyId": "inputOptionsKey",
+          "propertyName": "_OPTION_KEY_",
+          "propertyType": "text",
+          "required": false,
+          "width": 4,
+          "qa": "custom-input-properties-key"
+        },
+        {
+          "propertyId": "inputOptionsValue",
+          "propertyName": "_OPTION_VALUE_",
+          "propertyType": "text",
+          "required": false,
+          "width": 4,
+          "qa": "custom-input-properties-value"
+        }
+      ]
+    }
+  ]
+}

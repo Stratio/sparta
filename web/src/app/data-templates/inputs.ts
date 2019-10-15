@@ -24,6 +24,7 @@ import customTemplate from './inputs/custom.json';
 import customLiteTemplate from './inputs/customLite.json';
 import customLiteXdTemplate from './inputs/customLiteXd.json';
 import filesystemStreamingTemplate from './inputs/filesystemStreaming.json';
+import igniteTemplate from './inputs/ignite.json'
 import filesystemBatchTemplate from './inputs/filesystemBatch.json';
 //import flumeTemplate from './inputs/flume.json';
 //import rabbitmqDistributedTemplate from './inputs/rabbitmq-distributed-node.json';
@@ -54,6 +55,7 @@ export const inputs = [
     customLiteXdTemplate,
     elasticSearchBatchTemplate,
     genericDatasourceBatchTemplate,
+    igniteTemplate,
     jdbcTemplate,
     jsonTemplate,
     kafkaTemplate,

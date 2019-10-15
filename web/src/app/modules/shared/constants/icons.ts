@@ -112,6 +112,7 @@ export const icons: any = {
     LeftPadding: '\ue9ce',
     InsertLiteral: '\ue9cc',
     ArangoDB: '\ue9d6',
+    Ignite: '\ue983',
     StreamingSQL: '\ue932',
     AFTSurvivalRegression: '\ue62d',
     ALS: '\ue62d',

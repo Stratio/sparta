@@ -1,0 +1,206 @@
+{
+  "name": "Ignite",
+  "icon": "Ignite",
+  "className": "IgniteOutputStep",
+  "classPrettyName": "Ignite",
+  "category": "Database",
+  "arity": ["NullaryToNullary", "NaryToNullary"],
+  "supportedEngines": ["Batch","Streaming"],
+  "supportedDataRelations": ["ValidData"],
+  "description": "With one JDBC connection it's possible to write data into Ignite databases.",
+  "properties": [
+    {
+      "propertyId": "host",
+      "propertyName": "_IGNITE_URL_",
+      "propertyType": "text",
+      "default": "{{{Environment.IGNITE_URL}}}",
+      "required": true,
+      "tooltip": "Host and port use for establishing the initial connection to Ignite",
+      "qa": "fragment-details-ignite-url"
+    },
+    {
+      "propertyId": "driver",
+      "propertyName": "_IGNITE_DRIVER_",
+      "propertyType": "text",
+      "default": "{{{Environment.IGNITE_DRIVER}}}",
+      "required": false,
+      "tooltip": "Driver class. This property has priority over the URL.",
+      "qa": "fragment-details-ignite-driver"
+    },
+    {
+      "propertyId": "fetchSize",
+      "propertyName": "_FETCH_SIZE_",
+      "propertyType": "text",
+      "required": true,
+      "default": "2000",
+      "tooltip": "Set the fetch size.",
+      "qa": "fragment-details-ignite-fetch-size"
+    },
+    {
+      "propertyId": "batchSize",
+      "propertyName": "_IGNITE_BATCH_SIZE_",
+      "propertyType": "text",
+      "default": "1000",
+      "required": false,
+      "tooltip": "Number of insert or upsert statements that are sent as a batch to the database from each partition.",
+      "qa": "fragment-details-ignite-batch-size"
+    },
+    {
+      "propertyId": "isolationLevel",
+      "propertyName": "_ISOLATION_LEVEL_",
+      "propertyType": "select",
+      "values": [
+        {
+          "label": "None",
+          "value": "NONE"
+        },
+        {
+          "label": "Read Committed",
+          "value": "READ_COMMITTED"
+        },
+        {
+          "label": "Repeatable Read",
+          "value": "REPEATABLE_READ"
+        },
+        {
+          "label": "Serializable",
+          "value": "SERIALIZABLE"
+        }
+      ],
+      "default": "NONE",
+      "required": true,
+      "tooltip": "Sets the isolation level when persisting the data in the database.",
+      "qa": "fragment-ignite-isolation-level"
+    },
+    {
+      "propertyId": "igniteSaveMode",
+      "propertyName": "_IGNITE_SAVE_MODE_",
+      "propertyType": "select",
+      "values": [
+        {
+          "label": "Batch statement",
+          "value": "STATEMENT"
+        },
+        {
+          "label": "Single statement",
+          "value": "SINGLE_STATEMENT"
+        }
+      ],
+      "default": "STATEMENT",
+      "required": true,
+      "tooltip": "Sets whether the output should be written as a batch statement or by using a row-by-row statement",
+      "qa": "fragment-ignite-save-mode"
+    },
+    {
+      "propertyId": "failFast",
+      "propertyName": "_FAIL_FAST_",
+      "propertyType": "boolean",
+      "default": false,
+      "required": true,
+      "tooltip": "When enabled, if a transaction fails a exception is thrown and the application is stopped abruptly.",
+      "qa": "fragment-details-ignite-failfast"
+    },
+    {
+      "propertyId": "tlsEnabled",
+      "propertyName": "_TLS_ENABLE_",
+      "propertyType": "boolean",
+      "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection between Spark and the JDBC database.",
+      "default": false,
+      "qa": "fragment-details-ignite-tls"
+    },
+    {
+      "propertyId": "caseSensitiveEnabled",
+      "propertyName": "_CASE_SENSITIVE_ENABLED_",
+      "propertyType": "boolean",
+      "tooltip": "Sets whether the table name and schema should be case sensitive or not",
+      "default": true,
+      "qa": "fragment-details-ignite-tls"
+    },
+    {
+      "propertyId": "schemaFromDatabase",
+      "propertyName": "_SCHEMA_FROM_DATABASE_",
+      "propertyType": "boolean",
+      "tooltip": "Tells the workflow to extract the schema from the output database.",
+      "default": false,
+      "qa": "fragment-details-jdbc-schema-database"
+    },
+    {
+      "propertyId": "errorSink",
+      "propertyName": "_ERROR_SINK_",
+      "propertyType": "boolean",
+      "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
+      "default": false,
+      "qa": "fragment-details-errorSink"
+    },
+    {
+      "propertyId": "saveOptions",
+      "propertyName": "_IGNITE_SAVE_PROPERTIES_",
+      "propertyType": "list",
+      "required": false,
+      "qa": "fragment-details-jdbc-save-properties",
+      "fields": [
+        {
+          "propertyId": "saveOptionsKey",
+          "propertyName": "_SAVE_OPTIONS_KEY_",
+          "propertyType": "text",
+          "width": 4,
+          "required": false,
+          "qa": "fragment-details-ignite-saveOptionsKey"
+        },
+        {
+          "propertyId": "saveOptionsValue",
+          "propertyName": "_SAVE_OPTIONS_VALUE_",
+          "propertyType": "text",
+          "width": 4,
+          "required": false,
+          "qa": "fragment-details-ignite-saveOptionsValue"
+        }
+      ]
+    }
+  ],
+  "writer": [
+    {
+      "propertyId": "saveMode",
+      "propertyName": "_SAVEMODE_",
+      "propertyType": "select",
+      "required": true,
+      "default": "Append",
+      "tooltip": "Specifies a Save mode. According to the desired output step (e.g. Postgres), it is possible to select not only the native Spark save modes but also an Upsert save mode that requires the setting of the primary key fields property.",
+      "qa": "save-mode-writer",
+      "values": [
+        {
+          "label": "Append",
+          "value": "Append"
+        },
+        {
+          "label": "Error if exists",
+          "value": "ErrorIfExists"
+        },
+        {
+          "label": "Ignore",
+          "value": "Ignore"
+        },
+        {
+          "label": "Overwrite",
+          "value": "Overwrite"
+        },
+        {
+          "label": "Upsert",
+          "value": "Upsert"
+        },
+        {
+          "label": "Delete",
+          "value": "Delete"
+        }
+      ]
+    },
+    {
+      "propertyId": "primaryKey",
+      "propertyName": "_PRIMARY_KEY_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Sets the fields which indicates the 'WHERE' clause in the 'Upsert' save mode.",
+      "qa": "primaryKey-by-writer"
+    }
+  ]
+}

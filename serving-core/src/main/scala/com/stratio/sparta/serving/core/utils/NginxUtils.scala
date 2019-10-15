@@ -11,6 +11,7 @@ import java.nio.file.{Files, StandardCopyOption}
 import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.stream.ActorMaterializer
+import com.stratio.crossdata.util.using
 import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant, SparkConstant}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.utils.MarathonAPIUtils._
@@ -196,13 +197,6 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
     log.error(problem.getMessage)
     Future.failed(problem)
   }
-
-  private[utils] def using[A <: {def close() : Unit}, B](resource: A)(f: A => B): B =
-    try {
-      f(resource)
-    } finally {
-      resource.close()
-    }
 
   private def checkSyntax(file: File): Boolean = {
     val test_exit_code = Process(s"nginx -t -c ${file.getAbsolutePath}").!
