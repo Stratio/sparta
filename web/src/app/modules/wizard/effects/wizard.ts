@@ -23,8 +23,7 @@ import { WizardService } from '@app/wizard/services/wizard.service';
 import { WizardToolsService } from '@app/wizard/services/wizard-tools.service';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
 import { StepType } from '@models/enums';
-import { writerTemplate } from 'data-templates/index';
-import { getEditedNodeWriters } from '../selectors/writers';
+import { getOutputWriter } from 'data-templates/index';
 
 @Injectable()
 export class WizardEffect {
@@ -119,9 +118,12 @@ export class WizardEffect {
     .pipe(
       ofType<wizardActions.CreateNodeRelationAction>(wizardActions.CREATE_NODE_RELATION),
       map((action) => action.edge),
-      withLatestFrom(this._store.pipe(select(fromWizard.getEdges))),
-      withLatestFrom(this._store.pipe(select(fromWizard.getNodesMap))),
-      map(([[payload, edges], nodesMap]: [[WizardEdge, Array<WizardEdge>], any]) => {
+      withLatestFrom(
+        this._store.pipe(select(fromWizard.getEdges)),
+        this._store.pipe(select(fromWizard.getNodesMap)),
+        this._store.pipe(select(fromWizard.getWorkflowType))
+      ),
+      map(([payload, edges, nodesMap, engine]: [WizardEdge, Array<WizardEdge>, any, string]) => {
         let relationExist = false;
         // get number of connected entities in destionation and check if relation exists
         edges.forEach((edge: WizardEdge) => {
@@ -143,7 +145,7 @@ export class WizardEffect {
             originId: originNode.id,
             destinationId: destinationNode.id,
             writer: destinationNode.stepType === StepType.Output ?
-              InitializeSchemaService.getSchemaModel(writerTemplate) : null
+              InitializeSchemaService.getSchemaModel(getOutputWriter(destinationNode.classPrettyName, engine)) : null
           });
         }
       }));
@@ -186,7 +188,7 @@ export class WizardEffect {
       const entities = state.entities;
       const selectedNodes = wizardState.selectedEntities;
       if (selectedNodes && selectedNodes.length) {
-        const data =  this._wizardToolsService.getCopiedModel(wizardState.selectedEntities, wizardState.nodes, wizardState.edges, writers, entities.workflowType);
+        const data = this._wizardToolsService.getCopiedModel(wizardState.selectedEntities, wizardState.nodes, wizardState.edges, writers, entities.workflowType);
         localStorage.setItem('sp-copy-clipboard', data);
         // copyIntoClipboard(value);
         return new wizardActions.ShowNotificationAction({

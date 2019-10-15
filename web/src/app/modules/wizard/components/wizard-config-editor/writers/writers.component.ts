@@ -6,7 +6,7 @@
 
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { writerTemplate } from 'data-templates/index';
+import { getOutputWriter } from 'data-templates/index';
 import { WizardService } from '@app/wizard/services/wizard.service';
 
 @Component({
@@ -18,6 +18,7 @@ import { WizardService } from '@app/wizard/services/wizard.service';
 export class WritersComponent implements OnInit {
 
   @Input() nodeWriters: any;
+  @Input() engine: string;
   @Input() writersGroup: FormGroup;
   @Input() nodeWritersNames: any;
   @Input() forceValidations: boolean;
@@ -25,18 +26,10 @@ export class WritersComponent implements OnInit {
   public getKeys = Object.keys;
   public writerTemplates = [];
 
-  constructor(private _wizardService: WizardService) { }
+  constructor() { }
   public ngOnInit(): void {
     Object.keys(this.nodeWriters).forEach(key => {
-      const outputs = this._wizardService.getOutputs();
-      const customWriter = outputs[this.nodeWritersNames[key].classPrettyName].writer;
-      this.writerTemplates.push([
-        ...writerTemplate,
-        ...(customWriter && customWriter.length ? [{
-          properties: customWriter,
-          propertyId: 'extraOptions'
-        }] : [])
-      ]);
+      this.writerTemplates.push(getOutputWriter(this.nodeWritersNames[key].classPrettyName, this.engine));
       const control = new FormControl(this.nodeWriters[key]);
       this.writersGroup.addControl(key, control);
       this.accordionStates.push(false);

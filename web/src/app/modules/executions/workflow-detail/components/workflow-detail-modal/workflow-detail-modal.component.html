@@ -1,0 +1,45 @@
+<section class="viewer-editor-config-modal">
+  <st-fullscreen-layout class="layout" [title]="selectedNode.stepType + ' - ' + selectedNode.classPrettyName">
+    <div id="viewer-editor-config-modal-header" class="st-fullscreen-layout-buttons">
+      <a class="button button-link-primary" (click)="closeModal()">Return to workflow</a>
+    </div>
+    <div class="st-fullscreen-layout-content">
+      <div class="viewer-editor-config-modal__container">
+        <st-horizontal-tabs class="viewer-editor-config-modal__tabs" [activeOption]="tabSelectedOption"
+          [options]="tabOptions" (changedOption)="changedOption($event)"
+          qaTag="viewer-editor-config-modal-options-tabs">
+        </st-horizontal-tabs>
+
+        <div class="viewer-editor-config-modal__content">
+          <h1 class="egeo-title-extra-large">{{selectedNode.classPrettyName}}</h1>
+          <div *ngIf="selectedNode.description && selectedNode.description.length"
+            [innerText]="selectedNode.description" class="node-description">
+          </div>
+          <div class="title-separator"></div>
+
+          <div class="configuration-tab-content" *ngIf="tabSelectedOption.id === 'global'">
+            <schema-data
+              [schema]="currentStepTemplate.properties"
+              [data]="selectedNode.configuration">
+            </schema-data>
+          </div>
+          <div class="writer-tab-content" *ngIf="tabSelectedOption.id === 'writer'">
+            <div *ngFor="let writer of selectedNode.outputsWriter; let i = index;">
+              <sp-accordion [isOpen]="accordionStates[i]" (onToggle)="toggleAccordion(i)">
+                <div accordion-header>
+                  {{writer.outputStepName}}
+                </div>
+                <div accordion-body>
+                  <schema-data
+                    [schema]="writerTemplatesMap[writer.outputStepName]"
+                    [data]="writer">
+                  </schema-data>
+                </div>
+              </sp-accordion>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </st-fullscreen-layout>
+</section>

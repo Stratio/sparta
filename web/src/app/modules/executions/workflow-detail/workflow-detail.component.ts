@@ -10,9 +10,8 @@ import { Store, select } from '@ngrx/store';
 import * as workflowDetailReducer from './reducers';
 
 import * as workflowDetailActions from './actions/workflow-detail';
-import { Subject, Observable, forkJoin, merge, concat, combineLatest } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
-import { writerTemplate } from 'data-templates/index';
 import { StHorizontalTab } from '@stratio/egeo';
 import { QualityRule, globalActionMap, Edge } from '@app/executions/models';
 
@@ -20,7 +19,7 @@ import { batchInputsObject, streamingInputsObject } from 'data-templates/inputs'
 import { batchOutputsObject, streamingOutputsObject } from 'data-templates/outputs';
 import { batchTransformationsObject, streamingTransformationsObject } from 'data-templates/transformations';
 import { Engine } from '@models/enums';
-import { pipe } from '@angular/core/src/render3';
+import { WizardNode } from '@app/wizard/models/node';
 
 @Component({
   selector: 'workflow-detail',
@@ -40,9 +39,11 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   public selectedQualityRules = false;
   public qualityRules$: Observable<Array<QualityRule>>;
   public selectedEdge$: Observable<Edge>;
+  public selectedNode$: Observable<WizardNode>;
+  public showConfigModal$: Observable<boolean>;
+  public selectedNodeOutputNames$: Observable<any>;
   public filteredQualityRules: Array<QualityRule> = [];
   public filteredQualityRules$: Observable<any>;
-  public writerTemplate = writerTemplate;
   public currentStepTemplate: any;
   public tabOptions: StHorizontalTab[] = [
     { id: 'global', text: 'Global' },
@@ -97,6 +98,9 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
 
     this.selectedEdge$ = this._store.pipe(select(workflowDetailReducer.selectedEdgeState));
+    this.selectedNode$ = this._store.pipe(select(workflowDetailReducer.getSelectedNode));
+    this.selectedNodeOutputNames$ = this._store.pipe(select(workflowDetailReducer.getSelectedNodeOutputNames));
+    this.showConfigModal$ = this._store.pipe(select(workflowDetailReducer.getShowModal));
 
     this.qualityRules$ = this._store.pipe(
       select(workflowDetailReducer.qualityRulesState),
@@ -175,6 +179,10 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   selectEdge(edge) {
     this._store.dispatch(new workflowDetailActions.SelectEdgeAction(edge));
+  }
+
+  openNode(node: WizardNode) {
+    this._store.dispatch(new workflowDetailActions.ShowConfigModal(node));
   }
 
 }

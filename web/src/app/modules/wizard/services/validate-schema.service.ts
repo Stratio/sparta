@@ -5,7 +5,6 @@
  */
 
 import { Injectable } from '@angular/core';
-import { writerTemplate } from 'data-templates/index';
 import { WizardService } from './wizard.service';
 import { StepType } from '@models/enums';
 
@@ -32,13 +31,11 @@ export class ValidateSchemaService {
       }
       switch (stepType) {
         case 'Input':
-          return this.validate(this._wizardService.getInputs()[model.classPrettyName].properties, model.configuration)
-            .concat(this.validate(writerTemplate, model.writer));
+          return this.validate(this._wizardService.getInputs()[model.classPrettyName].properties, model.configuration);
         case 'Output':
           return this.validate(this._wizardService.getOutputs()[model.classPrettyName].properties, model.configuration);
         case 'Transformation':
-          return this.validate(this._wizardService.getTransformations()[model.classPrettyName].properties, model.configuration)
-            .concat(this.validate(writerTemplate, model.writer));
+          return this.validate(this._wizardService.getTransformations()[model.classPrettyName].properties, model.configuration);
         case 'Algorithm':
         case 'Preprocessing':
           return this.validate(this._wizardService.getPipelinesTemplates(stepType)[model.classPrettyName].properties, model.configuration);
@@ -46,14 +43,7 @@ export class ValidateSchemaService {
           break;
       }
     } else {
-      // if its an output skip writer validation (outputs has not writer)
-
-      if (stepType === StepType.Input || stepType === StepType.Transformation) {
-        return this.validate(schema.properties, model.configuration).concat(this.validate(writerTemplate, model.writer));
-      } else {
-        return this.validate(schema.properties, model.configuration);
-
-      }
+      return this.validate(schema.properties, model.configuration);
     }
   }
 

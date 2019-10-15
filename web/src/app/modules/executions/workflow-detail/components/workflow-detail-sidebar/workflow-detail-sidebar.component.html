@@ -1,0 +1,23 @@
+<sparta-sidebar [isVisible]="true" [darkBorder]="true" showScrollBar="true" [showCloseButton]="false">
+  <div class="not-selected" *ngIf="!selectedNode && !filteredQualityRules.length">
+    <img src="assets/images/planet.svg" class="step-detail-image" />
+    <div class="step-info">Select a step to view its details</div>
+  </div>
+  <div class="sidebar-content" *ngIf="selectedNode">
+    <div class="egeo-title-medium">{{selectedNode.name}}</div>
+    <div>{{selectedNode.stepType}} - {{selectedNode.classPrettyName}}</div>
+  </div>
+  <div class="sidebar-content" *ngIf="filteredQualityRules && filteredQualityRules.length && !selectedNode">
+    <div class="workflow-viewer__sidebar-title">Quality Rules</div>
+    <div class="execution-details__separator"></div>
+    <drop-down-title class="drop-down-title" *ngFor="let qualityRule of filteredQualityRules" [title]="qualityRule.name">
+      <div class="workflow-viewer__status" info>
+        <i [ngClass]="{'icon-dot status-icon success-color': qualityRule.status}" ></i>
+        <i [ngClass]="{'icon-dot status-icon error-color': !qualityRule.status}" ></i>
+        <span *ngIf="qualityRule.status">OK</span>
+        <span *ngIf="!qualityRule.status">KO</span>
+      </div>
+      <quality-rule-detail [compactMode]="true" [qualityRule]="qualityRule" ></quality-rule-detail>
+    </drop-down-title>
+  </div>
+</sparta-sidebar>

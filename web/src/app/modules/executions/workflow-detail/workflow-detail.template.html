@@ -9,8 +9,8 @@
 -->
 <section class="execution-details" *ngIf="execution">
   <div class="execution-details__header">
-    <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Streaming'" />
-    <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Batch'" />
+    <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="execution.genericDataExecution.workflow.executionEngine === 'Streaming'" />
+    <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="execution.genericDataExecution.workflow.executionEngine === 'Batch'" />
     <span class="title egeo-title-extra-large">{{execution.genericDataExecution.workflow.name}}</span>
     <a [routerLink]="['/executions/' + this.id]" class="link">Return to execution detail</a>
   </div>
@@ -33,7 +33,8 @@
       *ngFor="let nodeData of nodes"
       [(position)]="nodeData.uiConfiguration.position"
       [readonlyMode]="true"
-      (onClickEvent)="selectStep(nodeData)">
+      (onClickEvent)="selectStep(nodeData)"
+      (onDoubleClickEvent)="openNode(nodeData)">
       <svg:g wizard-node
         [data]="nodeData"
         [selected]="selectedStep && selectedStep.name === nodeData.name">
@@ -51,46 +52,18 @@
       </defs>
     </svg:g>
   </graph-editor>
-  <sparta-sidebar [isVisible]="true" [darkBorder]="true" showScrollBar="true" [showCloseButton]="false">
-    <div class="not-selected" *ngIf="!selectedStep && !filteredQualityRules.length">
-      <img src="assets/images/planet.svg" class="step-detail-image" />
-      <div class="step-info">Select a step to view its details</div>
-    </div>
-    <div class="sidebar-content" *ngIf="selectedStep">
-      <div class="egeo-title-medium">{{selectedStep.name}}</div>
-      <div>{{selectedStep.stepType}} - {{selectedStep.classPrettyName}}</div>
-      <div class="configuration">
-          <st-horizontal-tabs class="sidebar-tabs"
-            *ngIf="selectedStep.stepType !== 'Output'"
-            [options]="tabOptions"
-            [activeOption]="tabSelectedOption"
-            (changedOption)="changedOption($event)"
-            qaTag="workflow-details-tabs"></st-horizontal-tabs>
-        <schema-data *ngIf="tabSelectedOption.id === 'writer'"
-          [schema]="writerTemplate"
-          [data]="selectedStep.writer"></schema-data>
-        <schema-data *ngIf="tabSelectedOption.id === 'global'"
-          [schema]="currentStepTemplate.properties"
-          [data]="selectedStep.configuration">
-        </schema-data>
-      </div>
-    </div>
 
-    <div class="sidebar-content" *ngIf="filteredQualityRules && filteredQualityRules.length && !selectedStep">
-      <div class="execution-details__sidebar-title">Quality Rules</div>
-      <div class="execution-detail s__separator"></div>
-      <drop-down-title class="drop-down-title" *ngFor="let qualityRule of filteredQualityRules" [title]="qualityRule.name">
-        <div class="execution-details__status" info>
-          <i [ngClass]="{'icon-dot status-icon success-color': qualityRule.status}" ></i>
-          <i [ngClass]="{'icon-dot status-icon error-color': !qualityRule.status}" ></i>
-          <span *ngIf="qualityRule.status" >OK</span>
-          <span *ngIf="!qualityRule.status" >KO</span>
-        </div>
 
-        <quality-rule-detail [compactMode]="true" [qualityRule]="qualityRule" ></quality-rule-detail>
 
-      </drop-down-title>
-    </div>
+  <workflow-detail-sidebar
+  [selectedNode]="selectedStep"
+  [filteredQualityRules]="filteredQualityRules">
+    </workflow-detail-sidebar>
 
-  </sparta-sidebar>
+  <workflow-detail-modal
+    *ngIf="showConfigModal$ | async"
+    [selectedNode]="selectedNode$ | async"
+    [selectedNodeOutputNames]="selectedNodeOutputNames$ | async"
+    [executionEngine]="execution.genericDataExecution.workflow.executionEngine">
+  </workflow-detail-modal>
 </section>

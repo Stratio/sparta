@@ -88,6 +88,7 @@
             </div>
             <writers-config *ngIf="nodeWriters"
               [writersGroup]="writersGroup"
+              [engine]="engine$ | async"
               [hidden]="activeOption.id !== 'Writer'"
               [forceValidations]="submitted"
               [nodeWritersNames]="nodeWritersNames$ | async"

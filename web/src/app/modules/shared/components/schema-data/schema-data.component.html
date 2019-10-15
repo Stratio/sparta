@@ -1,31 +1,81 @@
-<div class="schema__step-data" *ngIf="schema && data">
-  <div *ngFor="let property of schema">
-    <div *ngIf="data[property.propertyId]; let value;">
-      <div class="property" *ngIf="property.propertyType !== 'list'">
-        <div class="property__name">
-          {{property.propertyName | translate}}
-        </div>
-        <div class="property__value">
-          {{getValue(value)}}
-        </div>
-      </div>
-      <div class="property" *ngIf="property.propertyType === 'list' && value.length">
-        <div class="property__name">
-          {{property.propertyName | translate}}
-        </div>
-        <div class="property__list-value">
-          <div *ngFor="let listValue of stringToArray(value)" class="property__list-element">
-            <div *ngFor="let listProperty of property.fields;">
-              <div class="property__name">
-                {{listProperty.propertyName | translate}}
-              </div>
-              <div class="property__value">
-                {{getValue(listValue[listProperty.propertyId])}}
-              </div>
+<div class="schema__step-data" *ngIf="schemaParse && data">
+
+    <ng-container *ngFor="let property of schemaParse">
+      <ng-container *ngIf="data[property.propertyId]; let value;">
+        <ng-container *ngIf="property.properties">
+          <div class="property__wrapper">
+            <div class="property__name property__name--section" *ngIf="!property.noTitle">
+              {{property.propertyName ? (property.propertyName | translate) : property.propertyId}}
+            </div>
+            <div>
+                <schema-data [data]="value" [schema]="property.properties"></schema-data>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </ng-container>
+        <ng-container *ngIf="property.propertyType !== 'list' && !property.properties">
+          <div class="property__wrapper">
+            <div class="property__name">
+              {{property.propertyName | translate}}
+            </div>
+            <div
+              *ngIf="property.propertyId !== 'fieldsString'"
+              [ngClass]="{'link-like': property.propertyId === 'path' || property.propertyId === 'url'}"
+              class="property__value">
+              {{getValue(value, property.propertyId)}}
+            </div>
+
+            <div
+              *ngIf="property.propertyId === 'fieldsString'"
+              class="property__value">
+              <table
+                class="property__list-value read-only-table">
+                <tr *ngFor="let strut of getValue(value, property.propertyId);">
+                  <td *ngFor="let prop of strut; let i = index;">
+                    {{prop}}
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+          </div>
+        </ng-container>
+
+        <!-- property list -->
+        <ng-container *ngIf="property.propertyType === 'list' && value.length">
+          <div class="property__wrapper">
+            <div class="property__name">
+              {{property.propertyName | translate}}
+            </div>
+
+            <div *ngIf="!stringToArray(value).length"
+              class="property__value--placeholder">-</div>
+
+            <table *ngFor="let listValue of stringToArray(value); let j = index"
+              class="property__list-value read-only-table">
+                <tr *ngFor="let listProperty of property.groupFields; let i = index"
+                  class="property__list-item">
+                  <td *ngFor="let field of listProperty">
+                    <div class="property__label">
+                      {{field.propertyName | translate}}
+                    </div>
+                    <div *ngIf="getValue(listValue[field.propertyId])"
+                      [ngClass]="{'link-like': field.propertyId === 'path'}"
+                      class="property__value">
+                      {{getValue(listValue[field.propertyId])}}
+                    </div>
+
+                    <div *ngIf="!getValue(listValue[field.propertyId])"
+                      class="property__value" >
+                      -
+                    </div>
+
+                  </td>
+                </tr>
+            </table>
+          </div>
+        </ng-container>
+        <!-- END property list -->
+      </ng-container>
+
+    </ng-container>
   </div>
-</div>

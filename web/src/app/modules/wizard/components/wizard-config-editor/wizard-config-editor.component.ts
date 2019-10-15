@@ -25,7 +25,6 @@ import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 import { Environment } from '@models/environment';
 import { ErrorMessagesService, InitializeSchemaService } from 'services';
-import { writerTemplate } from 'data-templates/index';
 import { WizardService } from '@app/wizard/services/wizard.service';
 import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
 import { StepType } from 'app/models/enums';
@@ -81,6 +80,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
   public visualQueryBuilder = false;
   public nodeWritersNames$: Observable<any>;
   public errorTableName = '';
+  public engine$: Observable<string>;
 
   public writersGroup = new FormGroup({});
   public validatedName$: Observable<boolean>;
@@ -124,6 +124,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }));
     this._getMenuTabs();
     this.validatedName$ = this._store.pipe(select(fromWizard.getValidatedEntityName));
+    this.engine$ = this._store.pipe(select(fromWizard.getWorkflowType));
     this.saveSubscription = this._store.pipe(select(fromWizard.isEntitySaved))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((isEntitySaved) => {
@@ -230,14 +231,12 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     switch (this.config.editionType.stepType) {
       case StepType.Input:
         template = this._wizardService.getInputs()[this.config.editionType.data.classPrettyName];
-        this.writerSettings = writerTemplate;
         break;
       case StepType.Output:
         template = this._wizardService.getOutputs()[this.config.editionType.data.classPrettyName];
         break;
       case StepType.Transformation:
         template = this._wizardService.getTransformations()[this.config.editionType.data.classPrettyName];
-        this.writerSettings = writerTemplate;
         break;
     }
     this.helpOptions = this._initializeSchemaService.getHelpOptions(template.properties);

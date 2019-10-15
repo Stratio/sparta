@@ -36,10 +36,6 @@ export class InitializeStepService {
 
     if (entityData.type === 'template') {
       entity = this.initializeSchemaService.setTemplateEntityModel(entityData.data);
-      // outputs havent got writer
-      if (entityData.stepType !== 'Output') {
-        entity.writer = this.initializeSchemaService.getDefaultWriterModel();
-      }
       entity.name = this.getNewStepName(entityData.data.name, names);
     } else {
       entity = this.initializeSchemaService.setDefaultEntityModel(workflowType, entityData.value, entityData.stepType, true);

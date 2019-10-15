@@ -33,7 +33,7 @@ export class InitializeWorkflowService {
     }, {});
     const writers: any = {};
     nodes.forEach(node => {
-      if (node.outputsWriter.length) {
+      if (node.outputsWriter && node.outputsWriter.length) {
         writers[node.id] = node.outputsWriter.reduce((acc, writer) => {
           acc[idsMap[writer.outputStepName]] = writer;
           return acc;

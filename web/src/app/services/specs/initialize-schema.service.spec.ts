@@ -53,16 +53,6 @@ describe('initialize-schema.service', function () {
       expect(model.classPrettyName).toBe(template.classPrettyName);
    });
 
-   it('should be able to initialize entity writer if it is not an output', () => {
-      const model = initializeSchemaService.setDefaultEntityModel(Engine.Streaming, kafkaTemplate, 'Input', true);
-      expect(model.writer).toBeDefined();
-   });
-
-   it('should not initialize the writer if it is an output', () => {
-      const model = initializeSchemaService.setDefaultEntityModel(Engine.Streaming, printTemplate, 'Output', true);
-      expect(model.writer).toBeUndefined();
-   });
-
    it('should be able to initize workflow settings model', () => {
       const template: any = <any>settingsTemplate;
       spyOn(InitializeSchemaService, 'getSchemaModel');

@@ -25,7 +25,9 @@ export class WorkflowDetailEffect {
       execution.genericDataExecution.workflow = this._initializeWorkflowService.getInitializedWorkflow(execution.genericDataExecution.workflow).workflow;
       return new workflowDetailActions.GetWorkflowDetailCompleteAction(execution);
     }))
-    // .pipe(catchError(error => of(new workflowDetailActions.GetExecutionErrorAction())))
+    /*.pipe(catchError(error => {
+      return of(new workflowDetailActions.GetWorkflowDetailCompleteAction(execution));
+    }))*/
     )
   );
 
@@ -40,6 +42,7 @@ export class WorkflowDetailEffect {
       }),
       map(executionDetail => new workflowDetailActions.GetQualityRulesActionComplete(executionDetail))
     );
+
 
   constructor(
     private actions$: Actions,

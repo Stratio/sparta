@@ -5,7 +5,6 @@
  */
 
 import { Injectable } from '@angular/core';
-import { writerTemplate } from 'data-templates/index';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
@@ -51,7 +50,7 @@ export class InitializeSchemaService {
     model.supportedEngines = value.supportedEngines;
     model.supportedDataRelations = value.supportedDataRelations;
     model.executionEngine = workflowtype;
-    model.configuration = this.getConfiguration(value)
+    model.configuration = this.getConfiguration(value);
     model.classPrettyName = value.classPrettyName;
     model.className = value.className;
     // model.description = value.description;
@@ -60,9 +59,6 @@ export class InitializeSchemaService {
       model.arity = value.arity;
     }
     model.stepType = stepType;
-    if (writerOptions && stepType !== 'Output') {
-      model.writer = this.getDefaultWriterModel();
-    }
     return model;
   }
 
@@ -97,21 +93,9 @@ export class InitializeSchemaService {
       id: template.id,
       name: template.name
     };
-    if (template.templateType !== 'output') {
-      model.writer = this.getDefaultWriterModel();
-    }
-
     return model;
   }
 
-  getDefaultWriterModel(): any {
-    const writerTpl = <any>writerTemplate;
-    const writer: any = {};
-    writerTpl.map((prop: any) => {
-      writer[prop.propertyId] = prop.default ? prop.default : null;
-    });
-    return writer;
-  }
 
   getHelpOptions(template: any) {
     return this.getSubProperties(template)

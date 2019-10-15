@@ -1,0 +1,13 @@
+<div class="accordion">
+  <div class="accordion__item">
+    <div class="accordion__header" (click)="onToggle.emit()" >
+      <span class="accordion__icon" [ngClass]="isOpen ? 'icon-arrow2_down' : 'icon-arrow2_right'"></span>
+      <div class="accordion__header-label">
+        <ng-content select="[accordion-header]"></ng-content>
+      </div>
+    </div>
+    <div class="accordion__form" [hidden]="!isOpen">
+      <ng-content select="[accordion-body]"></ng-content>
+    </div>
+  </div>
+</div>

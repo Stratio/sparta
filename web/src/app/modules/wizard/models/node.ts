@@ -21,7 +21,7 @@ export interface WizardNode {
   uiConfiguration: {
     position: WizardNodePosition
   };
-  writers?: Array<any>;
+  outputsWriter?: Array<any>;
 }
 
 

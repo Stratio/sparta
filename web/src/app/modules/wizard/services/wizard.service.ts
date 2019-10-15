@@ -13,6 +13,7 @@ import { homeGroup } from '@app/shared/constants/global';
 import { PipelineType, Engine } from '@models/enums';
 import { batchPreprocessingObject, streamingPreprocessingObject } from 'data-templates/pipelines/pipelines-preprocessing';
 import { batchAlgorithmObject, streamingAlgorithmObject } from 'data-templates/pipelines/pipelines-algorithm';
+import { WizardNode, WizardEdge } from '../models/node';
 
 @Injectable({
   providedIn: 'root'
@@ -98,17 +99,18 @@ export class WizardService {
         position: wizard.svgPosition
       },
       pipelineGraph: {
-        nodes: wizard.nodes.map(node => {
+        nodes: wizard.nodes.map((node: WizardNode) => {
           const nodeWriters = writers[node.id];
           if (nodeWriters) {
             return {
               ...node,
               outputsWriter: Object.keys(nodeWriters).map(key => {
-                return { // TODO: Change the saveMode position in nodeWriter model
+                return {
                   ...nodeWriters[key],
-                  saveMode: nodeWriters[key].extraOptions && nodeWriters[key].extraOptions.saveMode ? nodeWriters[key].extraOptions.saveMode : undefined,
                   outputStepName: namesMap[key]
                 };
+              }).filter(writer => {
+                return writer.outputStepName && wizard.edges.find((edge: WizardEdge) => edge.origin === node.name && edge.destination === writer.outputStepName);
               })
             };
           } else {

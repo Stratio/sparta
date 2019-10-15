@@ -9,6 +9,7 @@ import { createFeatureSelector } from '@ngrx/store';
 import * as workflowDetailActions from '../actions/workflow-detail';
 import * as fromRoot from 'reducers';
 import { QualityRule, Edge } from '@app/executions/models';
+import { WizardNode } from '@app/wizard/models/node';
 
 export interface State extends fromRoot.State {
   workflowDetail: WorkflowDetail;
@@ -23,6 +24,8 @@ export interface WorkflowDetail {
   loading: boolean;
   qualityRules: Array<QualityRule>;
   selectedEdge: Edge;
+  selectedNode: WizardNode;
+  showModal: boolean;
 }
 
 const initialState: WorkflowDetail = {
@@ -32,7 +35,9 @@ const initialState: WorkflowDetail = {
   selectedEdge: {
     origin: '',
     destination: ''
-  }
+  },
+  selectedNode: null,
+  showModal: false
 };
 
 export function workflowDetailReducer(state: WorkflowDetail = initialState, action: workflowDetailActions.Actions): WorkflowDetail {
@@ -71,7 +76,26 @@ export function workflowDetailReducer(state: WorkflowDetail = initialState, acti
         }
       };
     }
-
+    case workflowDetailActions.SHOW_CONFIG_MODAL: {
+      return {
+        ...state,
+        showModal: true,
+        selectedNode: action.node
+      };
+    }
+    case workflowDetailActions.HIDE_CONFIG_MODAL: {
+      return {
+        ...state,
+        showModal: false
+      };
+    }
+    case workflowDetailActions.SET_SELECTED_NODE: {
+      return {
+        ...state,
+        selectedNode: action.node,
+        selectedEdge: null
+      };
+    }
     default:
       return state;
   }
@@ -141,4 +165,33 @@ export const getEdgesMap = createSelector(
       dataType: edge.dataType
     }));
   }
-)
+);
+
+export const getShowModal = createSelector(
+  getWorkflowDetail,
+  state => state.showModal
+);
+export const getSelectedNode = createSelector(getWorkflowDetail, state => state.selectedNode);
+export const getSelectedNodeOutputNames = createSelector(
+  getWorkflowNodes,
+  getShowModal,
+  getSelectedNode,
+  (nodes: WizardNode[], showConfigModal: boolean, selectedNode: WizardNode) => {
+    if (!showConfigModal) {
+      return;
+    }
+
+    if (!selectedNode.outputsWriter) {
+      return {};
+    }
+    const names = selectedNode.outputsWriter.map(writer => writer.outputStepName);
+    return nodes.reduce((acc, node) => {
+      if (names.includes(node.name)) {
+        acc[node.name] = {
+          name: node.name,
+          classPrettyName: node.classPrettyName
+        };
+      }
+      return acc;
+    }, {});
+  });
