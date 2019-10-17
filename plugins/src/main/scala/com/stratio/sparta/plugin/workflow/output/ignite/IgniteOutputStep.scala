@@ -68,7 +68,7 @@ class IgniteOutputStep(name: String, xDSession: XDSession, properties: Map[Strin
       require(primaryKey.forall(dataFrame.schema.fieldNames.contains(_)),
         "All the primary key fields should be present in the dataFrame schema")
 
-      val jdbcPropertiesMap = propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
+      val jdbcPropertiesMap = propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.apache.ignite.IgniteJdbcThinDriver")
 
       lazy val quotedTable = "\"" + tableName + "\""
 

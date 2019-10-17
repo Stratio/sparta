@@ -70,7 +70,7 @@ extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF
     require(urlWithSSL.nonEmpty, "Ignite url must be provided")
     require(table.nonEmpty, "Table must be provided")
 
-    val userOptions = propertiesWithCustom.filterKeys(key => key != url.get)
+    val userOptions = propertiesWithCustom.filterKeys(key => key != url.get) + ("driver" -> "org.apache.ignite.IgniteJdbcThinDriver")
 
     val userProperties = new Properties()
     userOptions.foreach { case (key, value) =>
