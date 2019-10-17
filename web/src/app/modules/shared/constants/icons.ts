@@ -61,7 +61,7 @@ export const icons: any = {
     DropNulls: '\ue084',
     QueryBuilder: '\uE932',
     Xml: '\ue969',
-    Xls: '\ue103',
+    Xls: '\ue963',
     Rest: '\ue650',
     SFTP: '\uE97E',
     Pivot: '\ue9e2',
@@ -112,8 +112,8 @@ export const icons: any = {
     LeftPadding: '\ue9ce',
     InsertLiteral: '\ue9cc',
     ArangoDB: '\ue9d6',
-    Ignite: '\ue983',
-    StreamingSQL: '\ue932',
+    Ignite: '\ue9e0',
+    StreamingSQL: '\ue9e4',
     AFTSurvivalRegression: '\ue62d',
     ALS: '\ue62d',
     BisectingKMeans: '\ue62d',
@@ -136,5 +136,6 @@ export const icons: any = {
     OneVsRest: '\ue62d',
     RandomForestClassifier: '\ue62d',
     RandomForestRegressor: '\ue62d',
-    TrainValidationSplit: '\ue62d'
+    TrainValidationSplit: '\ue62d',
+    SQL: '\ue9e4'
 };
