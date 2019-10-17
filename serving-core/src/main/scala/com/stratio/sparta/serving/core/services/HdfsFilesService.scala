@@ -31,29 +31,54 @@ case class HdfsFilesService() extends CheckpointUtils {
 
     if (instancePrefix.nonEmpty && !instancePrefix.endsWith("/")) s"$instancePrefix/" else instancePrefix
   }
+
+  //TODO make configurable or create this as trait and classes implementations
   lazy private val pluginsLocation = {
     val pluginsLocationPrefix = Try(SpartaConfig.getDetailConfig().get.getString(AppConstant.PluginsLocation))
       .getOrElse(AppConstant.DefaultPluginsLocation)
 
     instanceName + pluginsLocationPrefix
   }
+  lazy private val mockDataLocation = {
+    val mockDataLocationPrefix = Try(SpartaConfig.getDetailConfig().get.getString(AppConstant.MockDataLocation))
+      .getOrElse(AppConstant.DefaultMockDataLocation)
+
+    instanceName + mockDataLocationPrefix
+  }
   lazy private val pluginJarPathParsed = s"${pluginsLocation.replace("hdfs://", "")}" +
     s"${if (pluginsLocation.endsWith("/")) "" else "/"}"
+  lazy private val mockDataPathParsed = s"${mockDataLocation.replace("hdfs://", "")}" +
+    s"${if (mockDataLocation.endsWith("/")) "" else "/"}"
   lazy private val driverLocation = Try(SpartaConfig.getDetailConfig().get.getString(AppConstant.DriverPackageLocation))
     .getOrElse(AppConstant.DefaultDriverPackageLocation)
 
   def browsePlugins: Seq[FileStatus] =
     hdfsService.getFiles(pluginsLocation)
 
-  def deletePlugin(file: String): Unit = {
-    val pluginJarPathParsed = s"${pluginsLocation.replace("hdfs://", "")}" +
-      s"${if (pluginsLocation.endsWith("/")) "" else "/"}"
-    hdfsService.delete(pluginJarPathParsed + file)
-  }
+  def browseMockData: Seq[FileStatus] =
+    hdfsService.getFiles(mockDataLocation)
+
+  def deletePlugin(file: String): Unit = deleteFile(file, pluginsLocation)
+
+  def deleteMockData(file: String): Unit = deleteFile(file, mockDataLocation)
 
   def deletePlugins(): Unit =
     browsePlugins.foreach(plugin => if (plugin.isFile) deletePlugin(plugin.getPath.getName))
 
+  def deleteDebugsData(): Unit =
+    browseMockData.foreach(data => if (data.isFile) deletePlugin(data.getPath.getName))
+
+  def downloadPluginFile(fileName: String, temporalDir: String): String =
+    downloadFile(fileName, temporalDir, pluginJarPathParsed)
+
+  def downloadMockDataFile(fileName: String, temporalDir: String): String =
+    downloadFile(fileName, temporalDir, mockDataPathParsed)
+
+  def uploadPluginFile(localPath: String): String =
+    uploadFile(localPath, pluginJarPathParsed)
+
+  def uploadMockDataFile(localPath: String): String =
+    uploadFile(localPath, mockDataPathParsed)
 
   def uploadDriverFile(driverJarPath: String): String = {
     val driverJar = JarsHelper.findDriverByPath(new File(driverLocation)).head
@@ -66,8 +91,16 @@ case class HdfsFilesService() extends CheckpointUtils {
     uploadJarFile(driverJar, driverJarPathParsed)
   }
 
-  def downloadPluginFile(fileName: String, temporalDir: String): String = {
-    val fileUri = pluginJarPathParsed + fileName
+  private[core] def uploadFile(localPath: String, path: String): String = {
+    val localFile = new File(localPath)
+
+    log.debug(s"Uploading file (${localFile.getName}) to HDFS cluster ...")
+
+    uploadJarFile(localFile, path)
+  }
+
+  private[core] def downloadFile(fileName: String, temporalDir: String, path: String): String = {
+    val fileUri = path + fileName
     val file = new File(s"$temporalDir/$fileName")
     log.debug(s"Downloading HDFS file to local file system: ${file.getAbsoluteFile}")
     val inputStream = hdfsService.getFile(fileUri)
@@ -75,12 +108,10 @@ case class HdfsFilesService() extends CheckpointUtils {
     file.getPath
   }
 
-  def uploadPluginFile(localPath: String): String = {
-    val pluginLocalJar = new File(localPath)
-
-    log.debug(s"Uploading plugin jar (${pluginLocalJar.getName}) to HDFS cluster ...")
-
-    uploadJarFile(pluginLocalJar, pluginJarPathParsed)
+  private[core] def deleteFile(file: String, location: String): Unit = {
+    val pathParsed = s"${location.replace("hdfs://", "")}" +
+      s"${if (location.endsWith("/")) "" else "/"}"
+    hdfsService.delete(pathParsed + file)
   }
 
   private[core] def uploadJarFile(localFile: File, destinationPathInHdfs: String) = {

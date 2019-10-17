@@ -183,6 +183,7 @@ object ErrorModel extends SpartaSerializer {
   val DebugWorkflowServiceUpload = "923"
   val DebugWorkflowServiceDeleteFile = "924"
   val DebugWorkflowServiceDownload = "925"
+  val DebugWorkflowServiceFindAllMockData = "926"
 
   /* Data quality result service 950 - 974 */
   val QualityRuleResultServiceFindAll = "950"
@@ -345,6 +346,7 @@ object ErrorModel extends SpartaSerializer {
     DebugWorkflowServiceResultsFindById -> "Error finding the debug results for that workflow ID",
     DebugWorkflowServiceUpload -> "Error while uploading a mock file",
     DebugWorkflowServiceDownload -> "Error while downloading a mock file",
+    DebugWorkflowServiceFindAllMockData -> "Error while finding all mock files",
     DebugWorkflowServiceDeleteFile -> "Error while deleting a mock file",
     QualityRuleResultServiceFindAll -> "Error while obtaining all quality rule results",
     QualityRuleResultServiceFindById -> "Error while obtaining the  quality rule result with the specified ID",

@@ -36,7 +36,7 @@ trait DebugWorkflowHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = upload(user) ~ deleteFile(user) ~ downloadFile(user) ~
     findAll(user) ~ create(user) ~ run(user) ~ remove(user) ~ removeAll(user) ~ findById(user) ~ resultsById(user) ~
-    runWithExecutionContext(user)
+    runWithExecutionContext(user) ~ findAllMockFiles(user)
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,
@@ -386,4 +386,25 @@ trait DebugWorkflowHttpService extends BaseHttpService {
       }
     }
   }
+
+  @Path("/mockFiles")
+  @ApiOperation(value = "Browses all mock files uploaded",
+    notes = "Finds all mock files.",
+    httpMethod = "GET")
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findAllMockFiles(user: Option[LoggedUser]): Route =
+    path(HttpConstant.DebugWorkflowsPath / "mockFiles" ) {
+      pathEndOrSingleSlash {
+        get {
+          context =>
+            for {
+              response <- (supervisor ? ListFiles(user))
+                .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
+            } yield getResponse(context, DebugWorkflowServiceFindAllMockData, response, genericError)
+        }
+      }
+    }
 }

@@ -6,15 +6,10 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import scala.concurrent.Future
-import scala.util.Try
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
-import org.joda.time.DateTime
-import spray.http.BodyPart
-import spray.httpx.Json4sJacksonSupport
 import com.stratio.sparta.core.models.DebugResults
-import com.stratio.sparta.security.{SpartaSecurityManager, _}
+import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.constants.HttpConstant._
 import com.stratio.sparta.serving.api.utils.FileActorUtils
@@ -24,7 +19,14 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.services.HdfsFilesService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import org.joda.time.DateTime
+import spray.http.BodyPart
+import spray.httpx.Json4sJacksonSupport
+
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 class DebugWorkflowActor(
                           launcherActor: ActorRef
@@ -36,6 +38,8 @@ class DebugWorkflowActor(
   val ResourceWorkflow = "Workflows"
   val ResourceFiles = "Files"
   val debugPgService = PostgresDaoFactory.debugWorkflowPgService
+
+  lazy val hdfsFilesService = HdfsFilesService()
 
   val targetDir = "debug"
   val temporalDir = "/tmp/sparta/debug"
@@ -54,6 +58,7 @@ class DebugWorkflowActor(
     case UploadFile(files, id, user) => uploadFile(files, id, user)
     case DeleteFile(fileName, user) => deleteFile(fileName, user)
     case DownloadFile(fileName, user) => downloadFile(fileName, user)
+    case ListFiles(user) => browseFiles(user)
   }
 
   //scalastyle:on
@@ -127,17 +132,51 @@ class DebugWorkflowActor(
 
   def downloadFile(fileName: String, user: Option[LoggedUser]): Unit =
     authorizeActions[SpartaFileResponse](user, Map(ResourceFiles -> Download)) {
-      browseFile(fileName)
+      Try {
+        hdfsFilesService.downloadMockDataFile(fileName, temporalDir)
+      }.flatMap(localFilePath => browseFile(localFilePath)).orElse(browseFile(fileName))
     }
 
   def deleteFile(fileName: String, user: Option[LoggedUser]): Unit =
     authorizeActions[Response](user, Map(ResourceFiles -> Delete)) {
-      deleteFile(fileName)
+      Try(hdfsFilesService.deleteMockData(fileName)).orElse(deleteFile(fileName))
     }
 
   def uploadFile(files: Seq[BodyPart], id: String, user: Option[LoggedUser]): Unit =
     authorizeActions[SpartaFilesResponse](user, Map(ResourceFiles -> View)) {
-      uploadFiles(files, useTemporalDirectory = true, Some(id))
+      uploadFiles(files, useTemporalDirectory = true, Some(id)) match {
+        case Success(spartaFiles) =>
+          Try {
+            spartaFiles.map { file =>
+              val path = hdfsFilesService.uploadMockDataFile(file.path)
+              SpartaFile("", "", path)
+            }
+          }
+        case Failure(_) =>
+          uploadFiles(files)
+      }
+    }
+
+  def browseFiles(user: Option[LoggedUser]): Unit =
+    authorizeActions[SpartaFilesResponse](user, Map(ResourceFiles -> View)) {
+      Try {
+        hdfsFilesService.browseMockData.flatMap { fileStatus =>
+          if (fileStatus.isFile)
+            Option(SpartaFile(
+              fileStatus.getPath.getName,
+              s"$url/${fileStatus.getPath.getName}",
+              fileStatus.getPath.toUri.toString))
+          else None
+        }
+      } match {
+        case Success(files) =>
+          Try(files)
+        case Failure(e: java.io.FileNotFoundException) =>
+          Try(Seq.empty[SpartaFile])
+        case Failure(e: Exception) =>
+          log.warn(s"Error getting files with Hdfs api, getting it from local directory. ${e.getLocalizedMessage}")
+          browseDirectory()
+      }
     }
 }
 
@@ -167,6 +206,8 @@ object DebugWorkflowActor extends SLF4JLogging {
   case class DownloadFile(fileName: String, user: Option[LoggedUser])
 
   case class DeleteFile(fileName: String, user: Option[LoggedUser])
+
+  case class ListFiles(user: Option[LoggedUser])
 
   type ResponseDebugWorkflow = Try[DebugWorkflow]
 

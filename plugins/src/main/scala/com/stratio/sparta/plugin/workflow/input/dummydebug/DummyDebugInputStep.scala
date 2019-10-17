@@ -80,11 +80,10 @@ abstract class DummyDebugInputStep[Underlying[Row]](
     (debugRDD, Option(schema))
   }
 
-  private def forceToLocalFS(path : String): String = {
-    if (path.startsWith("file:///")) path
-    else {
-      s"file://${ if(path.head.equals('/')) "" else "/"}$path"
-    }
+  private def forceFS(path : String): String = {
+    if (path.startsWith("hdfs://")) path
+    else if (path.startsWith("file:///")) path
+    else s"file://${ if(path.head.equals('/')) "" else "/"}$path"
   }
 
   def createDistributedMonadRDDwithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
@@ -98,7 +97,7 @@ abstract class DummyDebugInputStep[Underlying[Row]](
           override lazy val query = debQuery
         }.initWithSchema()
       case (None, None, Some(userExample), _) => createDebugFromUserDefinedExample()
-      case (None, None, None, Some(path)) => createDebugFromPath(Some(forceToLocalFS(path)))
+      case (None, None, None, Some(path)) => createDebugFromPath(Some(forceFS(path)))
       case (None, None, None, None) => throw new Exception("No simulated input for debugging")
     }
   }

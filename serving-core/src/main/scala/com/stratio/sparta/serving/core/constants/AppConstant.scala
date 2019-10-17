@@ -58,7 +58,9 @@ object AppConstant extends ZookeeperUtils {
   val DefaultDriverLocation = "provided"
   val DriverLocation = "driverLocation"
   val PluginsLocation = "pluginsLocation"
+  val MockDataLocation = "mockDataLocation"
   val DefaultPluginsLocation = "plugins"
+  val DefaultMockDataLocation = "mockData"
   val AwaitWorkflowChangeStatus = "awaitWorkflowChangeStatus"
   val SchedulerStopMaxCount = "scheduler.stop.maxCount"
   val DefaultSchedulerStopMaxCount = 3
