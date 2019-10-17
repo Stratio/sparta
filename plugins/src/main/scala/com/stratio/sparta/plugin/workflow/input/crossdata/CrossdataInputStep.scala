@@ -43,7 +43,7 @@ abstract class CrossdataInputStep[Underlying[Row]](
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     val validationSeq = Seq[(HasError, String)](
-      maybeCrossdataInfo.isDefined -> "You must select a database and a table"
+      maybeCrossdataInfo.isEmpty -> "You must select a database and a table"
     )
     ErrorValidationsHelper.validate(validationSeq, name)
   }
