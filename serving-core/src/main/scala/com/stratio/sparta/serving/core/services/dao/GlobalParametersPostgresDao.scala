@@ -71,6 +71,22 @@ class GlobalParametersPostgresDao extends GlobalParametersDao {
     } yield quotedGlobalParameters
   }
 
+
+  def createParameterVariable(globalParametersVariable: ParameterVariable): Future[ParameterVariable] = {
+    val escapedVariable = globalParametersVariable.findAndEscapeQuotes()
+    log.debug(s"Creating global parameter variable ${escapedVariable.name}")
+    for {
+      parameter <- findByID(escapedVariable.name)
+    } yield {
+      if (parameter.isDefined)
+        throw new ServerException(s"The global parameter variable ${escapedVariable.name} already exist")
+      else {
+        createAndReturn(escapedVariable)
+        escapedVariable
+      }
+    }
+  }
+
   def deleteGlobalParameters(): Future[Boolean] = {
     log.debug(s"Deleting global parameters")
     for {

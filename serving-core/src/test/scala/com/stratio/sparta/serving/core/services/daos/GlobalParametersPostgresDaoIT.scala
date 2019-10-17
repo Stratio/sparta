@@ -9,6 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.dao.GlobalParametersDao
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.PostgresFactory
 import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterVariable}
 import com.stratio.sparta.serving.core.services.dao.GlobalParametersPostgresDao
@@ -20,8 +21,9 @@ import org.scalatest.time.{Milliseconds, Span}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import slick.jdbc.PostgresProfile
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 @RunWith(classOf[JUnitRunner])
 class GlobalParametersPostgresDaoIT extends DAOConfiguration
@@ -52,7 +54,7 @@ class GlobalParametersPostgresDaoIT extends DAOConfiguration
   val globalParamsWithQuotes = GlobalParameters(Seq(paramWithQuotes))
 
 
-  val globalParametersDao = new GlobalParametersPostgresDao()
+  val globalParametersDao: GlobalParametersPostgresDao = new GlobalParametersPostgresDao()
 
   trait GlobalParametersDaoTrait extends GlobalParametersDao {
 
@@ -132,6 +134,16 @@ class GlobalParametersPostgresDaoIT extends DAOConfiguration
         whenReady(db.run(table.filter(_.name === paramVar_3.name).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) { result =>
           result.head.value shouldBe paramVar_3.value
         }
+      }
+    }
+
+    "Return an exception when it tries to create a parameter that already exists" in new GlobalParametersDaoTrait {
+
+      val duration = Duration(2, "seconds")
+
+      Try(Await.result(globalParametersDao.createParameterVariable(paramVar_1), duration)) match {
+        case Success(_) =>
+        case Failure(ex) => ex shouldBe a[ServerException]
       }
     }
 

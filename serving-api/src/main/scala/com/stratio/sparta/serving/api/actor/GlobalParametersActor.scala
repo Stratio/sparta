@@ -46,7 +46,7 @@ class GlobalParametersActor()
 
   def createGlobalParametersVariable(request: ParameterVariable, user: Option[LoggedUser]): Unit =
     authorizeActions(user, Map(ResourceType -> Create)) {
-      globalParametersService.upsertParameterVariable(request)
+      globalParametersService.createParameterVariable(request)
     }
 
   def updateGlobalParameters(request: GlobalParameters, user: Option[LoggedUser]): Unit =
