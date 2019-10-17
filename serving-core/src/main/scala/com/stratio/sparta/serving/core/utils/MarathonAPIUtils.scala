@@ -299,6 +299,35 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
     else Seq.empty
   }
 
+  private[core] def extractRunningApps(stringJson: String): Option[Int] = {
+    log.debug(s"Trying to extract running apps number marathon API responses from groups: $stringJson")
+    if (stringJson.trim.nonEmpty) {
+      val queryRunningApps = "$.apps.[0].tasksRunning"
+      Try {
+        val extractor = new JsonPathExtractor(stringJson, false)
+        import extractor.query
+        val runningApps: Int = query(queryRunningApps).asInstanceOf[Int]
+        runningApps
+      } match {
+        case Success(runningApps) =>
+          Option(runningApps)
+        case Failure(e) =>
+          log.debug(s"Invalid running apps extraction, the Marathon API responses: $stringJson .Error: ${e.getLocalizedMessage}")
+          None
+      }
+    }
+    else None
+  }
+
+  def isRunning(stringJson: String): Boolean = {
+    val runningApps: Option[Int] = extractRunningApps(stringJson)
+    val running  = if (runningApps.getOrElse(0) == 0){
+      false
+    }
+    else true
+    running
+  }
+
   private[utils] def extractID(jsonNode: JsonNode): List[String] = {
     //Find apps and related ids in this node and all its subtrees
     val apps = jsonNode.findValues("apps")

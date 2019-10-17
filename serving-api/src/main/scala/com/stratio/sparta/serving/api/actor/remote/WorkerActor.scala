@@ -111,14 +111,12 @@ trait WorkerActor extends Actor with SLF4JLogging with SpartaSerializer {
 
     futureApplicationDeployments.onComplete {
       case Success(value) =>
-
-        val result: Option[Seq[String]] = marathonUpAndDownComponent.marathonAPIUtils.extractAppsId(value)
-
-        if(result.isEmpty || result.get.size == 0) {
+        val isRunning: Boolean = marathonUpAndDownComponent.marathonAPIUtils.isRunning(value)
+        if(isRunning) {
+          log.trace(s"There are a running deployment for id: $spartaServerMarathonAppId. Nothing to do")
+        } else {
           log.info(s"There are not any deployment for id : $spartaServerMarathonAppId. Autokilling this instance!")
           marathonService.kill(marathonDeploymentTaskId)
-        } else {
-          log.trace(s"There are a deployment for id: $spartaServerMarathonAppId. Nothing to do")
         }
       case Failure(ex) =>
         log.error(ex.getLocalizedMessage, ex)
