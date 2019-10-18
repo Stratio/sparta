@@ -3,10 +3,25 @@
 ## 2.11.0 (upcoming)
 
 * Improvements and new features:
-    - [SPARTA-3383] Ignite input JDBC
-    - [SPARTA-3384] Ignite output JDBC
-    - [ROCK-742] Update ML Models repository client
-    - @TODO
+     
+    - Proactive quality rules
+    - Micro-service workers architecture (stability goal)
+    - Annotations in workflow editor
+    - Multiple writers by output in inputs/transformations
+    - Read only workflow view
+    - Workflow continuous integration over Jenkins (CI/CD goal)
+    - Kafka key and value serialization/deserialization policies
+    - JWT authentication
+    - Crossdata and SQL input
+    - ArangoDB input
+    - ArangoDB output
+    - Ignite input JDBC
+    - Ignite output JDBC
+    - XLS input
+    - XLS output
+    - Postgres input with pushdown
+    - Update ML Models repository client
+    - Distributed session management
 
 
 ## 2.10.0 (September 30, 2019)
@@ -49,7 +64,41 @@
     - [INTELL-2148] Fix Model repository method to download Spark pipeline models from repository
     - Added session cache in Crossdata with false by default
 
-## 2.8.1 (June 04, 2019)
+## 2.8.5 (August 30, 2019)
+
+ * Bug fixing
+   - Added session cache in Crossdata with false by default
+
+## 2.8.4 (July 11, 2019)
+
+* Bug fixing
+   - [INTELL-2148] Fix Model repository method to download Spark pipeline models from repository   
+
+## 2.8.3 (July 03, 2019)
+
+* Bug fixing
+   - Solved Known Issue regarding not serializable messages when Quality Rules are retrieved in a multi-instance Sparta
+   - [SPARTA-3254] Create connection config for Lineage properties according to the user-defined jdbc connection string
+   - Solved dyplon-crossdata issue with respect to runtime loading of different versions of the same library
+    
+
+## 2.8.2 (June 19, 2019)
+
+* Improvements and new features:
+   - Upgrade gosec-dyplon to 0.16.1-d69cf95
+   - Upgrade crossdata-dyplon to 0.19.1-e67b2ab
+
+* Bug fixing
+   - [SPARTA-3070] Improve performance when loading latest version of plugins at runtime
+   - [SPARTA-3206] Fix the update of the workflow status before stopping SparkContext
+   - [SPARTA-3182][SPARTA-3212][SPARTA-3214] Fixes Quality rules: Long to String failing cast, rounding threshold percentage and get current schema.
+   - [SPARTA-3217] User-defined variables must override Environment or Global variables in /workflows/runWithParameters or /workflows/runWithExecutionContext
+   - [SPARTA-3216] Enable log request by configuration && Fix appstatus connection leak
+   - [SPARTA-3194] New reload execution icon
+   - [SPARTA-3222] Refresh session expiration time when interacting with Sparta
+   - Set failed status before stopping spark contexts
+
+## 2.8.1 (June 06, 2019)
 
 * Bug fixing
     - [SPARTA-3085] Rest steps: support special characters in placeholder replacement
@@ -58,7 +107,6 @@
     - Fix metrics query executions performance 
     - [SPARTA-3059] Export execution parameters together with metrics
     - [SPARTA-3075] Support case sensitive table names in Postgres and Jdbc outputs
-    - [SPARTA-3070] Improve performance when loading latest version of plugins at runtime
 
 ## 2.8.0 (May 17, 2019)
 
@@ -105,6 +153,52 @@
     - (2.6.1) Fix bugs and add validations to sftp output/input
     - (2.6.1) Fix GBTClassifier cacheNodeProperty
     - (2.6.1) Fix postgres upsert
+
+## 2.6.7 (October 18, 2019)
+
+* Bug fixing
+   - Upgrade Stratio Crossdata to 2.15.11-e6d86f7 and dyplon-crossdata to 0.18.3-cc1f326
+   
+## 2.6.6 (August 29, 2019)
+
+* Bug fixing
+   - Added session cache in Crossdata with false by default
+
+## 2.6.5 (June 18, 2019)
+
+* Bug fixing
+   - Fix failed and stop states
+
+## 2.6.4 (June 13, 2019)
+
+* Bug fixing
+   - Support variable substitution without parameter list definition
+
+## 2.6.3 (May 30, 2019)
+
+* Bug fixing
+   - [SPARTA-3085] Rest steps: support special characters in placeholder replacement
+   - [SPARTA-3070] Improve performance when loading latest version of plugins at runtime
+
+## 2.6.2 (May 03, 2019)
+
+* Bug fixing
+    - [SPARTA-3067] Allow whitespaces in partitionBy
+    
+## 2.6.1 (April 23, 2019)
+
+* Improvements and new features:
+    - Upgrade Stratio Spark to 2.4.0 final version
+    - PgBouncer lineage integration
+    - Support postgres functions in pk updates
+
+* Bug fixing
+    - Fixed duplicates <nameWorkflow,groupId,Version>, templates, upsert environment
+    - Fix hour format of the executions in the detail
+    - Added spark.mesos.driver.failoverTimeout
+    - Fix for SSO URI not being strip properly
+    - Fix bugs and add validations to sftp output/input
+    - Fix GBTClassifier cacheNodeProperty
 
 ## 2.6.0-65e4295 (Built: March 21, 2019 | Released: March 22, 2019)
 
