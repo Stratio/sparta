@@ -44,7 +44,7 @@ class ConfigHttpServiceTest extends WordSpec
   }
 
   protected def retrieveStringConfig(): FrontendConfiguration =
-    FrontendConfiguration(AppConstant.DefaultApiTimeout, dummyUser.get.name)
+    FrontendConfiguration(AppConstant.DefaultApiTimeout, dummyUser.get.name, isCiCdEnabled = false)
 
   "ConfigHttpService.FindAll" should {
     "retrieve a FrontendConfiguration item" in {

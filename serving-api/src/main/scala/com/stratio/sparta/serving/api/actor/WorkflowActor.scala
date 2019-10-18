@@ -20,8 +20,9 @@ import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.authorization.{GosecUser, LoggedUser}
 import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
+import com.stratio.sparta.serving.core.models.enumerators.CiCdLabel
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.WorkflowValidatorService
+import com.stratio.sparta.serving.core.services.{JenkinsService, WorkflowValidatorService}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, AkkaClusterUtils}
 import org.json4s.native.Serialization.write
 
@@ -45,7 +46,7 @@ class WorkflowActor(launcherActor: ActorRef, parametersStateActor: ActorRef) ext
   private val workflowPgService = PostgresDaoFactory.workflowPgService
   private val groupPgService = PostgresDaoFactory.groupPgService
   private val workflowValidatorService = new WorkflowValidatorService()
-
+  private val jenkinsService = JenkinsService(actorSystem)
 
   //scalastyle:off
   def receiveApiActions(action: Any): Any = action match {
@@ -74,6 +75,8 @@ class WorkflowActor(launcherActor: ActorRef, parametersStateActor: ActorRef) ext
     case MoveWorkflow(workflowMove, user) => moveTo(workflowMove, user)
     case RunWithParametersView(workflow, user) => runWithParametersView(workflow, user)
     case RunWithParametersViewId(workflowId, user) => runWithParametersViewById(workflowId, user)
+    case Build(workflowId, user) => build(workflowId, user)
+    case Release(workflowId, user) => release(workflowId, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
   }
 
@@ -303,6 +306,31 @@ class WorkflowActor(launcherActor: ActorRef, parametersStateActor: ActorRef) ext
     }
   }
 
+  def release(workflowId: String, user: Option[LoggedUser]): Unit =
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> Deploy)) {
+      val requestReleaseInfo = "A release candidate is required before releasing a workflow"
+      workflowPgService.findWorkflowById(workflowId).flatMap{ workflow =>
+        val ciCdLabel = workflow.ciCdLabel.getOrElse(throw new RuntimeException(requestReleaseInfo))
+        if (CiCdLabel.isReleaseCandidate(ciCdLabel)){
+          jenkinsService.release(workflow)
+        } else {
+          throw new RuntimeException(requestReleaseInfo)
+        }
+      }
+    }
+
+  def build(workflowId: String, user: Option[LoggedUser]): Unit =
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> Deploy)) {
+      workflowPgService.findWorkflowById(workflowId).flatMap{ workflow =>
+        val ciCdLabel = workflow.ciCdLabel.getOrElse("undefined")
+        if (!CiCdLabel.isReleased(ciCdLabel)){
+          jenkinsService.build(workflow)
+        } else {
+          throw new RuntimeException("Workflow version is already released, release candidate job cannot be built")
+        }
+      }
+    }
+
   private def manageValidationResult(validationContextResult: Try[ValidationContextResult]): Try[WorkflowValidation] = {
     Try {
       validationContextResult match {
@@ -373,6 +401,10 @@ object WorkflowActor extends SLF4JLogging {
 
   case class RunWithParametersViewId(workflowId: String, user: Option[LoggedUser])
 
+  case class Build(workflowId: String, user: Option[LoggedUser])
+
+  case class Release(workflowId: String, user: Option[LoggedUser])
+
   type ResponseRun = Try[String]
 
   type ResponseWorkflows = Try[Seq[Workflow]]
@@ -382,6 +414,8 @@ object WorkflowActor extends SLF4JLogging {
   type ResponseWorkflow = Try[Workflow]
 
   type ResponseRunWithExecutionContextView = Try[RunWithExecutionContextView]
+
+  type ResponseRelease = Try[String] // fake string required in order to work with unit and boolean in akka-http
 
 }
 

@@ -19,6 +19,7 @@ import com.stratio.sparta.serving.core.helpers.LinkHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
+import com.stratio.sparta.serving.core.services.JenkinsService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class ConfigActor()
@@ -47,8 +48,8 @@ class ConfigActor()
       val timeout = Try(SpartaConfig.getDetailConfig().get.getInt("timeout"))
         .getOrElse(AppConstant.DefaultApiTimeout) + 1
       if (enabledSecurity)
-        FrontendConfiguration(timeout, retrieveNameUser(user), LinkHelper.getClusterLocalLink)
-      else FrontendConfiguration(timeout, emptyField, LinkHelper.getClusterLocalLink)
+        FrontendConfiguration(timeout, retrieveNameUser(user), LinkHelper.getClusterLocalLink, JenkinsService.isCiCdEnabled )
+      else FrontendConfiguration(timeout, emptyField, LinkHelper.getClusterLocalLink, JenkinsService.isCiCdEnabled)
     }
 
   }

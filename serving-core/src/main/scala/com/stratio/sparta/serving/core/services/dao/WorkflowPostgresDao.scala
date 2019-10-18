@@ -24,6 +24,7 @@ import com.stratio.sparta.serving.core.dao.WorkflowDao
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.enumerators.CiCdLabel
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
@@ -127,10 +128,10 @@ class WorkflowPostgresDao extends WorkflowDao {
             s" version ${workflow.version} and group ${workflow.group.name} exists." +
             s" The created workflow has id ${workflow.id.get}")
 
-      workflowUpdate.ciCdLabel.find(_ == "Released").map(_ =>{
+      workflowUpdate.ciCdLabel.find(_ == CiCdLabel.Released.toString).map(_ =>{
         throw new ServerException(
           s"Workflow with name ${workflow.name}," +
-            s" ciCdLabel ${workflow.ciCdLabel} is 'Released' and it isn't editable")
+            s" ciCdLabel ${workflow.ciCdLabel} is '${CiCdLabel.Released.toString}' and it isn't editable")
       })
 
       val workflowWithFields = addSpartaVersion(addParametersUsed(addUpdateDate(workflow.copy(groupId = workflow.group.id.orElse(workflow.groupId)))))

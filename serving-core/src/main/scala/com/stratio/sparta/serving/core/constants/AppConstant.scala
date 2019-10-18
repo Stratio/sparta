@@ -49,6 +49,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigValidator = "sparta.validator"
   val ConfigCatalog = "sparta.catalog"
   val ConfigJwt = "jwt"
+  val ConfigCicd = "sparta.cicd"
   val HdfsKey = "hdfs"
   val DefaultOauth2CookieName = "user"
   val DriverPackageLocation = "driverPackageLocation"
@@ -176,6 +177,14 @@ object AppConstant extends ZookeeperUtils {
   val IgnitePersistencePath = "persistence.persistencePath"
   val IgniteMemoryInitialSize ="memory.initialSizeMB"
   val IgniteMemoryMaxSize ="memory.maxSizeMB"
+
+  //CiCd
+  val CiCdEnabledConf = "enable"
+  val JenkinsUrlConf = "jenkins.url"
+  val JenkinsTestTagsConf = "jenkins.test-tags"
+
+  val JenkinsUserEnvVar = "SPARTA_CICD_JENKINS_USER"
+  val JenkinsApiTokenEnvVar = "SPARTA_CICD_JENKINS_APITOKEN"
 
   lazy val ClusterSeedNodesZkPath = s"$BaseZkPath/seedNodes"
 

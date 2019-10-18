@@ -134,6 +134,8 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceMove = "727"
   val WorkflowServiceMigration = "728"
   val WorkflowServiceRunWithExecutionContextView = "729"
+  val WorkflowServiceBuild = "730"
+  val WorkflowServiceRelease = "731"
 
   /* Environment Service 750-769 */
   val GlobalParametersServiceUnexpected = "750"

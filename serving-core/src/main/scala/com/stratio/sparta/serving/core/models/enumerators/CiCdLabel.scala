@@ -3,26 +3,17 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.security
+package com.stratio.sparta.serving.core.models.enumerators
 
-sealed trait Action
+object CiCdLabel extends Enumeration {
 
-case object View extends Action
+  type CiCdLabel = Value
 
-case object Edit extends Action
+  val Released = Value("Released")
 
-case object Create extends Action
+  def isReleased(label: String): Boolean =
+    Released.toString.equalsIgnoreCase(label)
 
-case object Delete extends Action
-
-case object Status extends Action
-
-case object Download extends Action
-
-case object Upload extends Action
-
-case object Describe extends Action
-
-case object Select extends Action
-
-case object Deploy extends Action
+  def isReleaseCandidate(label: String): Boolean =
+    label.toUpperCase.startsWith("RC-")
+}

@@ -7,6 +7,7 @@ package com.stratio.sparta.serving.core.models.frontend
 
 case class FrontendConfiguration(
                                   timeout: Int,
-                                  userName : String,
-                                  xDSparkUi: Option[String] = None
+                                  userName: String,
+                                  xDSparkUi: Option[String] = None,
+                                  isCiCdEnabled: Boolean
                                 )

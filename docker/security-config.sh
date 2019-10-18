@@ -150,3 +150,13 @@ if [ -v SECURITY_MARATHON_ENABLED ] && [ ${#SECURITY_MARATHON_ENABLED} != 0 ] &&
  source marathon-sso-security.sh
  INFO "[SECURITY-CONFIG] Configuring Marathon Security Ok"
 fi
+
+
+#######################################################
+## JenkinsSecurity config set SPARTA_CICD_JENKINS_USER and SPARTA_CICD_JENKINS_APITOKEN
+#######################################################
+if [ -v SPARTA_CICD_ENABLED ] && [ ${#SPARTA_CICD_ENABLED} != 0 ] && [ $SPARTA_CICD_ENABLED == "true" ]; then
+ INFO "[SECURITY-CONFIG] Configuring Jenkins Security ..."
+ source jenkins-config.sh
+ INFO "[SECURITY-CONFIG] Configuring Jenkins Security Ok"
+fi

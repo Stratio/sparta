@@ -40,12 +40,13 @@ trait WorkflowHttpService extends BaseHttpService {
   )
 
   override def routes(user: Option[LoggedUser] = None): Route =
-    find(user) ~ findAll(user) ~ create(user) ~ run(user) ~
-      update(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
-      removeList(user) ~ findList(user) ~ validate(user) ~ validateSteps(user) ~ validateWithoutContext(user) ~
-      createVersion(user) ~ findAllByGroup(user) ~ findAllByGroupDto(user) ~
-      findAllDto(user) ~ rename(user) ~ move(user) ~ runWithExecutionContext(user) ~ runWithVariables(user) ~
-      validateWithContext(user) ~ runWithParametersView(user) ~ runWithParametersViewById(user)
+    find(user) ~ findAll(user) ~ create(user) ~ run(user) ~ update(user) ~ remove(user) ~
+      removeWithAllVersions(user) ~ download(user) ~ findById(user) ~ removeList(user) ~
+      findList(user) ~ validate(user) ~ validateSteps(user) ~ validateWithoutContext(user) ~
+      createVersion(user) ~ findAllByGroup(user) ~ findAllByGroupDto(user) ~ findAllDto(user) ~
+      rename(user) ~ move(user) ~ runWithExecutionContext(user) ~ runWithVariables(user) ~
+      validateWithContext(user) ~ runWithParametersView(user) ~ runWithParametersViewById(user) ~
+      build(user) ~ release(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -787,6 +788,68 @@ trait WorkflowHttpService extends BaseHttpService {
                   .mapTo[Either[ResponseWorkflowsDto, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceMove, response, genericError)
             }
+          }
+        }
+      }
+    }
+  }
+
+
+
+  @Path("/build/{id}")
+  @ApiOperation(value = "Builds a workflow by id.",
+    notes = "Builds a workflow by its id.",
+    httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the workflow",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def build(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "build" / JavaUUID) { id =>
+      post {
+        complete {
+          for {
+            response <- (supervisor ? Build(id.toString, user))
+              .mapTo[Either[ResponseRelease, UnauthorizedResponse]]
+          } yield {
+            deletePostPutResponse(WorkflowServiceBuild, response, genericError)
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/release/{id}")
+  @ApiOperation(value = "Releases a workflow by id.",
+    notes = "Releases a workflow by its id.",
+    httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the workflow",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def release(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "release" / JavaUUID) { id =>
+      post {
+        complete {
+          for {
+            response <- (supervisor ? Release(id.toString, user))
+              .mapTo[Either[ResponseRelease, UnauthorizedResponse]]
+          } yield {
+            deletePostPutResponse(WorkflowServiceRelease, response, genericError)
           }
         }
       }

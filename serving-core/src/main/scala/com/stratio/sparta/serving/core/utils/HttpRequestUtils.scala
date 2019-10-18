@@ -11,7 +11,7 @@ import java.net.HttpCookie
 import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
-import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.model.headers.{Accept, BasicHttpCredentials, RawHeader}
 import akka.http.scaladsl.model.{HttpEntity, _}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.ActorMaterializer
@@ -49,6 +49,27 @@ trait HttpRequestUtils extends SLF4JLogging {
     } yield (status, entity)
   }
 
+  def doRequestUri(
+                 uri: Uri,
+                 method: HttpMethod = HttpMethods.GET,
+                 body: Option[String] = None,
+                 httpCredentials: Option[BasicHttpCredentials] = None,
+                 cookies: Seq[HttpCookie] = Seq.empty[HttpCookie],
+                 headers: Seq[RawHeader] = Seq.empty[RawHeader]
+               )(implicit ev: Unmarshaller[ResponseEntity, String]): Future[(StatusCode, String)] = {
+
+    log.debug(s"Sending HTTP request [${method.value}] to $uri")
+
+    val request = createRequestUri(uri, method, body, cookies, headers).addHeader(Accept(MediaRange(MediaTypes.`application/json`)))
+    val requestWithCredentials = httpCredentials.map(cred => request.addCredentials(cred)).getOrElse(request)
+
+    for {
+      response <- httpSystem.singleRequest(requestWithCredentials, getSSLContextFromURI(uri.toString))
+      status = response.status
+      entity <- Unmarshal(response.entity).to[String]
+    } yield (status, entity)
+  }
+
   private def createRequest(
                              url: String,
                              resource: String,
@@ -59,6 +80,20 @@ trait HttpRequestUtils extends SLF4JLogging {
                            ): HttpRequest =
     HttpRequest(
       uri = s"$url/$resource",
+      method = method,
+      entity = createRequestEntityJson(body),
+      headers = createHeaders(cookies) ++ headers
+    )
+
+  private def createRequestUri(
+                             uri: Uri,
+                             method: HttpMethod,
+                             body: Option[String],
+                             cookies: Seq[HttpCookie],
+                             headers: Seq[RawHeader]
+                           ): HttpRequest =
+    HttpRequest(
+      uri = uri,
       method = method,
       entity = createRequestEntityJson(body),
       headers = createHeaders(cookies) ++ headers
