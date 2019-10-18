@@ -39,7 +39,7 @@ class ClusterSessionActor extends Actor with SLF4JLogging {
       replyTo ! None
 
     case NotFound(_, Some(SessionContext(_, replyTo))) =>
-      log.debug("Session ID not found")
+      log.trace("Session ID not found")
       replyTo ! None
 
     case UpdateSuccess(_, Some(SessionContext(sessionId, replyTo))) =>
@@ -50,17 +50,17 @@ class ClusterSessionActor extends Actor with SLF4JLogging {
       replyTo ! None
 
     case NewSession(sessionId, identity, expires) =>
-      replicator ! Update(dataKey(sessionId), LWWMap(), writeAll, Some(SessionContext(sessionId, sender()))) {
+      replicator ! Update(dataKey(sessionId), LWWMap(), ClusterSessionActor.writeLocal, Some(SessionContext(sessionId, sender()))) {
         _ + (sessionId -> SessionInfo(identity, expires))
       }
 
     case RefreshSession(sessionId, identity, expires) =>
-      replicator ! Update(dataKey(sessionId), LWWMap(), WriteLocal) {
+      replicator ! Update(dataKey(sessionId), LWWMap(), ClusterSessionActor.writeLocal) {
         _ + (sessionId -> SessionInfo(identity, expires))
       }
 
     case RemoveSession(sessionId) =>
-      replicator ! Delete(dataKey(sessionId), WriteLocal)
+      replicator ! Delete(dataKey(sessionId), ClusterSessionActor.writeLocal)
 
   }
 
@@ -81,6 +81,8 @@ object ClusterSessionActor {
     .getOrElse(AppConstant.DefaultApiTimeout) - 1
 
   private val writeAll = WriteAll(timeout.seconds)
+
+  private val writeLocal = WriteLocal
 
   case class NewSession(sessionId: String, identity: String, expires: Long)
 
