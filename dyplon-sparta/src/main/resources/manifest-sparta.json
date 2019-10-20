@@ -81,8 +81,7 @@
         "create",
         "delete",
         "edit",
-        "status",
-        "deploy"
+        "status"
       ]
     },
     {
