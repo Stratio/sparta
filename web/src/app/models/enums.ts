@@ -6,8 +6,14 @@
 
  export const Engine = {
     Streaming : 'Streaming',
-    Batch : 'Batch'
+    Batch : 'Batch',
+    PlannedQr: 'Proactive Qr'
  };
+
+  export const Execution = {
+    User : 'UserExecution',
+    System : 'SystemExecution'
+  };
 
  export const StepType = {
     Input : 'Input',

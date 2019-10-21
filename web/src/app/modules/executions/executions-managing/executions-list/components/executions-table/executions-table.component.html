@@ -30,13 +30,22 @@
       <td st-table-cell st-table-row-content>
         <label [attr.id]="execution.id + '-link'">
             <div class="execution-link" routerLink="/executions/{{execution.id}}">
-              <img src="assets/images/iconStreamingExecution.svg" class="icon-row" [attr.title]="execution.executionEngine" *ngIf="execution.executionEngine === 'Streaming'"/>
-              <img src="assets/images/iconBatchExecution.svg" class="icon-row" [attr.title]="execution.executionEngine" *ngIf="execution.executionEngine === 'Batch'"/>
+              <img src="assets/images/iconStreamingExecution.svg" class="icon-row" [attr.title]="execution.executionEngine"
+                   *ngIf="execution.executionType === ExecutionType.User && execution.executionEngine === Engine.Streaming"/>
+              <img src="assets/images/iconBatchExecution.svg" class="icon-row" [attr.title]="execution.executionEngine"
+                   *ngIf="execution.executionType === ExecutionType.User && execution.executionEngine === Engine.Batch"/>
+              <img src="assets/images/iconQualityRules.svg" class="icon-row" [attr.title]="execution.executionEngine"
+                   *ngIf="execution.executionType === ExecutionType.System"/>
               {{execution.name}} - v{{execution.version}}
             </div>
             <div class="execution-group">
                 {{execution.group}}
             </div>
+        </label>
+      </td>
+      <td st-table-cell st-table-row-content>
+        <label class="context-field">
+          {{execution.executionType === ExecutionType.System ? Engine.PlannedQr : execution.executionEngine}}
         </label>
       </td>
       <td st-table-cell st-table-row-content>
@@ -52,9 +61,7 @@
         <label class="status-field"><span class="oval" *ngIf="!loadingStates.includes(execution.status)" [ngClass]="execution.filterStatus"></span>
         <st-spinner class="starting-spinner" *ngIf="loadingStates.includes(execution.status)"></st-spinner>{{execution.filterStatus}}</label>
       </td>
-      <td st-table-cell st-table-row-content> 
-
-      </td>
+      <td st-table-cell st-table-row-content></td>
       <td st-table-cell st-table-row-content class="execution-links">
         <div class="execution-links__container">
           <a spTitle="History server" (click)="showURI(execution.historyServerURI)" *ngIf="execution.historyServerURI && execution.historyServerURI.length"><i class="icon-report"></i></a>

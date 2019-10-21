@@ -27,6 +27,7 @@ export interface Info {
   description: String;
   status: String;
   executionEngine: String;
+  executionType: String;
   sparkURI: String;
   historyServerURI: String;
   context: Array<String>;

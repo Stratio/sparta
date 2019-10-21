@@ -27,10 +27,10 @@
         </span>
       </div>
     </div>
-    <sparta-sidebar class="executions__sidebar sidebar" 
-      [isVisible]="showSidebar" 
+    <sparta-sidebar class="executions__sidebar sidebar"
+      [isVisible]="showSidebar"
       (onCloseSidebar)="closeSidebar.emit()">
-      <scheduled-sidebar [showSidebar]="showSidebar" 
+      <scheduled-sidebar [showSidebar]="showSidebar"
         [executionData]="sidebarExecutionDetail"></scheduled-sidebar>
     </sparta-sidebar>
     <div class="dynamic-subheader">
@@ -54,7 +54,7 @@
     <st-table [fields]="fields" [sortable]="true" [currentOrder]="currentOrder" [selectableAll]="true"
       [ngClass]="{'active-selection' : selectedExecutions.length}"
       [selectedAll]="scheduledExecutions.length && scheduledExecutions.length === selectedExecutions.length" qaTag="scheduled-table" class="scheduled__table checkbox-table"
-      (changeOrder)="onChangeOrder.emit($event)" 
+      (changeOrder)="onChangeOrder.emit($event)"
       (selectAll)="toggleAllExecutions(scheduledExecutions.length !== selectedExecutions.length)">
       <tr st-table-row *ngFor="let execution of scheduledExecutions;"
       [selected]="selectedExecutions.indexOf(execution.id) > -1"
@@ -67,6 +67,7 @@
             <div>
               <img src="assets/images/iconStreamingExecution.svg" class="icon-row" [attr.title]="execution.executionEngine" *ngIf="execution.executionEngine === 'Streaming'"/>
               <img src="assets/images/iconBatchExecution.svg" class="icon-row" [attr.title]="execution.executionEngine" *ngIf="execution.executionEngine === 'Batch'"/>
+              <!--              <img src="assets/images/iconQRExecution.svg" class="icon-row" [attr.title]="execution.executionEngine" *ngIf="execution.executionType === 'SystemExecution'"/>-->
               {{execution.name}} - v{{execution.version}}
             </div>
             <div class="execution-group">

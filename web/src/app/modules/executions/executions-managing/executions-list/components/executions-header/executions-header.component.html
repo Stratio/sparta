@@ -19,9 +19,15 @@
           </st-dropdown-menu>
         </span>
         <span class="item">
-          <st-dropdown-menu [items]="workflowTypes" [active]="showedFilter === 'type'" [selectedItem]="typeFilterItem"
-            (change)="onChangeTypeFilter.emit($event.value)">
-            <span (click)="selectFilter($event, 'type')">{{typeFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+          <st-dropdown-menu [items]="executionTypes" [active]="showedFilter === 'execType'" [selectedItem]="execTypeFilterItem"
+                            (change)="onChangeExecTypeFilter.emit($event.value)">
+            <span (click)="selectFilter($event, 'execType')">{{execTypeFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+          </st-dropdown-menu>
+        </span>
+        <span class="item">
+          <st-dropdown-menu [items]="workflowTypes" [active]="showedFilter === 'wfType'" [selectedItem]="wfTypeFilterItem"
+            (change)="onChangeWfTypeFilter.emit($event.value)">
+            <span (click)="selectFilter($event, 'wfType')">{{wfTypeFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
           </st-dropdown-menu>
         </span>
         <span class="item">

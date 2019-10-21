@@ -74,6 +74,7 @@ export class ExecutionHelperService {
         statuses,
         marathonExecution,
         localExecution,
+        executionType,
         genericDataExecution: {
           lastError,
           endDate,
@@ -134,6 +135,7 @@ export class ExecutionHelperService {
          startDateFormatted,
          group,
          executionEngine,
+         executionType,
          executionTime,
          lastError,
          genericDataExecution: execution.genericDataExecution,

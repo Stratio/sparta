@@ -29,7 +29,8 @@ import * as fromRoot from './../../reducers';
             [showStopButton]="showStopButton$ | async"
             [showArchiveButton]="showArchiveButton$ | async"
             [showUnarchiveButton]="showUnarchiveButton$ | async"
-            [typeFilter]="typeFilter$ | async"
+            [wfTypeFilter]="wfTypeFilter$ | async"
+            [execTypeFilter]="execTypeFilter$ | async"
             [emptyTable]="emptyTable"
             [timeIntervalFilter]="timeIntervalFilter$ | async"
             (downloadExecutions)="downloadExecutions()"
@@ -40,7 +41,8 @@ import * as fromRoot from './../../reducers';
             (onDeleteExecutions)="deleteExecutions($event)"
             (onReRunExecution)="reRunExecution($event)"
             (onChangeStatusFilter)="changeStatusFilter($event)"
-            (onChangeTypeFilter)="changeTypeFilter($event)"
+            (onChangeExecTypeFilter)="changeExecTypeFilter($event)"
+            (onChangeWfTypeFilter)="changeWfTypeFilter($event)"
             (onChangeTimeIntervalFilter)="changeTimeIntervalFilter($event)"
             (onSearch)="searchExecutions($event)"></executions-managing-header>
     `,
@@ -58,7 +60,8 @@ export class ExecutionsHeaderContainer implements OnInit {
    @Output() showExecutionInfo = new EventEmitter<void>();
 
    public statusFilter$: Observable<string>;
-   public typeFilter$: Observable<string>;
+   public execTypeFilter$: Observable<string>;
+   public wfTypeFilter$: Observable<string>;
    public timeIntervalFilter$: Observable<number>;
    public showStopButton$: Observable<boolean>;
    public showArchiveButton$: Observable<boolean>;
@@ -68,7 +71,8 @@ export class ExecutionsHeaderContainer implements OnInit {
 
    ngOnInit(): void {
       this.statusFilter$ = this._store.pipe(select(fromRoot.getStatusFilter));
-      this.typeFilter$ = this._store.pipe(select(fromRoot.getTypeFilter));
+      this.execTypeFilter$ = this._store.pipe(select(fromRoot.getExecTypeFilter));
+      this.wfTypeFilter$ = this._store.pipe(select(fromRoot.getWfTypeFilter));
       this.timeIntervalFilter$ = this._store.pipe(select(fromRoot.getTimeIntervalFilter));
       if (this.isArchivedPage) {
          this.showUnarchiveButton$ = this._store.pipe(select(fromRoot.showUnarchiveButton));
@@ -97,8 +101,12 @@ export class ExecutionsHeaderContainer implements OnInit {
       this._store.dispatch(new executionActions.SelectStatusFilterAction(status));
    }
 
-   changeTypeFilter(workflowType: string) {
-      this._store.dispatch(new executionActions.SelectTypeFilterAction(workflowType));
+   changeExecTypeFilter(workflowType: string) {
+      this._store.dispatch(new executionActions.SelectExecTypeFilterAction(workflowType));
+   }
+
+   changeWfTypeFilter(workflowType: string) {
+     this._store.dispatch(new executionActions.SelectWfTypeFilterAction(workflowType));
    }
 
    changeTimeIntervalFilter(time: number) {

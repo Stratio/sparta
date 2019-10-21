@@ -27,10 +27,16 @@
          <span class="execution-group">{{executionData.group}}</span>
          <span *ngIf="executionData.lastUpdate && executionData.lastUpdate.length" class="date">Last status update: {{executionData.lastUpdate}}</span>
          <span class="description">{{executionData.description}}</span>
-        <div>
+         <div>
             <span class="egeo-title-mini title2">Execution ID</span>
             <span class="values">{{executionData.id}}</span>
          </div>
+         <div>
+            <span class="egeo-title-mini title2">Type</span>
+            <span class="values">
+              {{executionData.executionType === ExecutionType.System ? Engine.PlannedQr : executionData.executionEngine}}
+            </span>
+          </div>
          <div *ngIf="executionData.tagsAux && executionData.tagsAux.length">
             <span class="egeo-title-mini title2">{{'DASHBOARD.TAGS' | translate}}</span>
             <span class="values">{{executionData.tagsAux}}</span>

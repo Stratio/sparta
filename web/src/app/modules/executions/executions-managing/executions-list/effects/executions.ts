@@ -23,7 +23,8 @@ const normalizeFilter = (filter, archived) => {
   return {
     archived,
     status: filter.statusFilter || undefined,
-    executionEngine: filter.typeFilter || undefined,
+    executionEngine: filter.wfTypeFilter || undefined,
+    executionType: filter.execTypeFilter || undefined,
     searchText: filter.searchQuery || undefined,
     page: filter.pagination.currentPage - 1,
     offset: filter.pagination.perPage,
@@ -123,7 +124,8 @@ export class ExecutionsEffect {
 
   @Effect()
   selectStatusFilter: Observable<any> = this.actions$
-    .pipe(ofType(executionsActions.SELECT_STATUS_FILTER, executionsActions.SELECT_TYPE_FILTER, executionsActions.SELECT_TIME_INTERVAL_FILTER, executionsActions.CHANGE_PAGINATION, executionsActions.SEARCH_EXECUTION))
+    .pipe(ofType(executionsActions.SELECT_STATUS_FILTER, executionsActions.SELECT_EXEC_TYPE_FILTER, executionsActions.SELECT_WF_TYPE_FILTER,
+                 executionsActions.SELECT_TIME_INTERVAL_FILTER, executionsActions.CHANGE_PAGINATION, executionsActions.SEARCH_EXECUTION))
     .pipe(withLatestFrom(this.store.pipe(select((state: any) => state.executions.executions.isArchivedPage))))
     .pipe(switchMap(([action, archived]: [any, boolean]) =>
       iif(() => archived,

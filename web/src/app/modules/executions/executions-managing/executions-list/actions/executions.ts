@@ -34,7 +34,8 @@ export const RERUN_EXECUTION_ERROR = '[Executions Managing] Rerun execution erro
 
 export const CHANGE_PAGINATION = '[Executions Managing] Change pagination';
 
-export const SELECT_TYPE_FILTER = '[Executions Managing] Select type filter';
+export const SELECT_EXEC_TYPE_FILTER = '[Executions Managing] Select execution type filter';
+export const SELECT_WF_TYPE_FILTER = '[Executions Managing] Select workflow type filter';
 export const SELECT_STATUS_FILTER = '[Executions Managing] Select status filter';
 export const SELECT_TIME_INTERVAL_FILTER = '[Executions Managing] Select time interval filter';
 
@@ -137,8 +138,13 @@ export class StopExecutionCompleteAction implements Action {
    readonly type = STOP_EXECUTIONS_ACTION_COMPLETE;
 }
 
-export class SelectTypeFilterAction implements Action {
-  readonly type = SELECT_TYPE_FILTER;
+export class SelectExecTypeFilterAction implements Action {
+  readonly type = SELECT_EXEC_TYPE_FILTER;
+  constructor(public executionType: string) {}
+}
+
+export class SelectWfTypeFilterAction implements Action {
+  readonly type = SELECT_WF_TYPE_FILTER;
   constructor(public workflowType: string) {}
 }
 
@@ -268,7 +274,8 @@ export type Actions = ListExecutionsAction
    | UnarchiveExecutionsFailAction
    | SelectExecutionAction
    | DeselectExecutionAction
-   | SelectTypeFilterAction
+   | SelectExecTypeFilterAction
+   | SelectWfTypeFilterAction
    | SelectStatusFilterAction
    | SelectTimeIntervalFilterAction
    | SearchExecutionAction

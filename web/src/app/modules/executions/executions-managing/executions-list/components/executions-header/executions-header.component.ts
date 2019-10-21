@@ -47,12 +47,20 @@ export class ExecutionsHeaderComponent implements OnInit {
   }
 
 
-  @Input() get typeFilter() {
-    return this._typeFilter;
+  @Input() get execTypeFilter() {
+    return this._execTypeFilter;
   }
-  set typeFilter(value) {
-    this.typeFilterItem = this.getDropdownItem(this.workflowTypes, value);
-    this._typeFilter = value;
+  set execTypeFilter(value) {
+    this.execTypeFilterItem = this.getDropdownItem(this.executionTypes, value);
+    this._execTypeFilter = value;
+  }
+
+  @Input() get wfTypeFilter() {
+    return this._wfTypeFilter;
+  }
+  set wfTypeFilter(value) {
+    this.wfTypeFilterItem = this.getDropdownItem(this.workflowTypes, value);
+    this._wfTypeFilter = value;
   }
 
 
@@ -75,13 +83,15 @@ export class ExecutionsHeaderComponent implements OnInit {
   @Output() onDeleteExecutions = new EventEmitter<any>();
 
   @Output() onChangeStatusFilter = new EventEmitter<string>();
-  @Output() onChangeTypeFilter = new EventEmitter<string>();
+  @Output() onChangeExecTypeFilter = new EventEmitter<string>();
+  @Output() onChangeWfTypeFilter = new EventEmitter<string>();
   @Output() onChangeTimeIntervalFilter = new EventEmitter<number>();
 
   public searchQuery = '';
 
   public statusFilterItem: StDropDownMenuItem;
-  public typeFilterItem: StDropDownMenuItem;
+  public execTypeFilterItem: StDropDownMenuItem;
+  public wfTypeFilterItem: StDropDownMenuItem;
   public timeIntervalFilterItem: StDropDownMenuItem;
 
   public showedFilter = '';
@@ -101,6 +111,20 @@ export class ExecutionsHeaderComponent implements OnInit {
     {
       label: 'failed',
       value: 'Failed'
+    }
+  ];
+  public executionTypes: StDropDownMenuItem[] = [
+    {
+      label: 'All types',
+      value: ''
+    },
+    {
+      label: 'user',
+      value: 'UserExecution'
+    },
+    {
+      label: 'system',
+      value: 'SystemExecution'
     }
   ];
   public workflowTypes: StDropDownMenuItem[] = [
@@ -146,7 +170,8 @@ export class ExecutionsHeaderComponent implements OnInit {
   public breadcrumbOptions: string[] = [];
 
   private _statusFilter = '';
-  private _typeFilter = '';
+  private _execTypeFilter = 'UserExecution';
+  private _wfTypeFilter = '';
   private _timeIntervalFilter = 0;
 
   private _modalSubscription: Subscription;

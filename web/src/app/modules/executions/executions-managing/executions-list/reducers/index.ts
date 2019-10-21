@@ -23,8 +23,8 @@ export interface State extends fromRoot.State {
   executions: ExecutionsMonitoringState;
 }
 
-export const reducers = reduceReducers(combineReducers({ 
-  executions: fromExecutionsList.reducer, 
+export const reducers = reduceReducers(combineReducers({
+  executions: fromExecutionsList.reducer,
   execution: fromExecution.reducer
 }));
 
@@ -46,7 +46,8 @@ export const getExecutionsState = createSelector(
 
 
 export const getStatusFilter = createSelector(getExecutionsState, state => state.statusFilter);
-export const getTypeFilter = createSelector(getExecutionsState, state => state.typeFilter);
+export const getExecTypeFilter = createSelector(getExecutionsState, state => state.execTypeFilter);
+export const getWfTypeFilter = createSelector(getExecutionsState, state => state.wfTypeFilter);
 export const getTimeIntervalFilter = createSelector(getExecutionsState, state => state.timeIntervalFilter);
 export const getSearchQuery = createSelector(getExecutionsState, state => state.searchQuery);
 export const getExecutionsList = createSelector(getExecutionsState, state => state.executionList);
@@ -60,7 +61,10 @@ export const isArchivedPage = createSelector(getExecutionsState, state => state.
 export const getIsLoading = createSelector(getExecutionsState, state => state.loading );
 export const isEmptyList = createSelector(getExecutionsState, state => state.isArchivedPage ?
   !state.archivedExecutionList.length && !state.loadingArchived : !state.executionList.length && !state.loading);
-export const isEmptyFilter = createSelector(getExecutionsState, state => state.statusFilter === '' && state.typeFilter === '' && state.searchQuery === '' && state.timeIntervalFilter === 0 );
+export const isEmptyFilter = createSelector(getExecutionsState, state =>
+  state.statusFilter === '' && state.execTypeFilter === '' && state.wfTypeFilter === ''
+  && state.searchQuery === '' && state.timeIntervalFilter === 0
+);
 
 
 export const getFilteredExecutionsList = createSelector(

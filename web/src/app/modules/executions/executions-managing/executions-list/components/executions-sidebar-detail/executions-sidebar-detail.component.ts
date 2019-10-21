@@ -5,6 +5,7 @@
  */
 import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef, Input, OnChanges } from '@angular/core';
 import { StHorizontalTab } from '@stratio/egeo';
+import {Engine, Execution} from '@models/enums';
 
 @Component({
   selector: 'executions-sidebar-detail',
@@ -41,6 +42,9 @@ export class ExecutionsSidebarDetailComponent implements OnInit, OnChanges {
   ];
   public activeOption = this.options[0];
 
+  public Engine = Engine;
+  public ExecutionType = Execution;
+
   constructor(private _cd: ChangeDetectorRef) { }
 
   ngOnInit() { }
@@ -66,7 +70,7 @@ export class ExecutionsSidebarDetailComponent implements OnInit, OnChanges {
       }
     }
   }
-  
+
   toggleParameters(type) {
     this.openParameters[type] = !this.openParameters[type];
   }

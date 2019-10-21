@@ -69,6 +69,7 @@ export class ExecutionDetailHelperService {
       context: execNorm.context,
       status: filteredStatus,
       executionEngine: execNorm.executionEngine,
+      executionType: execNorm. executionType,
       sparkURI: execNorm.sparkURI,
       lastError: execNorm.genericDataExecution.lastError,
       historyServerURI: execNorm.historyServerURI,

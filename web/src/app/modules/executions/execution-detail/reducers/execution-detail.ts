@@ -14,6 +14,7 @@ const initialState: executionParametersTypes.ExecutionDetail = {
     description: '',
     status: '',
     executionEngine: '',
+    executionType: '',
     sparkURI: '',
     historyServerURI: '',
     context: [],

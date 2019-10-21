@@ -13,6 +13,7 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import { StTableHeader, Order } from '@stratio/egeo';
+import { Engine, Execution } from '@models/enums';
 
 @Component({
   selector: 'executions-managing-table',
@@ -38,6 +39,8 @@ export class ExecutionTableComponent {
   @Output() onChangePage = new EventEmitter<any>();
   @Output() allExecutionsToggled = new EventEmitter<any>();
 
+  public Engine = Engine;
+  public ExecutionType = Execution;
   public fields: StTableHeader[];
   public generatedId: string;
   public perPageOptions: any = [
@@ -90,6 +93,7 @@ export class ExecutionTableComponent {
     this.generatedId = 'paginator-' + Math.floor((Math.random() * 1000) + 1);
     this.fields = [
       { id: 'name', label: 'Workflow' },
+      { id: 'type', label: 'Type' },
       { id: 'context', label: 'Context' },
       { id: 'launchDateMillis', label: 'Launch Date' },
       { id: 'endDateMillis', label: 'End Date' },

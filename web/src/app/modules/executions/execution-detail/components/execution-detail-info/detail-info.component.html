@@ -14,9 +14,11 @@
       <div class="col-sm-8">
         <div>
           <img src="assets/images/iconStreamingExecution.svg" class="icon-row" [attr.title]="executionDetailInfo.executionEngine"
-               *ngIf="executionDetailInfo.executionEngine === 'Streaming'" />
+               *ngIf="executionDetailInfo.executionType === ExecutionType.User && executionDetailInfo.executionEngine === Engine.Streaming"/>
           <img src="assets/images/iconBatchExecution.svg" class="icon-row" [attr.title]="executionDetailInfo.executionEngine"
-               *ngIf="executionDetailInfo.executionEngine === 'Batch'" />
+               *ngIf="executionDetailInfo.executionType === ExecutionType.User && executionDetailInfo.executionEngine === Engine.Batch"/>
+          <img src="assets/images/iconQualityRules.svg" class="icon-row" [attr.title]="executionDetailInfo.executionEngine"
+               *ngIf="executionDetailInfo.executionType === ExecutionType.System"/>
           <span class="detail-info__title">{{executionDetailInfo.name}}</span>
           <button class="button button-secondary-line small" (click)="goToWorkflow($event, executionDetailInfo.marathonId)">View details</button>
         </div>

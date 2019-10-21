@@ -17,7 +17,8 @@ export interface State {
    loadingArchived: boolean;
    selectedExecutionsIds: Array<string>;
    statusFilter: string;
-   typeFilter: string;
+   execTypeFilter: string;
+   wfTypeFilter: string;
    timeIntervalFilter: number;
    searchQuery: string;
    pagination: {
@@ -37,7 +38,8 @@ const initialState: State = {
    loadingArchived: true,
    selectedExecutionsIds: [],
    statusFilter: '',
-   typeFilter: '',
+   execTypeFilter: 'UserExecution',
+   wfTypeFilter: '',
    timeIntervalFilter: 0,
    searchQuery: '',
    pagination: {
@@ -54,7 +56,6 @@ const initialState: State = {
 export function reducer(state: State = initialState, action: any): State {
    switch (action.type) {
       case executionActions.LIST_EXECUTIONS_COMPLETE: {
-
          const execution = action.payload && action.payload.length ? action.payload[0] : null;
          const total = execution && execution.totalCount ? execution.totalCount : action.payload ? action.payload.length : 0;
          return {
@@ -124,16 +125,27 @@ export function reducer(state: State = initialState, action: any): State {
             selectedExecutionsIds: []
          };
       }
-      case executionActions.SELECT_TYPE_FILTER: {
-         return {
-            ...state,
-            typeFilter: action.workflowType,
-            selectedExecutionsIds: [],
-            pagination: {
-               ...state.pagination,
-               currentPage: 1
-            }
-         };
+      case executionActions.SELECT_EXEC_TYPE_FILTER: {
+        return {
+          ...state,
+          execTypeFilter: action.executionType,
+          selectedExecutionsIds: [],
+          pagination: {
+            ...state.pagination,
+            currentPage: 1
+          }
+        };
+      }
+      case executionActions.SELECT_WF_TYPE_FILTER: {
+        return {
+          ...state,
+          wfTypeFilter: action.workflowType,
+          selectedExecutionsIds: [],
+          pagination: {
+             ...state.pagination,
+             currentPage: 1
+          }
+        };
       }
       case executionActions.SELECT_TIME_INTERVAL_FILTER: {
          return {

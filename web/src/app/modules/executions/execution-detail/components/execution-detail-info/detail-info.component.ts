@@ -14,7 +14,7 @@ import {Info, ShowedActions} from '@app/executions/execution-detail/types/execut
 import {State} from '@app/executions/executions-managing/executions-list/reducers';
 import * as executionDetailActions from '../../actions/execution-detail';
 import { take } from 'rxjs/operators';
-import { ExecutionStatus } from '@models/enums';
+import {ExecutionStatus, Engine, Execution} from '@models/enums';
 
 @Component({
   selector: 'workflow-execution-detail-info',
@@ -40,6 +40,8 @@ export class DetailInfoComponent implements OnChanges {
 
   public isVisibleSparkUI = false;
   public isVisibleHistoryServer = false;
+  public Engine = Engine;
+  public ExecutionType = Execution;
 
   constructor(
     private route: Router,
