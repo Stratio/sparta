@@ -24,3 +24,5 @@ case object Upload extends Action
 case object Describe extends Action
 
 case object Select extends Action
+
+case object Manage extends Action

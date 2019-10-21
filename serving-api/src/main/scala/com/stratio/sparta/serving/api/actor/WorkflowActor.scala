@@ -307,7 +307,7 @@ class WorkflowActor(launcherActor: ActorRef, parametersStateActor: ActorRef) ext
   }
 
   def release(workflowId: String, user: Option[LoggedUser]): Unit =
-    authorizeActionResultResources(user, Map(ResourceWorkflow -> Edit)) {
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> Manage)) {
       val requestReleaseInfo = "A release candidate is required before releasing a workflow"
       workflowPgService.findWorkflowById(workflowId).flatMap{ workflow =>
         val ciCdLabel = workflow.ciCdLabel.getOrElse(throw new RuntimeException(requestReleaseInfo))
@@ -320,7 +320,7 @@ class WorkflowActor(launcherActor: ActorRef, parametersStateActor: ActorRef) ext
     }
 
   def build(workflowId: String, user: Option[LoggedUser]): Unit =
-    authorizeActionResultResources(user, Map(ResourceWorkflow -> Edit)) {
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> Manage)) {
       workflowPgService.findWorkflowById(workflowId).flatMap{ workflow =>
         val ciCdLabel = workflow.ciCdLabel.getOrElse("undefined")
         if (!CiCdLabel.isReleased(ciCdLabel)){

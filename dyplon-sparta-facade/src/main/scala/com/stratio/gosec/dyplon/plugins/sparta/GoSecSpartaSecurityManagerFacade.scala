@@ -14,7 +14,7 @@ import com.stratio.sparta.security._
 
 import scala.io.Source
 import scala.util.Try
-import com.stratio.sparta.security.{Action => SpartaAction, Create => SpartaCreate, Delete => SpartaDelete, Describe => SpartaDescribe, Download => SpartaDownload, Edit => SpartaEdit, Select => SpartaSelect, Status => SpartaStatus, Upload => SpartaUpload, View => SpartaView}
+import com.stratio.sparta.security.{Action => SpartaAction, Create => SpartaCreate, Delete => SpartaDelete, Describe => SpartaDescribe, Download => SpartaDownload, Edit => SpartaEdit, Select => SpartaSelect, Status => SpartaStatus, Upload => SpartaUpload, View => SpartaView, Manage => SpartaManage}
 import org.json4s.ext.DateTimeSerializer
 import org.json4s.jackson.Serialization._
 import org.json4s.{DefaultFormats, Formats}
@@ -45,6 +45,7 @@ class GoSecSpartaSecurityManagerFacade extends SpartaSecurityManager {
     case SpartaUpload => "upload"
     case SpartaDescribe => "describe"
     case SpartaSelect => "select"
+    case SpartaManage => "manage"
   }
 
   lazy val logger = LoggerFactory.getLogger(classOf[GoSecSpartaSecurityManagerFacade])
