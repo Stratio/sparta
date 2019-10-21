@@ -107,6 +107,7 @@ export class WizardService {
               outputsWriter: Object.keys(nodeWriters).map(key => {
                 return {
                   ...nodeWriters[key],
+                  saveMode: nodeWriters[key] && nodeWriters[key].extraOptions && nodeWriters[key].extraOptions.saveMode ? nodeWriters[key].extraOptions.saveMode : null,
                   outputStepName: namesMap[key]
                 };
               }).filter(writer => {

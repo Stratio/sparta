@@ -14,19 +14,10 @@ export const settingsTemplate = settings;
 
 export const getOutputWriter = function(outputName: string, engine: string) {
   const customWriter = (engine === 'Batch' ? batchOutputsObject : streamingOutputsObject)[outputName].writer || [];
-  let saveModeField: any;
-  const finalCustomWriter = <Array<any>>customWriter.filter(field => {
-    if (field.propertyId === 'saveMode') {
-      saveModeField = field;
-      return false;
-    } else {
-      return true;
-    }
-  });
   return [
-    ...(saveModeField ? [...writerTemplate, saveModeField] : writerTemplate),
-    ...(finalCustomWriter && finalCustomWriter.length ? [{
-      properties: finalCustomWriter,
+    ...writerTemplate,
+    ...(customWriter && customWriter.length ? [{
+      properties: customWriter,
       name: 'extraOptions',
       noTitle: true,
       propertyId: 'extraOptions'

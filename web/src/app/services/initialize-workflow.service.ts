@@ -35,6 +35,12 @@ export class InitializeWorkflowService {
     nodes.forEach(node => {
       if (node.outputsWriter && node.outputsWriter.length) {
         writers[node.id] = node.outputsWriter.reduce((acc, writer) => {
+          if (writer.saveMode) {
+            if (!writer.extraOptions) {
+              writer.extraOptions = {};
+            }
+            writer.extraOptions.saveMode = writer.saveMode;
+          }
           acc[idsMap[writer.outputStepName]] = writer;
           return acc;
         }, {});
