@@ -10,6 +10,10 @@
 
 <div class="workflow-detail">
   <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
+  <div class="tag" *ngIf="data && (workflowData.ciCdLabel===CITags.Released || workflowData.ciCdLabel===CITags.ReleaseCandidate)">
+    <span class="icon-lock tag__lock" *ngIf="workflowData.ciCdLabel===CITags.Released"></span>
+    <span class="tag__text">{{workflowData.ciCdLabel}}</span>
+  </div>
   <div class="not-selected" *ngIf="!data || !data.type">
     <img src="assets/images/planet.svg" class="workflow-detail-image" />
     <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>

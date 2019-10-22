@@ -8,6 +8,7 @@ import { Component, OnInit, ChangeDetectorRef, Input, OnChanges } from '@angular
 
 import { DataDetails } from './../../models/data-details';
 import { FOLDER_SEPARATOR } from '../../workflow.constants';
+import { CITags } from '@models/enums';
 
 @Component({
     selector: 'repository-detail',
@@ -30,6 +31,8 @@ export class RepositoryDetailComponent implements OnInit, OnChanges {
     public showInputs = false;
     public showOutputs = false;
     public showTransformations = false;
+
+    public CITags = CITags;
 
     ngOnChanges() {
         this.showInputs = false;

@@ -131,7 +131,7 @@ export class DetailInfoComponent implements OnChanges {
   goToWorkflow(ev, id) {
     ev.preventDefault();
     ev.stopPropagation();
-    this.route.navigate(['workflow', id]);
+    this.route.navigate(['workflow/execution', id]);
   }
 
 }

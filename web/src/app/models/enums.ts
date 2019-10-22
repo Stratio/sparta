@@ -39,3 +39,8 @@ export enum ExecutionStatus {
   StoppedStatus = 'Stopped',
   FailedStatus = 'Failed'
 }
+
+export enum CITags {
+  Released = 'Released',
+  ReleaseCandidate = 'ReleaseCandidate'
+}

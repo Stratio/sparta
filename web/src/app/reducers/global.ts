@@ -10,13 +10,15 @@ export interface State {
     editFromMonitoring: boolean;
     xDSparkUi: string;
     timeout: number;
+    isCiCdEnabled: boolean;
 }
 
 const initialState: State = {
     userName: 'Sparta',
     editFromMonitoring: false,
     xDSparkUi: '',
-    timeout: 20
+    timeout: 20,
+    isCiCdEnabled: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -27,7 +29,8 @@ export function reducer(state: State = initialState, action: any): State {
               ...state,
               userName: username && username.length ? username : 'Sparta',
               xDSparkUi: action.payload.xDSparkUi,
-              timeout: action.payload.timeout
+              timeout: action.payload.timeout,
+              isCiCdEnabled: action.payload.isCiCdEnabled
           };
         }
         case userActions.SET_EDIT_MONITORING_MODE: {
@@ -44,4 +47,5 @@ export function reducer(state: State = initialState, action: any): State {
 export const getUsername: any = (state: State) => state.userName;
 export const getEditMonitoringMode: any = (state: State) => state.editFromMonitoring;
 export const getSparkUILink: any = (state: State) => state.xDSparkUi;
+export const getIsCiCdEnabled: any = (state: State) => state.isCiCdEnabled;
 export const getSpartaTimeout: any = (state: State) => state.timeout;

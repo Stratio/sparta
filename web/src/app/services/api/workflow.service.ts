@@ -177,6 +177,16 @@ export class WorkflowService extends ApiService {
     return this.request('workflows/version', 'post', options);
   }
 
+  promoteCandidateVersion(id: string) {
+    const options: any = {};
+    return this.request('workflows/build/' + id, 'post', options);
+  }
+
+  promoteReleaseVersion(id: string) {
+    const options: any = {};
+    return this.request('workflows/release/' + id, 'post', options);
+  }
+
   getRunParameters(workflowId: string) {
     const options: any = {};
     return this.request('workflows/runWithParametersViewById/' + workflowId, 'post', options);

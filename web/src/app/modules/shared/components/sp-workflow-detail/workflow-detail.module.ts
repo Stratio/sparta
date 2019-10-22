@@ -11,12 +11,10 @@ import { WizardNodeModule } from '@app/wizard/components/wizard-node/wizard-node
 import { EdgeOptionsModule } from '@app/wizard/components/edge-options/edge-options.module';
 import { WizardEdgeModule } from '@app/wizard/components/wizard-edge/wizard-edge.module';
 import { RouterModule } from '@angular/router';
-import { WorkflowDetailRouterModule } from '@app/executions/workflow-detail/workflow-detail.router';
-import { WorkflowDetailComponent } from '@app/executions/workflow-detail/workflow-detail.component';
 import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
-import {WorkflowDetailEffect} from '@app/executions/workflow-detail/effects/workflow-detail';
-import {workflowDetailReducers} from '@app/executions/workflow-detail/reducers';
+import { WorkflowDetailExecutionEffect } from '@app/executions/workflow-detail-execution/effects/workflow-detail-execution';
+import { workflowDetailExecutionReducers } from '@app/executions/workflow-detail-execution/reducers';
 import { SchemaDataModule } from '@app/shared/components/schema-data/schema-data.module';
 import { StHorizontalTabsModule } from '@stratio/egeo';
 import { DropDownTitleModule } from '@app/shared/components/drop-down-title/drop-down-title.module';
@@ -24,7 +22,8 @@ import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 import { QualityRulesModule} from '@app/shared/components/quality-rules/quality-rules.module';
 import { WorkflowViewerConfigModule } from './components/workflow-detail-modal/workflow-detail-modal.module';
 import { WorkflowDetailSidebarModule } from './components/workflow-detail-sidebar/workflow-detail-sidebar.module';
-
+import {WorkflowDetailComponent} from '@app/shared/components/sp-workflow-detail/workflow-detail.component';
+import {WorkflowDetailRouterModule} from '@app/shared/components/sp-workflow-detail/workflow-detail.router';
 @NgModule({
   imports: [
     CommonModule,
@@ -42,8 +41,8 @@ import { WorkflowDetailSidebarModule } from './components/workflow-detail-sideba
     QualityRulesModule,
     WorkflowViewerConfigModule,
     WorkflowDetailSidebarModule,
-    StoreModule.forFeature('workflowDetail', workflowDetailReducers),
-    EffectsModule.forFeature([WorkflowDetailEffect]),
+    StoreModule.forFeature('workflowDetail', workflowDetailExecutionReducers),
+    EffectsModule.forFeature([WorkflowDetailExecutionEffect]),
   ],
   declarations: [WorkflowDetailComponent],
   exports: [WorkflowDetailComponent],

@@ -60,61 +60,73 @@ export const workflowOptions: MenuOptionListGroup[] = [
    }
 ];
 
-export const versionOptions: MenuOptionListGroup[] = [
-   {
-      options: [{
-         icon: 'icon-edit-3',
-         label: 'Edit',
-         id: 'version-edit'
-      }]
-   },
-   {
+const editVersionOption = {
+  options: [{
+    icon: 'icon-edit-3',
+    label: 'Edit',
+    id: 'version-edit'
+  }]
+};
 
-      options: [
-         {
-            icon: 'icon-play',
-            label: 'Run',
-            id: 'version-run-workflow'
-         },
-         {
-            icon: 'icon-play',
-            label: 'Run with parameters',
-            id: 'version-run-params-workflow'
-         },
-        {
-          icon: 'icon-alarm',
-          label: 'Schedule',
-          id: 'version-schedule-workflow'
-        },
-        {
-          icon: 'icon-alarm',
-          label: 'Schedule with parameters',
-          id: 'version-schedule-params-workflow'
-        }
-      ]
-   }, {
-      options: [
-         {
-            icon: 'icon-square-plus',
-            label: 'New workflow from this version',
-            id: 'version-new-workflow'
-         },
-         {
-            icon: 'icon-square-plus',
-            label: 'New version',
-            id: 'version-new-version'
-         },
+const runVersionOptions = {
+  options: [
+    {
+      icon: 'icon-play',
+      label: 'Run',
+      id: 'version-run-workflow'
+    },
+    {
+      icon: 'icon-play',
+      label: 'Run with parameters',
+      id: 'version-run-params-workflow'
+    },
+    {
+      icon: 'icon-alarm',
+      label: 'Schedule',
+      id: 'version-schedule-workflow'
+    },
+    {
+      icon: 'icon-alarm',
+      label: 'Schedule with parameters',
+      id: 'version-schedule-params-workflow'
+    }
+  ]
+};
 
-      ]
-   },
-   {
-      options: [
-         {
-            icon: 'icon-trash',
-            label: 'Delete',
-            id: 'version-delete',
-            color: 'critical'
-         }
-      ]
-   }
-];
+const newVersionOptions = {
+  options: [
+    {
+      icon: 'icon-square-plus',
+      label: 'New workflow from this version',
+      id: 'version-new-workflow'
+    },
+    {
+      icon: 'icon-square-plus',
+      label: 'New version',
+      id: 'version-new-version'
+    },
+    {
+      icon: 'icon-cup',
+      label: 'Promote version',
+      id: 'promote-version'
+    }
+  ]
+};
+
+const deleteVersionOption = {
+  options: [
+    {
+      icon: 'icon-trash',
+      label: 'Delete',
+      id: 'version-delete',
+      color: 'critical'
+    }
+  ]
+};
+
+export const versionOptions = {
+  editVersionOption: editVersionOption,
+  runVersionOptions: runVersionOptions,
+  newVersionOptions: newVersionOptions,
+  deleteVersionOption: deleteVersionOption
+};

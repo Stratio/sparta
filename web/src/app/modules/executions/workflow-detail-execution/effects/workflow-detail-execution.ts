@@ -7,14 +7,14 @@
 import { Injectable } from '@angular/core';
 import {Action} from '@ngrx/store';
 import { Actions, Effect, ofType } from '@ngrx/effects';
-import { Observable, of } from 'rxjs';
-import * as workflowDetailActions from '../actions/workflow-detail';
-import { switchMap, catchError, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import * as workflowDetailActions from '@app/executions/workflow-detail-execution/actions/workflow-detail-execution';
+import { switchMap, map } from 'rxjs/operators';
 import { ExecutionService, InitializeWorkflowService } from 'services/execution.service';
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 
 @Injectable()
-export class WorkflowDetailEffect {
+export class WorkflowDetailExecutionEffect {
 
   @Effect()
   getWorkflowDetail: Observable<any> = this.actions$

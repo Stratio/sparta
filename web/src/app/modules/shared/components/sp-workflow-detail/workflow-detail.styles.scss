@@ -1,4 +1,5 @@
 @import '~@stratio/egeo/theme/constants';
+
 .execution-details {
   position: absolute;
   top: 0;
@@ -40,6 +41,23 @@
     margin-left: 24px;
     float: left;
     margin-top: 6px;
+  }
+
+  .tag {
+    margin-left: 24px;
+    margin-top: 6px;
+    float: left;
+    background-color: #ededed;
+    border-radius: .2em;
+    padding: 3px 15px 3px 15px;
+    width: fit-content;
+    margin-bottom: 20px;
+    &__lock {
+      margin-right: 8px;
+    }
+    &__text {
+      font-size: $egeo-font-size-xxsmall;
+    }
   }
 
   .link {

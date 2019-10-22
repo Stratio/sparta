@@ -6,10 +6,10 @@
 
 import { createSelector } from 'reselect';
 import { createFeatureSelector } from '@ngrx/store';
-import * as workflowDetailActions from '../actions/workflow-detail';
+import * as workflowDetailActions from '../actions/workflow-detail-repo';
 import * as fromRoot from 'reducers';
-import { QualityRule, Edge } from '@app/executions/models';
-import { WizardNode } from '@app/wizard/models/node';
+import { Edge } from '@app/executions/models';
+import {WizardEdge, WizardNode} from '@app/wizard/models/node';
 
 export interface State extends fromRoot.State {
   workflowDetail: WorkflowDetail;
@@ -20,54 +20,62 @@ export interface WorkflowState {
 }
 
 export interface WorkflowDetail {
-  execution: any;
   loading: boolean;
-  qualityRules: Array<QualityRule>;
+  workflowName: string;
+  executionEngine: string;
+  ciCdLabel: string;
+  uiSettings: any;
   selectedEdge: Edge;
   selectedNode: WizardNode;
   showModal: boolean;
+  nodes: Array<WizardNode>;
+  edges: Array<WizardEdge>;
 }
 
 const initialState: WorkflowDetail = {
-  execution: null,
   loading: false,
-  qualityRules: [],
+  workflowName: '',
+  executionEngine: '',
+  ciCdLabel: '',
+  uiSettings: null,
   selectedEdge: {
     origin: '',
     destination: ''
   },
   selectedNode: null,
-  showModal: false
+  showModal: false,
+  nodes: [],
+  edges: []
 };
 
-export function workflowDetailReducer(state: WorkflowDetail = initialState, action: workflowDetailActions.Actions): WorkflowDetail {
-  switch (action.type) {
 
+export function workflowDetailRepoReducer(state: WorkflowDetail = initialState, action: workflowDetailActions.Actions): WorkflowDetail {
+  switch (action.type) {
     case workflowDetailActions.GET_WORKFLOW_DETAIL: {
       return {
         ...state,
-        execution: null,
+        workflowName: '',
+        executionEngine: '',
+        uiSettings: null,
+        ciCdLabel: '',
+        nodes: [],
+        edges: [],
         loading: false
       };
     }
-
     case workflowDetailActions.GET_WORKFLOW_DETAIL_COMPLETE: {
       return {
         ...state,
-        execution: action,
+        workflowName: action.workflow.name,
+        executionEngine: action.workflow.executionEngine,
+        nodes: action.workflow.pipelineGraph.nodes,
+        edges: action.workflow.pipelineGraph.edges,
+        ciCdLabel: action.workflow.ciCdLabel,
+        uiSettings: action.workflow.uiSettings,
         loading: false
       };
     }
-
-    case workflowDetailActions.GET_QUALITY_RULES_COMPLETE: {
-      return {
-        ...state,
-        qualityRules: action.payload
-      };
-    }
-
     case workflowDetailActions.GET_SELECTED_EDGE: {
-
       return {
         ...state,
         selectedEdge: {
@@ -77,6 +85,7 @@ export function workflowDetailReducer(state: WorkflowDetail = initialState, acti
       };
     }
     case workflowDetailActions.SHOW_CONFIG_MODAL: {
+      console.log('SHOW_CONFIG_MODAL', action);
       return {
         ...state,
         showModal: true,
@@ -101,55 +110,20 @@ export function workflowDetailReducer(state: WorkflowDetail = initialState, acti
   }
 }
 
-export const getWorkflowState = createFeatureSelector<WorkflowState>('workflowDetail');
+export const getWorkflowState = createFeatureSelector<WorkflowState>('workflowDetailRepo');
 
-export const workflowDetailReducers = {
-  workflowDetail: workflowDetailReducer
+export const workflowDetailRepoReducers = {
+  workflowDetail: workflowDetailRepoReducer
 };
 
 export const getWorkflowDetail = createSelector(getWorkflowState, state => state.workflowDetail);
-export const getWorkflowDetailIsLoading = createSelector(getWorkflowState, state => state.workflowDetail);
-export const qualityRulesState = createSelector(getWorkflowDetailIsLoading, state => state.qualityRules);
-export const selectedEdgeState = createSelector(getWorkflowDetailIsLoading, state => state.selectedEdge);
 
-export const filteredQualityRulesState = createSelector(selectedEdgeState, qualityRulesState,
-  (selectedEdge, qualityRules) => qualityRules.filter(qualityRule =>
-    qualityRule.transformationStepName === selectedEdge.origin &&
-    qualityRule.outputStepName === selectedEdge.destination) || null
-);
-
-export const getExecution = createSelector(
-  getWorkflowDetail,
-  (workflow: WorkflowDetail) => workflow.execution && workflow.execution.execution || null
-);
-
-export const getWorkflowEdges = createSelector(
-  getExecution,
-  (execution: any) => execution && execution.genericDataExecution ?
-    execution.genericDataExecution.workflow.pipelineGraph.edges : []
-);
-
-export const getWorkflowNodes = createSelector(
-  getExecution,
-  (execution: any) => execution && execution.genericDataExecution ?
-    execution.genericDataExecution.workflow.pipelineGraph.nodes : []
-);
-
-export const getQualityRulesCount = createSelector(
-  getWorkflowEdges,
-  qualityRulesState,
-  (edges: any, qualityRules) => edges.map(edge => qualityRules.filter(qualityRule =>
-    qualityRule.transformationStepName === edge.origin &&
-    qualityRule.outputStepName === edge.destination).length)
-);
-
-export const getQualityRulesStatus = createSelector(
-  getWorkflowEdges,
-  qualityRulesState,
-  (edges: any, qualityRules) => edges.map(edge => qualityRules.filter(qualityRule =>
-    qualityRule.transformationStepName === edge.origin &&
-    qualityRule.outputStepName === edge.destination).every(qr => qr.status))
-);
+export const getWorkflowNodes = createSelector(getWorkflowDetail, workflow => workflow.nodes);
+export const getWorkflowEdges = createSelector(getWorkflowDetail, workflow => workflow.edges);
+export const getWorkflowExecutionEngine = createSelector(getWorkflowDetail, workflow => workflow.executionEngine);
+export const getWorkflowName = createSelector(getWorkflowDetail, workflow => workflow.workflowName);
+export const getWorkflowUISettings = createSelector(getWorkflowDetail, workflow => workflow.uiSettings);
+export const getWorkflowCICDLabel = createSelector(getWorkflowDetail, workflow => workflow.ciCdLabel);
 
 export const getEdgesMap = createSelector(
   getWorkflowNodes,

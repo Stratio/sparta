@@ -27,6 +27,9 @@ import { MoveGroupModalComponent } from './../move-group-modal/move-group.compon
 import { groupOptions, workflowOptions, versionOptions } from './repository-table.models';
 import { WorkflowsManagingService } from '@app/repository/workflows.service';
 
+import { CITags } from '@models/enums';
+import {VersionMenuService} from '@app/repository/services/version-menu.service';
+
 @Component({
   selector: 'repository-table',
   styleUrls: ['repository-table.component.scss'],
@@ -57,6 +60,7 @@ export class RepositoryTableComponent {
   @Output() onDeleteFolder = new EventEmitter<string>();
 
   @Output() generateVersion = new EventEmitter<string>();
+  @Output() promoteVersion = new EventEmitter<string>();
   @Output() createSchedule = new EventEmitter<string>();
 
   @Output() showExecutionConfig = new EventEmitter<any>();
@@ -83,7 +87,9 @@ export class RepositoryTableComponent {
 
   public groupOptions: MenuOptionListGroup[] = groupOptions;
   public workflowOptions: MenuOptionListGroup[] = workflowOptions;
-  public versionOptions: MenuOptionListGroup[] = versionOptions;
+  public versionOptions: MenuOptionListGroup[];
+
+  public CITags = CITags;
 
   private _modalSubscription: Subscription;
 
@@ -123,9 +129,13 @@ export class RepositoryTableComponent {
     window.open(url, '_blank');
   }
 
-  editVersion(event: Event, versionId: string) {
+  editVersion(event: Event, version) {
     event.stopPropagation();
-    this.route.navigate(['wizard/edit', versionId]);
+    if (version.ciCdLabel === CITags.Released) {
+      this.route.navigate(['workflow', version.id]);
+    } else {
+      this.route.navigate(['wizard/edit', version.id]);
+    }
   }
 
   selectGroupAction(event: string, group: Group) {
@@ -157,7 +167,6 @@ export class RepositoryTableComponent {
   }
 
   selectVersionAction(event: string, version: any) {
-    // this.generateVersion.emit();
     switch (event) {
       case 'version-new-workflow':
         this.duplicateWorkflow.emit(version);
@@ -177,6 +186,9 @@ export class RepositoryTableComponent {
       case 'version-new-version':
         this.generateVersion.emit(version.id);
         break;
+      case 'promote-version':
+        this.promoteVersion.emit(version);
+        break;
       case 'version-edit':
         this.route.navigate(['wizard/edit', version.id]);
         break;
@@ -184,6 +196,10 @@ export class RepositoryTableComponent {
         this._deleteConfirmModal(this.deleteVersionModalTitle, () => this.onDeleteVersion.emit(version.id));
         break;
     }
+  }
+
+  calculateMenu(version) {
+    this.versionOptions = this._versionMenuService.getVersionMenu(version);
   }
 
   private showExecutionParams(version, schedule) {
@@ -265,6 +281,7 @@ export class RepositoryTableComponent {
     private _cd: ChangeDetectorRef,
     private _translate: TranslateService,
     private _workflowsService: WorkflowsManagingService,
+    private _versionMenuService: VersionMenuService,
     private _modalService: StModalService) {
     this.fields = [
       { id: '', label: '', sortable: false },

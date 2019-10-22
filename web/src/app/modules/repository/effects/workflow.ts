@@ -158,6 +158,30 @@ export class WorkflowEffect {
     }));
 
   @Effect()
+  promoteCandidateVersion$: Observable<Action> = this.actions$
+    .pipe(ofType(workflowActions.PROMOTE_CANDIDATE))
+    .pipe(map((action: any) => action.versionId))
+    .pipe(switchMap(id => {
+      return this.workflowService.promoteCandidateVersion(id).pipe(mergeMap(response => [
+        new workflowActions.PromoteCandidateCompleteAction(response)
+      ])).pipe(catchError(error => from([
+        new workflowActions.PromoteCandidateErrorAction(), new errorActions.ServerErrorAction(error)
+      ])));
+    }));
+
+  @Effect()
+  promoteReleaseVersion$: Observable<Action> = this.actions$
+    .pipe(ofType(workflowActions.PROMOTE_RELEASE))
+    .pipe(map((action: any) => action.versionId))
+    .pipe(switchMap(id => {
+      return this.workflowService.promoteCandidateVersion(id).pipe(mergeMap(response => [
+        new workflowActions.PromoteReleaseCompleteAction(response)
+      ])).pipe(catchError(error => from([
+        new workflowActions.PromoteReleaseErrorAction(), new errorActions.ServerErrorAction(error)
+      ])));
+    }));
+
+  @Effect()
   duplicateWorkflow$: Observable<Action> = this.actions$
     .pipe(ofType(workflowActions.DUPLICATE_WORKFLOW))
     .pipe(map((action: any) => action.payload))

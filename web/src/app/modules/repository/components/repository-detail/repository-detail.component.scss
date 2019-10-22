@@ -63,6 +63,20 @@
    font-size: $egeo-font-size-xxsmall;
 }
 
+.tag {
+  background-color: #ededed;
+  border-radius: .2em;
+  padding: 3px 15px 3px 15px;
+  width: fit-content;
+  margin-bottom: 20px;
+  &__lock {
+    margin-right: 8px;
+  }
+  &__text {
+    font-size: $egeo-font-size-xxsmall;
+  }
+}
+
 .value-list{
   padding-left: 20px;
 }

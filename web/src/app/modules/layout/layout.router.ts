@@ -22,7 +22,11 @@ const layoutRoutes: Routes = [
          },
          {
             path: 'workflow/:id',
-            loadChildren: '@app/executions/workflow-detail/workflow-detail.module#WorkflowDetailModule'
+            loadChildren: '@app/repository/components/workflow-detail-repo/workflow-detail-repo.module#WorkflowDetailRepoModule'
+         },
+         {
+            path: 'workflow/execution/:id',
+            loadChildren: '@app/executions/workflow-detail-execution/workflow-detail-execution.module#WorkflowDetailExecutionModule'
          },
          {
             path: 'executions',

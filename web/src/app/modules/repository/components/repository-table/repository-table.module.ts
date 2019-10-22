@@ -20,6 +20,7 @@ import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.mo
 import { MoveGroupModalModule } from './../move-group-modal/move-group.module';
 
 import { MoveGroupModalComponent } from './../move-group-modal/move-group.component';
+import {VersionMenuService} from '@app/repository/services/version-menu.service';
 
 
 @NgModule({
@@ -42,7 +43,8 @@ import { MoveGroupModalComponent } from './../move-group-modal/move-group.compon
        StModalModule.withComponents([MoveGroupModalComponent, WorkflowRenameModalComponent])
     ],
     providers: [
-      StModalService
+      StModalService,
+      VersionMenuService
     ]
 })
 

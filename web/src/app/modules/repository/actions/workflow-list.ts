@@ -32,6 +32,12 @@ export const DELETE_VERSION_ERROR = '[Workflow-Managing] Delete version error';
 export const GENERATE_NEW_VERSION = '[Workflow-Managing] Generate new version';
 export const GENERATE_NEW_VERSION_COMPLETE = '[Workflow-Managing] Generate new version complete';
 export const GENERATE_NEW_VERSION_ERROR = '[Workflow-Managing] Generate new version error';
+export const PROMOTE_CANDIDATE = '[Workflow-Managing] Promote candidate version';
+export const PROMOTE_CANDIDATE_COMPLETE = '[Workflow-Managing] Promote candidate version complete';
+export const PROMOTE_CANDIDATE_ERROR = '[Workflow-Managing] Promote candidate version error';
+export const PROMOTE_RELEASE = '[Workflow-Managing] Promote release version';
+export const PROMOTE_RELEASE_COMPLETE = '[Workflow-Managing] Promote release version complete';
+export const PROMOTE_RELEASE_ERROR = '[Workflow-Managing] Promote release version error';
 export const DUPLICATE_WORKFLOW = '[Workflow-Managing] Duplicate workflow';
 export const DUPLICATE_WORKFLOW_COMPLETE = '[Workflow-Managing] Duplicate workflow complete';
 export const DUPLICATE_WORKFLOW_ERROR = '[Workflow-Managing] Duplicate workflow error';
@@ -240,6 +246,36 @@ export class GenerateNewVersionCompleteAction implements Action {
 
 export class GenerateNewVersionErrorAction implements Action {
   readonly type = GENERATE_NEW_VERSION_ERROR;
+}
+
+export class PromoteCandidateAction implements Action {
+  readonly type = PROMOTE_CANDIDATE;
+  constructor(public versionId: string) { }
+}
+
+export class PromoteCandidateCompleteAction implements Action {
+  constructor(public payload: any) {}
+  readonly type = PROMOTE_CANDIDATE_COMPLETE;
+}
+
+
+export class PromoteCandidateErrorAction implements Action {
+  readonly type = PROMOTE_CANDIDATE_ERROR;
+}
+
+export class PromoteReleaseAction implements Action {
+  readonly type = PROMOTE_RELEASE;
+  constructor(public versionId: string) { }
+}
+
+export class PromoteReleaseCompleteAction implements Action {
+  constructor(public payload: any) {}
+  readonly type = PROMOTE_RELEASE_COMPLETE;
+}
+
+
+export class PromoteReleaseErrorAction implements Action {
+  readonly type = PROMOTE_RELEASE_ERROR;
 }
 
 export class DuplicateWorkflowAction implements Action {
@@ -555,6 +591,12 @@ export type Actions =
   GenerateNewVersionAction |
   GenerateNewVersionErrorAction |
   GenerateNewVersionCompleteAction |
+  PromoteCandidateAction |
+  PromoteCandidateCompleteAction |
+  PromoteCandidateErrorAction |
+  PromoteReleaseAction |
+  PromoteReleaseCompleteAction |
+  PromoteReleaseErrorAction |
   DuplicateWorkflowAction |
   DuplicateWorkflowCompleteAction |
   DuplicateWorkflowErrorAction |

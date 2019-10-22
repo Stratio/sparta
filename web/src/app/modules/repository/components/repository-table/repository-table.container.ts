@@ -18,6 +18,7 @@ import { Observable, Subscription } from 'rxjs';
 import * as workflowActions from './../../actions/workflow-list';
 import { State, getVersionsOrderedList, getCurrentGroupLevel } from './../../reducers';
 import { Group } from '../../models/workflows';
+import {CITags} from '@models/enums';
 
 
 @Component({
@@ -38,6 +39,7 @@ import { Group } from '../../models/workflows';
             (selectWorkflow)="selectWorkflow($event)"
             (onDeleteFolder)="onDeleteFolder($event)"
             (generateVersion)="generateVersion($event)"
+            (promoteVersion)="promoteVersion($event)"
             (onDeleteWorkflow)="onDeleteWorkflow($event)"
             (selectGroup)="selectGroup($event)"
             (selectVersion)="selectVersion($event)"
@@ -130,6 +132,15 @@ export class RepositoryTableContainer implements OnInit {
 
   generateVersion(versionId: string): void {
     this._store.dispatch(new workflowActions.GenerateNewVersionAction(versionId));
+  }
+
+  promoteVersion(version): void {
+    if (version.ciCdLabel === CITags.ReleaseCandidate) {
+      this._store.dispatch(new workflowActions.PromoteReleaseAction(version.id));
+    } else if (!version.ciCdLabel || (version.ciCdLabel !== CITags.ReleaseCandidate
+                                      || version.ciCdLabel !== CITags.Released)) {
+      this._store.dispatch(new workflowActions.PromoteCandidateAction(version.id));
+    }
   }
 
   showExecutionConfig(event: any) {

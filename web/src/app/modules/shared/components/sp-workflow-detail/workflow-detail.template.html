@@ -7,15 +7,20 @@
     nor reverse engineered, disassembled or decompiled, without express
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
-<section class="execution-details" *ngIf="execution">
+<section class="execution-details" *ngIf="workflowName">
   <div class="execution-details__header">
-    <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="execution.genericDataExecution.workflow.executionEngine === 'Streaming'" />
-    <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="execution.genericDataExecution.workflow.executionEngine === 'Batch'" />
-    <span class="title egeo-title-extra-large">{{execution.genericDataExecution.workflow.name}}</span>
-    <a [routerLink]="['/executions/' + this.id]" class="link">Return to execution detail</a>
+    <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="executionEngine === 'Streaming'" />
+    <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="executionEngine === 'Batch'" />
+    <span class="title egeo-title-extra-large">{{workflowName}}</span>
+    <div class="tag" *ngIf="ciCdLabel && (ciCdLabel===CITags.Released || ciCdLabel===CITags.ReleaseCandidate)">
+      <span class="icon-lock tag__lock" *ngIf="ciCdLabel===CITags.Released"></span>
+      <span class="tag__text">{{ciCdLabel}}</span>
+    </div>
+    <a *ngIf="detailContext==='execution'" [routerLink]="['/executions/' + this.id]" class="link">Return to execution detail</a>
+    <a *ngIf="detailContext==='repo'" [routerLink]="['/repository']" class="link">Return to repository</a>
   </div>
   <graph-editor class="execution-details__editor"
-  [editorPosition]="execution.genericDataExecution.workflow.uiSettings.position"
+  [editorPosition]="uiSettings.position"
   [multiselectionEnabled]="false"
   (click)="selectedStep = ''"
   (deselectNode)="selectStep(null)">
@@ -23,18 +28,18 @@
       *ngFor="let edge of edges; let i=index;"
       [edge]="edge"
       [selectedEdge]="''"
-      [qualityRule]="qualityRulesCount[i]"
-      [qualityStatus]="qualityRulesStatus[i]"
+      [qualityRule]="qualityRulesCount && qualityRulesCount[i]"
+      [qualityStatus]="qualityRulesStatus && qualityRulesStatus[i]"
       [initPosition]="edge.origin.uiConfiguration.position"
       [endPosition]="edge.destination.uiConfiguration.position"
-      (click)="selectEdge(edge)">
+      (click)="onSelectEdge.emit(edge)">
     </svg:g>
     <svg:g draggable-element
       *ngFor="let nodeData of nodes"
       [(position)]="nodeData.uiConfiguration.position"
       [readonlyMode]="true"
       (onClickEvent)="selectStep(nodeData)"
-      (onDoubleClickEvent)="openNode(nodeData)">
+      (onDoubleClickEvent)="this.onOpenNode.emit(nodeData)">
       <svg:g wizard-node
         [data]="nodeData"
         [selected]="selectedStep && selectedStep.name === nodeData.name">
@@ -53,17 +58,17 @@
     </svg:g>
   </graph-editor>
 
-
-
   <workflow-detail-sidebar
   [selectedNode]="selectedStep"
   [filteredQualityRules]="filteredQualityRules">
     </workflow-detail-sidebar>
 
   <workflow-detail-modal
-    *ngIf="showConfigModal$ | async"
-    [selectedNode]="selectedNode$ | async"
-    [selectedNodeOutputNames]="selectedNodeOutputNames$ | async"
-    [executionEngine]="execution.genericDataExecution.workflow.executionEngine">
+    *ngIf="showConfigModal"
+    [selectedNode]="selectedStep"
+    [selectedNodeOutputNames]="selectedNodeOutputNames"
+    [executionEngine]="executionEngine"
+    (closeModal)="closeModal.emit()">
   </workflow-detail-modal>
+
 </section>

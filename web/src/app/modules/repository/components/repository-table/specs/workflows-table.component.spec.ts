@@ -13,7 +13,8 @@ import { Router } from '@angular/router';
 import { RepositoryTableComponent } from './../repository-table.component';
 import { TranslateMockModule } from '@test/translate-stub';
 import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
-import {WorkflowsManagingService} from "@app/repository/workflows.service";
+import {WorkflowsManagingService} from '@app/repository/workflows.service';
+import {VersionMenuService} from '@app/repository/services/version-menu.service';
 
 
 let component: RepositoryTableComponent;
@@ -52,9 +53,12 @@ const routerStub = {
 
 describe('[RepositoryTableComponent]', () => {
   let modalServiceMock: StModalService;
+  let versionMenuServiceMock: VersionMenuService;
 
   beforeEach(async(() => {
     modalServiceMock = jasmine.createSpyObj('StModalService', ['show']);
+    versionMenuServiceMock = jasmine.createSpyObj('VersionMenuService', ['getVersionMenu']);
+
     TestBed.configureTestingModule({
       imports: [
         StTableModule,
@@ -64,6 +68,7 @@ describe('[RepositoryTableComponent]', () => {
       providers: [
         { provide: Router, useValue: routerStub },
         { provide: StModalService, useValue: modalServiceMock },
+        { provide: VersionMenuService, useValue: versionMenuServiceMock },
         { provide: WorkflowsManagingService, useValue: WorkflowsManagingService },
       ],
       declarations: [RepositoryTableComponent],

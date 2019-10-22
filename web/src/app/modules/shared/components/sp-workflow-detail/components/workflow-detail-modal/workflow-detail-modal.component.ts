@@ -4,12 +4,11 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { StHorizontalTab } from '@stratio/egeo';
 import { Store } from '@ngrx/store';
 
-import * as workflowDetailActions from '../../actions/workflow-detail';
-import * as viewerState from '../../../execution-detail/reducers/index';
+import * as viewerState from '@app/executions/workflow-detail-execution/reducers/index';
 
 import { batchInputsObject, streamingInputsObject } from 'data-templates/inputs';
 import { batchOutputsObject, streamingOutputsObject } from 'data-templates/outputs';
@@ -29,6 +28,7 @@ export class WorkflowDetailModalComponent implements OnInit {
   @Input() selectedNode: WizardNode;
   @Input() executionEngine: string;
   @Input() selectedNodeOutputNames: SelectedNodeOutputNames;
+  @Output() closeModal = new EventEmitter();
 
   public accordionStates = [];
   public tabOptions: StHorizontalTab[] = [
@@ -82,11 +82,6 @@ export class WorkflowDetailModalComponent implements OnInit {
         break;
     }
   }
-
-  public closeModal() {
-    this._store.dispatch(new workflowDetailActions.HideConfigModal());
-  }
-
 
   public toggleAccordion(index: number) {
     this.accordionStates = {
