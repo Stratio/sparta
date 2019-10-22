@@ -27,7 +27,8 @@ trait SwaggerService extends SwaggerHttpService {
     typeOf[ParameterListHttpService],
     typeOf[MlModelsHttpService],
     typeOf[ScheduledWorkflowTaskHttpService],
-    typeOf[QualityRuleResultHttpService]
+    typeOf[QualityRuleResultHttpService],
+    typeOf[PlannedQualityRuleHttpService]
   )
 
   override def apiVersion: String = "1.0"

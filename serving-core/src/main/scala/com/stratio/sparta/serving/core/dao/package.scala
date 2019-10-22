@@ -6,6 +6,7 @@
 
 package com.stratio.sparta.serving.core
 
+import com.stratio.sparta.core.enumerators.QualityRuleResourceTypeEnum.QualityRuleResourceType
 import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum.QualityRuleType
 import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.properties.JsoneyString
@@ -519,6 +520,10 @@ package object daoTables {
 
     def logicalOperator =  column[Option[String]]("logical_operator")
 
+    def metadataPathResourceType = column[Option[QualityRuleResourceType]]("metadatapath_resource_type")
+
+    def metadataPathResourceExtraParams = column[Seq[PropertyKeyValue]]("metadatapath_resource_extraparams")
+
     def enable = column[Boolean]("enabled_quality_rule")
 
     def threshold = column[SpartaQualityRuleThreshold]("quality_rule_threshold")
@@ -541,20 +546,20 @@ package object daoTables {
 
     def modificationDate =  column[Option[Long]]("modification_date")
 
-    def initDate =  column[Option[Long]]("initialization_date")
-
-    def period =  column[Option[Long]]("period")
-
-    def sparkResourcesSize = column[Option[String]]("spark_resources_size")
+    def schedulingDetails = column[Option[SchedulingDetails]]("scheduling_details")
 
     def taskId = column[Option[String]]("task_id")
 
-    def * = (id, metadataPath, name, qualityRuleScope, logicalOperator, enable, threshold,
-      predicates, stepName, outputName, executionId, qualityRuleType, plannedQuery, tenant, creationDate,
-      modificationDate, initDate, period, sparkResourcesSize, taskId) <>
+    def hadoopConfigUri = column[Option[String]]("hadoop_config_uri")
+
+    def * = (id, metadataPath, name, qualityRuleScope, logicalOperator, metadataPathResourceType, metadataPathResourceExtraParams, enable,
+      threshold, predicates, stepName, outputName, executionId, qualityRuleType, plannedQuery, tenant, creationDate,
+      modificationDate, schedulingDetails, taskId, hadoopConfigUri) <>
       ((SpartaQualityRule.apply _).tupled, SpartaQualityRule.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
+
+    def fk = foreignKey(s"fk_${tableName}_scheduled_task", taskId, TableQuery[ScheduledWorkflowTaskTable])(_.id.?, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.Cascade)
 
     def qrModificationDateIndex = index(s"idx_${tableName}_modification_date", modificationDate)
   }

@@ -10,7 +10,7 @@ import com.stratio.sparta.core.models.SpartaQualityRulePredicate
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 trait Operation {
 

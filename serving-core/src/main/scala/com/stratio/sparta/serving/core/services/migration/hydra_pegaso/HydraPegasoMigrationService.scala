@@ -79,6 +79,12 @@ class HydraPegasoMigrationService(orionMigrationService: OrionMigrationService) 
         val createFromExecutionInExecutionSql =
           s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS executed_from_execution character varying;"
         basicPostgresService.executeSql(createFromExecutionInExecutionSql)
+        val createTypeExecutionSql =
+          s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS execution_type character varying;"
+        basicPostgresService.executeSql(createTypeExecutionSql)
+        val defaultTypeExecutionSql =
+          s"UPDATE $schemaName.$WorkflowExecutionTableName SET execution_type='UserExecution' WHERE execution_type IS NULL;"
+        basicPostgresService.executeSql(defaultTypeExecutionSql)
       }
     } match {
       case Success(_) =>

@@ -6,7 +6,7 @@
 
 package com.stratio.sparta.serving.core.models.governance
 
-case class GovernanceQualityRule(content: List[Content],
+case class GovernanceQualityRule(content: Seq[Content],
                                  pageable: Pageable,
                                  totalElements: Long,
                                  totalPages: Long,
@@ -27,7 +27,7 @@ case class Content(id: Long,
                    `type`: String,
                    catalogAttributeType: String,
                    parameters: Parameters,
-                   query: String,
+                   query: Option[String],
                    active: Boolean,
                    resultUnit: NameValue,
                    resultOperation: String,
@@ -46,10 +46,13 @@ case class Cond(order: Int,
                 param: Option[Seq[NameValue]]
                 )
 
-case class Parameters(catalogAttributeType: String,
+case class Parameters(catalogAttributeType: Option[String],
                       filter: Option[Filter],
-                      advanced: Option[Advanced]
+                      advanced: Option[Advanced],
+                      table: Option[Table]
                      )
+
+case class Table(`type`: String)
 
 case class NameValue(name: String, value: String)
 
@@ -76,21 +79,22 @@ case class Pageable(
                      paged: Boolean)
 
 case class Advanced(query: String,
-                    queryReference: String,
-                    resources: Resources
+                    resources: Seq[Resources],
+                    queryReference: String
                    )
 
-case class Resources(resource: String,
-                      metadataPath: String,
-                      url: String //Url is not enough, maybe add here fields like datastore type and tls connection?
-                    )
+case class Resources(
+                    id: Long,
+                    resource: String,
+                    metadatapath: String,
+                    `type`: String)
 
-case class Configuration(scheduling: Scheduling,
+case class Configuration(scheduling: Seq[Scheduling],
                           executionOptions: ExecutionOptions)
 
 case class Scheduling(
                      initialization: Long,
-                     period: Long
+                     period: Option[Long]
                      )
 
 case class ExecutionOptions(size: String)

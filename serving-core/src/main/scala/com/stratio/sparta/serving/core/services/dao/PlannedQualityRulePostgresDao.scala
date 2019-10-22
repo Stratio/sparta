@@ -32,7 +32,9 @@ class PlannedQualityRulePostgresDao extends PlannedQualityRuleDao{
         results
     }
 
-  def findById(id: Long):Future[SpartaQualityRule] = findByIdHead(id)
+  def findById(id: Long):Future[Option[SpartaQualityRule]] = findByIdHead(id)
+
+  def findById(id: String):Future[Option[SpartaQualityRule]] = findByIdHead(id.toLong)
 
   def createOrUpdate(plannedQR: SpartaQualityRule): Future[_] = {
     for {
@@ -55,8 +57,12 @@ class PlannedQualityRulePostgresDao extends PlannedQualityRuleDao{
   def deleteById(id: Long): Future[Boolean] = {
     for {
       result <- findByIdHead(id)
-      outcome <- deleteYield(List(result))
+      outcome <- if(result.isDefined) deleteYield(List(result.get)) else Future(true)
     } yield outcome
+  }
+
+  def findByTaskId(taskId: String): Future[SpartaQualityRule] = {
+    db.run(table.filter(plannedqr => plannedqr.taskId === taskId).result.head)
   }
 
   def getLatestModificationDate(): Future[Option[Long]] = {
@@ -70,14 +76,11 @@ class PlannedQualityRulePostgresDao extends PlannedQualityRuleDao{
   /**
     * PRIVATE METHODS
     */
-  private[services] def findByIdHead(id: Long): Future[SpartaQualityRule] = {
+  private[services] def findByIdHead(id: Long): Future[Option[SpartaQualityRule]] = {
     for {
       plannedQualityRules <- db.run(filterById(id).result)
     } yield {
-      if(plannedQualityRules.isEmpty)
-        throw new ServerException(s"No planned quality rule found with id: $id")
-      else
-        plannedQualityRules.head
+        plannedQualityRules.headOption
     }
   }
 

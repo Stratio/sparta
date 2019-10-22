@@ -52,25 +52,19 @@ class PlannedQualityRuleDaoIT extends DAOConfiguration
   val plannedQuery1 = PlannedQuery(
     query = "select count(*) from writepeople where price > 20",
     queryReference = "select from writepeople",
-    metadatapathResource = "postgreseos://postgreseos>/:writepeople:",
-    resource = "writepeople",
-    urlResource = ""
+    resources = Seq(ResourcePlannedQuery(1L, "blabla", "testTable"))
   )
 
   val plannedQuery2 = PlannedQuery(
     query = "select count(*) from bannedpeople where price > 30",
     queryReference = "select from bannedpeople",
-    metadatapathResource = "postgreseos://postgreseos>/:bannedpeople:",
-    resource = "bannedpeople",
-    urlResource = ""
+    resources = Seq(ResourcePlannedQuery(1L, "blabla", "testTable"))
   )
 
   val plannedQuery3 = PlannedQuery(
     query = "select count(*) from allowedpeople where price > 20",
     queryReference = "select from allowedpeople",
-    metadatapathResource = "postgreseos://postgreseos>/:allowedpeople:",
-    resource = "allowedpeople",
-    urlResource = ""
+    resources = Seq(ResourcePlannedQuery(1L, "blabla", "testTable"))
   )
 
 
@@ -90,9 +84,7 @@ class PlannedQualityRuleDaoIT extends DAOConfiguration
     plannedQuery = Some(plannedQuery1),
     creationDate = Some(1566378851000L),
     modificationDate = Some(1566378891000L),
-    initDate = None,
-    period = None,
-    sparkResourcesSize = None,
+    schedulingDetails = None,
     taskId = None
   )
 
@@ -112,9 +104,7 @@ class PlannedQualityRuleDaoIT extends DAOConfiguration
     plannedQuery = Some(plannedQuery2),
     creationDate = Some(1566389651000L),
     modificationDate = Some(1566994451000L),
-    initDate = None,
-    period = None,
-    sparkResourcesSize = None,
+    schedulingDetails = None,
     taskId = None
   )
 
@@ -134,9 +124,7 @@ class PlannedQualityRuleDaoIT extends DAOConfiguration
     plannedQuery = Some(plannedQuery3),
     creationDate = Some(1566411251000L),
     modificationDate = Some(1569953651000L),
-    initDate = None,
-    period = None,
-    sparkResourcesSize = None,
+    schedulingDetails = None,
     taskId = None
   )
 
@@ -174,7 +162,7 @@ class PlannedQualityRuleDaoIT extends DAOConfiguration
 
     "be found and returned if it matches the specified id" in new PlannedQualityRuleDaoTrait {
       whenReady(plannedQualityRuleDao.findById(plannedQR2.id), timeout(Span(queryTimeout, Milliseconds))) { result =>
-        result.id shouldBe plannedQR2.id
+        result.get.id shouldBe plannedQR2.id
       }
     }
 

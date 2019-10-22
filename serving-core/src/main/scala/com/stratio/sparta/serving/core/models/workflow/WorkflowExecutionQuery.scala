@@ -13,4 +13,6 @@ case class WorkflowExecutionQuery(page: Int = 0,
                                   status: Option[String] = None,
                                   executionEngine: Option[String] = None,
                                   searchText: Option[String] = None,
-                                  archived: Option[Boolean] = None)
+                                  archived: Option[Boolean] = None,
+                                  executionType: Option[String] = None
+                                 )

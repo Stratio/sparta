@@ -7,9 +7,11 @@
 package com.stratio.sparta.serving.core.models.governance
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.enumerators.QualityRuleResourceTypeEnum.QualityRuleResourceType
 import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum._
 import com.stratio.sparta.core.models.SpartaQualityRule._
 import com.stratio.sparta.core.models._
+import com.stratio.sparta.core.utils.RegexUtils._
 import org.joda.time.DateTimeZone
 import org.joda.time.format.ISODateTimeFormat
 
@@ -78,19 +80,21 @@ object QualityRuleParser extends SLF4JLogging{
         val thresholdOperation = x.resultOperation
         val thresholdOperationType = x.resultOperationType
         val thresholdActionType = SpartaQualityRuleThresholdActionType(`type` = x.resultAction.`type`)
-        val stepNameWf = x.parameters.advanced.fold(DefaultPlannedQRInputStepName){res => inputStepNameForPlannedQR(res.resources.resource)}
+        val stepNameWf = inputStepNamePlannedQR
         val outputNameWf = "metrics"
         val qrType: QualityRuleType = x.resultExecute.`type`
-        val initDateValue = x.resultExecute.config.map(_.scheduling.initialization)
-        val periodValue = x.resultExecute.config.map(_.scheduling.period)
+        val initDateValue = x.resultExecute.config.map(_.scheduling.head.initialization)
+        val periodValue = x.resultExecute.config.flatMap(_.scheduling.head.period)
         val sparkResourcesSizeValue = Some(x.resultExecute.config.fold("S")(_.executionOptions.size))
         val plannedQueryValue = x.parameters.advanced.map{ adv =>
           PlannedQuery(
-            query = adv.query,
-            queryReference = adv.queryReference,
-            resource = adv.resources.resource,
-            metadatapathResource= adv.resources.metadataPath,
-            urlResource = adv.resources.url
+            query = adv.query.cleanOutControlChar.trimAndNormalizeString,
+            queryReference = adv.queryReference.cleanOutControlChar.trimAndNormalizeString,
+            resources = adv.resources.map( res =>
+              ResourcePlannedQuery(id = res.id,
+                metadataPath = res.metadatapath,
+                resource =  res.resource,
+                typeResource = res.`type`))
           )
         }
         val tenantValue = Option(x.tenant)
@@ -98,6 +102,8 @@ object QualityRuleParser extends SLF4JLogging{
         val modificationDateValue = dateParser(x.modifiedAt)
 
         val threshold = SpartaQualityRuleThreshold(thresholdValue, thresholdOperation, thresholdOperationType, thresholdActionType)
+
+        val getTypeResource: Option[QualityRuleResourceType] = x.parameters.table.map( x => x.`type`)
 
         val predicates: Seq[SpartaQualityRulePredicate] = x.parameters.filter.fold(Seq.empty[SpartaQualityRulePredicate]){_.cond.map(x => {
 
@@ -115,6 +121,7 @@ object QualityRuleParser extends SLF4JLogging{
           name = qrName,
           qualityRuleScope = qrScope,
           logicalOperator = logicalOp,
+          metadataPathResourceType = getTypeResource,
           enable = enabled,
           threshold = threshold,
           predicates = predicates,
@@ -125,9 +132,7 @@ object QualityRuleParser extends SLF4JLogging{
           tenant = tenantValue,
           creationDate = creationDateValue,
           modificationDate = modificationDateValue,
-          initDate = initDateValue,
-          period = periodValue,
-          sparkResourcesSize = sparkResourcesSizeValue)
+          schedulingDetails = Option(SchedulingDetails(initDateValue, periodValue, sparkResourcesSizeValue)))
       })
     }
   }

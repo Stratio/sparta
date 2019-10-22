@@ -136,4 +136,16 @@ object SSLHelper extends SLF4JLogging {
 
     (pemLocation, pemKeyLocation)
   }
+
+  def getDataStoreUri(sparkConf: Map[String, String]): String = {
+    val sslCert = sparkConf.get("spark.ssl.datastore.certPem.path")
+    val sslKey = sparkConf.get("spark.ssl.datastore.keyPKCS8.path")
+    val sslRootCert = sparkConf.get("spark.ssl.datastore.caPem.path")
+
+    (sslCert, sslKey, sslRootCert) match {
+      case (Some(cert), Some(key), Some(rootCert)) =>
+        s"&ssl=true&sslmode=verify-full&sslcert=$cert&sslrootcert=$rootCert&sslkey=$key"
+      case _ => ""
+    }
+  }
 }

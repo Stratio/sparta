@@ -72,6 +72,11 @@ case class ClusterAPIBootstrap(title: String, rocketMode : RocketMode)
           Seq(ActorSingletonInfo(LineageServiceActorName, LineageServiceActor.props, MasterRole))
         else Seq.empty
       }
+      val plannedQualityRuleActorSingleton = {
+        if(plannedQREnabled)
+          Seq(ActorSingletonInfo(PlannedQualityRuleReceiverActorName, PlannedQualityRuleActor.props, MasterRole))
+        else Seq.empty
+      }
 
       val controllerActor = system.actorOf(Props(new ControllerActor()), ControllerActorName)
 
@@ -83,7 +88,7 @@ case class ClusterAPIBootstrap(title: String, rocketMode : RocketMode)
 
       log.info("Sparta server initiated successfully")
 
-      AkkaClusterUtils.startClusterSingletons(actorsSingleton ++ marathonSingletons ++ metricsSingleton ++ lineageSingleton)
+      AkkaClusterUtils.startClusterSingletons(actorsSingleton ++ marathonSingletons ++ metricsSingleton ++ lineageSingleton ++ plannedQualityRuleActorSingleton)
       log.info(s"Rocket singletons: ${actorsSingleton.map(_.name).mkString(" ")} initiated successfully")
     }
   }
@@ -99,4 +104,6 @@ case class ClusterAPIBootstrap(title: String, rocketMode : RocketMode)
   private def lineageEnabled(): Boolean =
     Try(SpartaConfig.getDetailConfig().get.getBoolean("lineage.enable")).getOrElse(false)
 
+  private def plannedQREnabled(): Boolean =
+    Try(SpartaConfig.getGovernanceConfig().get.getBoolean("qualityrules.planned.enabled")).getOrElse(false)
 }

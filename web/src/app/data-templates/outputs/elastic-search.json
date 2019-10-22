@@ -42,7 +42,7 @@
          "propertyId": "indexMapping",
          "propertyName": "_INDEX_MAPPING_",
          "propertyType": "text",
-         "tooltip": "Value will be used as mapping name for indexing.",
+         "tooltip": "Value will be used as mapping type.",
          "required": false,
          "qa": "fragment-details-elasticSearch-indexMapping"
       },

@@ -44,6 +44,8 @@ object AkkaConstant {
   val ScheduledWorkflowTaskExecutorActorName = "ScheduledWorkflowTaskExecutorActorName"
   val QualityRuleResultSenderActorName = "QualityRuleResultSenderActor"
   val QualityRuleReceiverActorName = "QualityRuleReceiverActor"
+  val PlannedQualityRuleReceiverActorName = "PlannedQualityRuleReceiverActor"
+  val PlannedQualityRuleEndpointActorName = "PlannedQualityRuleEndpointActor"
   val JmxMetricsActorName = "JmxMetricsActor"
   val DebugDispatcherActorName = "DebugDispatcherActor"
   val DebugWorkerActorName = "DebugWorkerNode"

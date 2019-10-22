@@ -171,7 +171,8 @@ object WorkflowBuilderImplicits {
             key.startsWith("SPARTA_PLUGIN") ||
             key.startsWith("GOSEC_CROSSDATA") ||
             key.startsWith("CROSSDATA_DYPLON") ||
-            key.startsWith("CROSSDATA_PLUGIN")
+            key.startsWith("CROSSDATA_PLUGIN") ||
+            key == "EOS_TENANT"
           ) &&
           !invalid.contains(key)
       )

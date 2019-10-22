@@ -14,11 +14,10 @@ import akka.http.scaladsl.model.headers.RawHeader
 import akka.stream.ActorMaterializer
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.constants.SdkConstants.{DefaultSchemaKey, PathKey, ServiceKey}
-import com.stratio.sparta.core.models.SpartaQualityRule
+import com.stratio.sparta.core.models.{MetadataPath, SpartaQualityRule}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.dg.agent.commons.LineageUtils
-import com.stratio.sparta.dg.agent.models.MetadataPath
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl

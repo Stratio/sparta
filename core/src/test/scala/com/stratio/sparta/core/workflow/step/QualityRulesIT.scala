@@ -28,6 +28,8 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
   var classTest: Option[DistributedMonad.Implicits.RDDDistributedMonad] = None
   var dataSet: Option[RDD[Row]] = None
+  var dataSetComplex: Option[RDD[Row]] = None
+
   val testTable = "myTable"
 
   val fakeTimestamp: Timestamp = Timestamp.valueOf("2019-03-15 13:30:00.06")
@@ -47,8 +49,9 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
   val defaultQR: SpartaQualityRule = SpartaQualityRule(id = 1,
     metadataPath = "blabla1",
     name = "",
-    qualityRuleScope = "data",
+    qualityRuleScope = "RESOURCE",
     logicalOperator = Some("and"),
+    metadataPathResourceExtraParams = Seq.empty[PropertyKeyValue],
     enable = true,
     threshold = defaultThreshold,
     predicates = Seq.empty[SpartaQualityRulePredicate],
@@ -105,8 +108,6 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
 
 
       val qualityRule1 = defaultQR.copy(name = "greater 10 less 13.5", predicates = seqQualityRules)
-
-      val expectedDiscards = 1
 
       val result1 = classTest.get.writeRDDTemplate(dataSet.get,
         outputOptions,
@@ -830,18 +831,24 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
         +--------------+------+-----+-----+----------+-------+--------------------+----------+
       **/
 
+
+    val inputSchema = StructType(Seq(StructField("count", LongType)))
+    val countElems = dataSet.get.count()
+    val dataIn = Seq(new GenericRowWithSchema(Array(countElems), inputSchema))
+
+    val dataInRow = dataIn.map(_.asInstanceOf[Row])
+    dataSetComplex = Option(sc.parallelize(dataInRow))
+
     val qualityRuleComplex = defaultQR.copy( name = "must be equal",
       qualityRuleType = Planned,
       plannedQuery = Some(PlannedQuery(
-        query = s"select count(*) from $testTable WHERE price > 10.0 AND PRICE < 13.5",
+        query = "select count(*) from ${1} WHERE price > 10.0 AND PRICE < 13.5",
         queryReference = "",
-        metadatapathResource= "",
-        resource = "testTable",
-        urlResource = "")
+        resources = Seq(ResourcePlannedQuery(1L, "blabla", testTable)))
       )
     )
 
-    val result1 = classTest.get.writeRDDTemplate(dataSet.get,
+    val result1 = classTest.get.writeRDDTemplate(dataSetComplex.get,
       outputOptions,
       errorManagement,
       Seq.empty[OutputStep[RDD]],

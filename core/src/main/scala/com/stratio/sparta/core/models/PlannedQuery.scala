@@ -7,8 +7,7 @@ package com.stratio.sparta.core.models
 
 case class PlannedQuery(query: String,
                         queryReference: String,
-                        resource: String,
-                        metadatapathResource: String,
-                        urlResource: String,
-                        resourceType: String = "XD"
-                       )
+                        resources: Seq[ResourcePlannedQuery]
+                       ){
+  def prettyPrint: String = s"""query: $query, queryReference: $queryReference, resources: [${resources.map(_.toString()).mkString(",")}]"""
+}

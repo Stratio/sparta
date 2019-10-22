@@ -16,9 +16,10 @@ import com.stratio.sparta.serving.core.dao.WorkflowExecutionDao
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
+import com.stratio.sparta.serving.core.models.enumerators.ExecutionTypeEnum.{ExecutionType, UserExecution}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionEngine, WorkflowStatusEnum}
+import com.stratio.sparta.serving.core.models.enumerators.{ExecutionTypeEnum, WorkflowExecutionEngine, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow.DtoModelImplicits._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.SparkSubmitService.ExecutionIdKey
@@ -101,12 +102,19 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       case None => None
     }
 
+    val typeFilter = workflowExecutionQuery.executionType match {
+      case Some(typeExecution) if typeExecution.equalsIgnoreCase(ExecutionTypeEnum.UserExecution.toString) => Some(ExecutionTypeEnum.UserExecution)
+      case Some(typeExecution) if typeExecution.equalsIgnoreCase(ExecutionTypeEnum.SystemExecution.toString) => Some(ExecutionTypeEnum.SystemExecution)
+      case None => None
+    }
+
     val query = SlickFilter(table)
       .dinamicFilter(workflowExecutionQuery.archived)(archived => t => t.archived === archived)
       .dinamicFilter(statusFilter)(status => t => t.resumedStatus.inSet(status))
       .dinamicFilter(execEngineFilter)(engine => t => t.executionEngine === engine)
       .dinamicFilter(workflowExecutionQuery.searchText)(search => t => t.searchText like s"%$search%")
       .dinamicFilter(dateFilter)(date => t => t.resumedDate >= date._1 && t.resumedDate <= date._2)
+      .dinamicFilter(typeFilter)(typeExecution => t => t.executionType === typeExecution)
       .query.sortBy(_.resumedDate.desc)
 
     for {

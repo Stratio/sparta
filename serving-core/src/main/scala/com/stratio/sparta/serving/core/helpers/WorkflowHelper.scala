@@ -13,7 +13,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
-import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowExecution}
+import com.stratio.sparta.serving.core.models.workflow.{Group, NodeGraph, Workflow, WorkflowExecution}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -73,8 +73,9 @@ object WorkflowHelper extends SLF4JLogging {
 
   def getExecutionDeploymentId(workflowExecution: WorkflowExecution): String = {
     val workflow = workflowExecution.getWorkflowToExecute
+    val groupName = if (Group.isSystemGroup(workflow.group)) retrieveGroup(DefaultGroup.name) else retrieveGroup(workflow.group.name)
 
-    s"${retrieveGroup(workflow.group.name)}/${workflow.name}/${workflow.name}-v${workflow.version}" +
+    s"$groupName/${workflow.name}/${workflow.name}-v${workflow.version}" +
       s"/${workflowExecution.getExecutionId}"
   }
 

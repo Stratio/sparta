@@ -1,0 +1,782 @@
+{
+  "content": [
+    {
+      "id": 10,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull5",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:15:21.808Z",
+      "modifiedAt": "2019-09-03T08:15:21.808Z",
+      "userId": "admin"
+    },
+    {
+      "id": 5,
+      "metadataPath": "sql1://governance>/:commerce.customer:",
+      "name": "Customer Premium",
+      "description": "Customer Premium condition",
+      "type": "SPARK",
+      "catalogAttributeType": "RESOURCE",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "url": "jdbc:postgres://whatever.stratio.com",
+              "resource": "sales",
+              "metadatapath": "sql1://governance>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "50"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-08-21T11:16:04.407Z",
+      "modifiedAt": "2019-08-21T11:16:04.407Z",
+      "userId": "anonymous"
+    },
+    {
+      "id": 12,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull1",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:16:01.064Z",
+      "modifiedAt": "2019-09-03T08:16:01.064Z",
+      "userId": "admin"
+    },
+    {
+      "id": 9,
+      "metadataPath": "sql1://governance>/:dg_metadata.actor:properties:",
+      "name": "notNull5",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "url": "jdbc:postgres://whatever.stratio.com",
+              "resource": "sales",
+              "metadatapath": "sql1://governance>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-08-22T11:45:43.526Z",
+      "modifiedAt": "2019-08-22T11:45:43.526Z",
+      "userId": "admin"
+    },
+    {
+      "id": 13,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull7",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:16:16.034Z",
+      "modifiedAt": "2019-09-03T08:16:16.034Z",
+      "userId": "admin"
+    },
+    {
+      "id": 14,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull8",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:16:38.226Z",
+      "modifiedAt": "2019-09-03T08:16:38.226Z",
+      "userId": "admin"
+    },
+    {
+      "id": 16,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull9",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:17:24.962Z",
+      "modifiedAt": "2019-09-03T08:17:24.962Z",
+      "userId": "admin"
+    },
+    {
+      "id": 17,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull10",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:17:38.722Z",
+      "modifiedAt": "2019-09-03T08:17:38.722Z",
+      "userId": "admin"
+    },
+    {
+      "id": 18,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull11",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:17:51.937Z",
+      "modifiedAt": "2019-09-03T08:17:51.937Z",
+      "userId": "admin"
+    },
+    {
+      "id": 19,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull12",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:18:04.798Z",
+      "modifiedAt": "2019-09-03T08:18:04.798Z",
+      "userId": "admin"
+    },
+    {
+      "id": 20,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull13",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:18:11.455Z",
+      "modifiedAt": "2019-09-03T08:18:11.455Z",
+      "userId": "admin"
+    },
+    {
+      "id": 21,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull14",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:18:34.556Z",
+      "modifiedAt": "2019-09-03T08:18:34.556Z",
+      "userId": "admin"
+    },
+    {
+      "id": 22,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull15",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:18:47.410Z",
+      "modifiedAt": "2019-09-03T08:18:47.410Z",
+      "userId": "admin"
+    },
+    {
+      "id": 23,
+      "metadataPath": "sql1://governance>/:sales:income:",
+      "name": "notNull16",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from sales where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from sales"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "NONE",
+      "createdAt": "2019-09-03T08:18:59.851Z",
+      "modifiedAt": "2019-09-03T08:18:59.851Z",
+      "userId": "admin"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": false,
+      "unsorted": true
+    },
+    "pageSize": 20,
+    "pageNumber": 0,
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalElements": 14,
+  "totalPages": 1,
+  "last": true,
+  "first": true,
+  "sort": {
+    "sorted": false,
+    "unsorted": true
+  },
+  "numberOfElements": 14,
+  "size": 20,
+  "number": 0
+}

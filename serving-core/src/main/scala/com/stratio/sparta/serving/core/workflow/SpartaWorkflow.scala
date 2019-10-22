@@ -14,12 +14,15 @@ import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper.discardExtension
 import com.stratio.sparta.core.helpers.{AggregationTimeHelper, SdkSchemaHelper}
+import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, SpartaQualityRule, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.utils.QualityRulesUtils._
 import com.stratio.sparta.core.workflow.step._
 import com.stratio.sparta.core.{ContextBuilder, DistributedMonad, WorkflowContext}
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -348,6 +351,18 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
           throw new DriverException(s"Incorrect node step ${nodeToCreate.stepType}. Review the nodes in pipelineGraph")
       }
     }
+
+    /** If there are Planned quality Rules, the tables should be created as initSqlSentences
+      * */
+      val seqPlannedQR = qualityRules.filter(qr => qr.qualityRuleType == Planned)
+      if(seqPlannedQR.nonEmpty){
+        errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+          val plannedQualityRulesSqlSentences: Seq[String] =
+            seqPlannedQR.flatMap(qr => extractQueriesFromPlannedQRResources(qr, getXDSession(userId).map(_.conf.getAll).getOrElse(Map.empty[String, String])))
+          log.info(s"SQL sentences needed for the planned quality rule: ${plannedQualityRulesSqlSentences.mkString("\n")}")
+          executeSentences(plannedQualityRulesSqlSentences, userId)
+        }
+      }
 
     val results: Seq[SparkQualityRuleResults] = if (execute) executeWorkflow(qualityRules) else Seq.empty[SparkQualityRuleResults]
     if (workflow.debugMode.getOrElse(false)) Seq.empty[SparkQualityRuleResults] else results

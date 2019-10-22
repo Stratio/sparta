@@ -171,7 +171,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       if (
         stopStates.contains(execution.lastStatus.state) &&
         execution.genericDataExecution.executionMode == marathon &&
-          execution.marathonExecution.isDefined
+          execution.marathonExecution.isDefined && marathonApiUri.isDefined
       ) {
         marathonStop(execution)
       } else if (

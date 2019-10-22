@@ -49,6 +49,7 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
   private val executionService = PostgresDaoFactory.executionPgService
   private val workflowService = PostgresDaoFactory.workflowPgService
   private val debugPgService = PostgresDaoFactory.debugWorkflowPgService
+  private val plannedQRPgService = PostgresDaoFactory.plannedQualityRulePgService
 
   val qualityRuleReceiverActor = context.actorOf(Props(new QualityRuleReceiverActor()),
     s"$QualityRuleReceiverActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
@@ -65,7 +66,7 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
 
   val debugDispatcherActor = AkkaClusterUtils.proxyInstanceForName(DebugDispatcherActorName, MasterRole)
 
-  lazy val qualityRulesEnabled = Try(SpartaConfig.getDetailConfig().get.getString("lineage.enable").toBoolean)
+  lazy val integrationWithGovermanceEnabled = Try(SpartaConfig.getDetailConfig().get.getString("lineage.enable").toBoolean)
     .getOrElse(false)
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
@@ -349,7 +350,7 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
 
     for {
       qualityRules <-
-        if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow, user.map(_.id))
+        if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow, newExecution, user.map(_.id))
         else Future.successful(Seq.empty[SpartaQualityRule])
       workflowExecution <- Future { newExecution.copy(qualityRules = qualityRules) }
       result <- executionService.createExecution(workflowExecution)
@@ -408,8 +409,11 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
 
     for {
       launcherExecutionSettings <- Future {newExecution}
-      qualityRules <- if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow, user.map(_.id))
-      else Future(Seq.empty[SpartaQualityRule])
+      qualityRules <- {
+        if (workflow.settings.global.enableQualityRules.getOrElse(false))
+          retrieveQualityRules(workflow, launcherExecutionSettings, user.map(_.id))
+        else Future(Seq.empty[SpartaQualityRule])
+      }
       workflowExecution <- Future {
         launcherExecutionSettings.copy(qualityRules = qualityRules)
       }
@@ -453,14 +457,28 @@ class LauncherActor(parametersStateActor: ActorRef, localLauncherActor: ActorRef
     LauncherExecutionSettings(driverFile, pluginJars, sparkHome, driverArgs, sparkSubmitArgs, sparkConfigurations)
   }
 
-  def retrieveQualityRules(workflow: Workflow, loggedUser: Option[String]): Future[Seq[SpartaQualityRule]] = {
-    if(qualityRulesEnabled)
-      (qualityRuleReceiverActor ? RetrieveQualityRules(workflow, loggedUser)).mapTo[Seq[SpartaQualityRule]]
+  def retrieveQualityRules(workflow: Workflow, ex: WorkflowExecution, loggedUser: Option[String]): Future[Seq[SpartaQualityRule]] = {
+    /**If the workflow belongs to the group .system, it is related to a planned qualityRule
+      * that will be stored inside the Sparta metadata in Postgres. TaskId is
+      *
+      * */
+    if(integrationWithGovermanceEnabled){
+      if (ex.executionType.isDefined && ex.executionType.get != SystemExecution)
+        (qualityRuleReceiverActor ? RetrieveQualityRules(workflow, loggedUser)).mapTo[Seq[SpartaQualityRule]]
+      else{
+        Try {
+          val taskId = ex.executedFromScheduler.get
+          for {
+            qualityRule <- plannedQRPgService.findByTaskId(taskId)
+          } yield Seq(qualityRule)
+        }.getOrElse(Future.successful(Seq.empty[SpartaQualityRule]))
+      }
+    }
     else Future.successful(Seq.empty[SpartaQualityRule])
   }
 
-  private def isSystemWorkflow(workflow: Workflow): Boolean = {
-    //Check if the id of the workflow is the Planned query one
-    workflow.id.fold(false){ wID => wID.equals(AppConstant.DefaultPlannedQRWorkflowId)}
+  def isSystemWorkflow(workflow: Workflow): Boolean = {
+    //Check if the groupID of the workflow is the System one
+    Group.isSystemGroup(workflow.group)
   }
 }

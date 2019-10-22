@@ -12,6 +12,8 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+import scala.util.{Failure, Success}
+
 @RunWith(classOf[JUnitRunner])
 class SpartaQualityRulesTest extends WordSpec with Matchers {
 
@@ -27,6 +29,7 @@ class SpartaQualityRulesTest extends WordSpec with Matchers {
     name = "",
     qualityRuleScope = "data",
     logicalOperator = None,
+    metadataPathResourceExtraParams = Seq.empty[PropertyKeyValue],
     enable = true,
     threshold = defaultThreshold,
     predicates = Seq.empty[SpartaQualityRulePredicate],
@@ -38,64 +41,85 @@ class SpartaQualityRulesTest extends WordSpec with Matchers {
 
   val seqPredicatesTest = Seq(SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("1"), field = "section_id", operation = "="))
 
+  val defaultSchedulingDetails = Option(SchedulingDetails(initDate = Some(0), period = Some(100),
+  sparkResourcesSize = Some("S")))
+
   val qrPlannedQuery = Some(PlannedQuery(
-      query = s"select count(*) from testTable WHERE price > 10.0 AND PRICE < 13.5",
-      queryReference = "",
-      metadatapathResource= "",
-      resource = "testTable",
-      urlResource = ""))
+    query = s"select count(*) from testTable WHERE price > 10.0 AND PRICE < 13.5",
+    queryReference = "",
+    resources = Seq(ResourcePlannedQuery(1L, "blabla", "myTable"))))
 
   "A PLANNED quality rule" should {
 
-    val defaultPlannedQR: SpartaQualityRule = defaultQR.copy(qualityRuleType = Planned, initDate = Some(0), period = Some(100), sparkResourcesSize = Some("S"))
+    val defaultPlannedQR: SpartaQualityRule = defaultQR.copy(qualityRuleType = Planned, schedulingDetails = defaultSchedulingDetails)
 
     "be considered VALID" when {
       "is simple but has all the scheduling info" in {
         val testQR: SpartaQualityRule = defaultPlannedQR.copy(logicalOperator = Some("OR"), predicates = seqPredicatesTest)
-        testQR.validSpartaQR shouldBe true
+        testQR.validSpartaQR shouldBe Success(true)
       }
 
       "is complex but has all the scheduling info" in{
         val testQR = defaultPlannedQR.copy(plannedQuery = qrPlannedQuery)
-        testQR.validSpartaQR shouldBe true
+        testQR.validSpartaQR shouldBe Success(true)
       }
     }
 
     "be considered INVALID" when {
       "is simple but has NOT all the scheduling info" in {
-        val testQR: SpartaQualityRule = defaultPlannedQR.copy(logicalOperator = Some("OR"), predicates = seqPredicatesTest, period = None)
-        val caughtException = intercept[RuntimeException] {testQR.validSpartaQR}
-        assert(caughtException.getLocalizedMessage.contains("scheduling"))
+        val testQR: SpartaQualityRule = defaultPlannedQR.copy(logicalOperator = Some("OR"), predicates = seqPredicatesTest,
+          schedulingDetails = Some(SchedulingDetails()))
+        val caughtException = testQR.validSpartaQR
+        assert(caughtException.isFailure)
+        assert(caughtException match {
+          case Failure(exception) => exception.getLocalizedMessage.contains("scheduling")
+          case _ => false
+        }
+        )
       }
 
       "is complex but has NOT all the scheduling info" in {
-        val testQR = defaultPlannedQR.copy(plannedQuery = qrPlannedQuery, period = None)
-        val caughtException = intercept[RuntimeException] {testQR.validSpartaQR}
-        assert(caughtException.getLocalizedMessage.contains("scheduling"))
+        val testQR = defaultPlannedQR.copy(plannedQuery = qrPlannedQuery, schedulingDetails = Some(SchedulingDetails()))
+        val caughtException = testQR.validSpartaQR
+        assert(caughtException.isFailure)
+        assert(caughtException match {
+          case Failure(exception) => exception.getLocalizedMessage.contains("scheduling")
+          case _ => false
+        }
+        )
       }
 
       "is complex but the resource is empty" in {
-        val testQR = defaultPlannedQR.copy(plannedQuery = Some(qrPlannedQuery.get.copy(resource = "")))
-        val caughtException = intercept[RuntimeException] {testQR.validSpartaQR}
-        assert(caughtException.getLocalizedMessage.contains("resource"))
+        val testQR = defaultPlannedQR.copy(plannedQuery = Some(qrPlannedQuery.get.copy(resources = Seq.empty[ResourcePlannedQuery])))
+        val caughtException = testQR.validSpartaQR
+        assert(caughtException.isFailure)
+        assert(caughtException match {
+          case Failure(exception) => exception.getLocalizedMessage.contains("resource")
+          case _ => false
+          }
+        )
       }
 
       "is complex but the query is empty" in {
         val testQR = defaultPlannedQR.copy(plannedQuery = Some(qrPlannedQuery.get.copy(query = "")))
-        val caughtException = intercept[RuntimeException] {testQR.validSpartaQR}
-        assert(caughtException.getLocalizedMessage.contains("empty"))
+        val caughtException = testQR.validSpartaQR
+        assert(caughtException.isFailure)
+        assert(caughtException match {
+          case Failure(exception) => exception.getLocalizedMessage.contains("empty")
+          case _ => false
+        }
+        )
       }
 
       "is complex but the query is Invalid because it has not a count(*)" in {
         val testQR = defaultPlannedQR.copy(plannedQuery = Some(qrPlannedQuery.get.copy(query = "Select * from testTable")))
-        val caughtException = intercept[RuntimeException] {testQR.validSpartaQR}
-        assert(caughtException.getLocalizedMessage.contains("count(*)"))
-      }
-
-      "is complex but the query is Invalid because it does not contain the test table" in {
-        val testQR = defaultPlannedQR.copy(plannedQuery = Some(qrPlannedQuery.get.copy(query = "Select count(*) from testTableAAAAA")))
-        val caughtException = intercept[RuntimeException] {testQR.validSpartaQR}
-        assert(caughtException.getLocalizedMessage.contains("resource"))
+        val caughtException = testQR.validSpartaQR
+        assert(caughtException.isFailure)
+        assert(caughtException match {
+          case Failure(exception) => exception.getLocalizedMessage.contains("count(*)")
+          case _ => false
+        }
+        )
       }
     }
   }
@@ -105,14 +129,19 @@ class SpartaQualityRulesTest extends WordSpec with Matchers {
     "be considered VALID" when {
       "is simple and has no scheduling info" in {
         val testQR = defaultProactiveQR.copy(logicalOperator = Some("AND"), predicates = seqPredicatesTest)
-        testQR.validSpartaQR shouldBe true
+        testQR.validSpartaQR shouldBe Success(true)
       }
     }
     "be considered INVALID" when {
       "is advanced (has a query)" in {
         val testQR = defaultProactiveQR.copy(plannedQuery = qrPlannedQuery)
-        val caughtException = intercept[RuntimeException] {testQR.validSpartaQR}
-        assert(caughtException.getLocalizedMessage.contains("An advanced quality rule cannot be Proactive"))
+        val caughtException = testQR.validSpartaQR
+        assert(caughtException.isFailure)
+        assert(caughtException match {
+          case Failure(exception) => exception.getLocalizedMessage.contains("An advanced quality rule cannot be Proactive")
+          case _ => false
+        }
+        )
       }
     }
   }
@@ -122,8 +151,13 @@ class SpartaQualityRulesTest extends WordSpec with Matchers {
     "be considered INVALID" when {
       "it has both predicates and query" in {
         val testQR = defaultQR.copy(logicalOperator = Some("AND"), predicates = seqPredicatesTest, plannedQuery = qrPlannedQuery)
-        val caughtException = intercept[RuntimeException] {testQR.validSpartaQR}
-        assert(caughtException.getLocalizedMessage.contains("both predicates and an advanced query"))
+        val caughtException = testQR.validSpartaQR
+        assert(caughtException.isFailure)
+        assert(caughtException match {
+          case Failure(exception) => exception.getLocalizedMessage.contains("both predicates and an advanced query")
+          case _ => false
+        }
+        )
       }
     }
   }

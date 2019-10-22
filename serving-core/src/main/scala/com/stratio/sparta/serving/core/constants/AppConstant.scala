@@ -72,7 +72,6 @@ object AppConstant extends ZookeeperUtils {
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
   val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
   val DefaultSystemGroup = Group(Option("66adb16e-fe6c-4464-91d3-403fe49f9f3c"), ".system")
-  val DefaultPlannedQRWorkflowId = "f4d043c1-a015-4b04-b3ff-3c7d8f29e137"
   val DefaultApiTimeout = 20
   val DefaultVersion = "2.11.0"
   lazy val version = Try(SpartaConfig.getDetailConfig().get.getString("version"))
@@ -96,6 +95,7 @@ object AppConstant extends ZookeeperUtils {
   val DefaultReloadKeyTab = true
   val DefaultReloadKeyTabTime = "23h"
   val SystemHadoopConfDir = "HADOOP_CONF_DIR"
+  val SystemHadoopConfUri = "HADOOP_CONF_URI"
   val CoreSite = "core-site.xml"
   val HDFSSite = "hdfs-site.xml"
   val SystemHadoopUserName = "HADOOP_USER_NAME"
@@ -248,7 +248,11 @@ object AppConstant extends ZookeeperUtils {
   val DefaultCustomExampleParametersMap = ParameterList.parametersToMap(DefaultCustomExampleParameters)
 
   // Custom Planned QR parameters
+  val DefaultXDPlannedQRWorkflowId = "f4d043c1-a015-4b04-b3ff-3c7d8f29e137"
+
   val DefaultPlannedQRParameterList = "PlannedQRSettings"
+
+  lazy val getInstanceHadoopURI = Properties.envOrElse(SystemHadoopConfUri, "")
 
   lazy val resourcesPlannedQRConfig= SpartaConfig.getDetailConfig().map(_.getConfig("resources.default"))
 
@@ -266,7 +270,7 @@ object AppConstant extends ZookeeperUtils {
 
   def increaseMemPow(baseMem: String, powerFactor: Double): String = {
     val (size, unit) = sizeAndUnit(baseMem)
-    s"${math.pow(size.toDouble,powerFactor)}$unit"
+    s"${math.round(math.pow(size.toDouble,powerFactor))}$unit"
   }
 
   def calculateSumExecutorsCores(coresPerExecutor: Int, powerFactor: Double, baseNumExecutors: Int = 2) : Int = {

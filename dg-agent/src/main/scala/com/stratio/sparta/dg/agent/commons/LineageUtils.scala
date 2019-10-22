@@ -9,9 +9,10 @@ package com.stratio.sparta.dg.agent.commons
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.MetadataPath
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep, TransformStep}
-import com.stratio.sparta.dg.agent.models.{ActorMetadata, LineageWorkflow, MetadataPath}
+import com.stratio.sparta.dg.agent.models.{ActorMetadata, LineageWorkflow}
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant.defaultWorkflowRelationSettings
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl

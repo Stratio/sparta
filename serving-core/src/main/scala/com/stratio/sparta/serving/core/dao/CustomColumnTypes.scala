@@ -6,8 +6,9 @@
 
 package com.stratio.sparta.serving.core.dao
 
+import com.stratio.sparta.core.enumerators.QualityRuleResourceTypeEnum.QualityRuleResourceType
 import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum.QualityRuleType
-import com.stratio.sparta.core.models._
+import com.stratio.sparta.core.models.{PropertyKeyValue, _}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
@@ -23,6 +24,8 @@ import com.stratio.sparta.serving.core.models.workflow.migration.{PipelineGraphH
 import com.stratio.sparta.serving.core.models.authorization.{HeaderAuthUser, LoggedUser}
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
 
 import scala.util.Try
 
@@ -220,5 +223,20 @@ object CustomColumnTypes extends SpartaSerializer {
   implicit val qualityRuleEnumType = MappedColumnType.base[QualityRuleType, String](
     objToSerialize => write(objToSerialize),
     objToDeSerialize => read[QualityRuleType](objToDeSerialize)
+  )
+
+  implicit val qualityRuleResourceType = MappedColumnType.base[QualityRuleResourceType, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[QualityRuleResourceType](objToDeSerialize)
+  )
+
+  implicit val qualityRulePropertyResourceType = MappedColumnType.base[Seq[PropertyKeyValue], String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[Seq[PropertyKeyValue]](objToDeSerialize)
+  )
+
+  implicit val qualityRuleSchedulingDetailsType = MappedColumnType.base[SchedulingDetails, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[SchedulingDetails](objToDeSerialize)
   )
 }

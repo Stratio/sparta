@@ -88,6 +88,9 @@ class ControllerActor() extends HttpServiceActor
     .props(Props(new QualityRuleResultActor())), QualityRuleResultActorName)
   val scheduledWorkflowTaskActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ScheduledWorkflowTaskActor())), ScheduledWorkflowTaskActorName)
+  val plannedQualityRuleActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new PlannedQualityRuleEndpointActor())), PlannedQualityRuleEndpointActorName)
+
 
   context.actorOf(Props(new ScheduledWorkflowTaskExecutorActor(launcherActor)), ScheduledWorkflowTaskExecutorActorName)
 
@@ -107,7 +110,8 @@ class ControllerActor() extends HttpServiceActor
     ParameterListActorName -> parameterListActor,
     MlModelsActorName -> mlModelActor,
     QualityRuleResultActorName -> qualityRuleResultActor,
-    ScheduledWorkflowTaskActorName -> scheduledWorkflowTaskActor
+    ScheduledWorkflowTaskActorName -> scheduledWorkflowTaskActor,
+    PlannedQualityRuleEndpointActorName -> plannedQualityRuleActor
   )
 
   private val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context)
@@ -189,7 +193,7 @@ class ControllerActor() extends HttpServiceActor
           serviceRoutes.globalParametersRoute(user) ~ serviceRoutes.groupRoute(user) ~
           serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user) ~
           serviceRoutes.mlModelsRoutes(user) ~ serviceRoutes.scheduledWorkflowTasksRoutes(user) ~
-          serviceRoutes.qualityRuleResultRoutes(user)
+          serviceRoutes.qualityRuleResultRoutes(user) ~ serviceRoutes.plannedQualityRulesRoutes(user)
       }
     }
   }
@@ -246,6 +250,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
   def qualityRuleResultRoutes(user: Option[LoggedUser]): Route = qualityRuleResultService.routes(user)
 
   def scheduledWorkflowTasksRoutes(user: Option[LoggedUser]): Route = scheduledWorkflowTasksService.routes(user)
+
+  def plannedQualityRulesRoutes(user: Option[LoggedUser]) =plannedQualityRuleService.routes(user)
 
   def swaggerRoute: Route = swaggerService.routes
 
@@ -336,6 +342,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
   private val qualityRuleResultService = new QualityRuleResultHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.QualityRuleResultActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val plannedQualityRuleService = new PlannedQualityRuleHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.PlannedQualityRuleEndpointActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

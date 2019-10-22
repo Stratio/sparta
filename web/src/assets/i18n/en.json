@@ -543,7 +543,7 @@
   "_COLUMNS_TO_MASK_": "Columns to mask",
   "_DELIMITER_": "Delimiter",
   "_ID_FIELD_": "Id field",
-  "_INDEX_MAPPING_": "Index mapping",
+  "_INDEX_MAPPING_": "Mapping type",
   "_ENABLE_INDEX_AUTO_CREATE_": "Enable automatic index creation",
   "_DATEBASE_NAME_": "Database name",
   "_CONNECTIONS_PER_HOST_": "Connections per host",

@@ -5,6 +5,7 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 
 import scala.annotation.meta.field
@@ -15,6 +16,9 @@ object Group {
     val regexGroups= "^(?!.*[/]{2}.*$)(^(/home)+(/)*([a-z0-9-/]*)$)"
     group.name.matches(regexGroups)
   }
+
+  def isSystemGroup(group: Group): Boolean = group.equals(AppConstant.DefaultSystemGroup)
+
 }
 
 case class Group(

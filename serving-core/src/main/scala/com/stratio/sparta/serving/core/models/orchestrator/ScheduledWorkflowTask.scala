@@ -25,7 +25,26 @@ case class ScheduledWorkflowTask(
                                   initDate: Long,
                                   duration: Option[String],
                                   loggedUser: Option[HeaderAuthUser]
-                                )
+                                ){
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case obj: ScheduledWorkflowTask =>
+        obj.isInstanceOf[ScheduledWorkflowTask] && (
+          this.id == obj.id &&
+            this.taskType == obj.taskType &&
+            this.actionType == obj.actionType &&
+            this.entityId == obj.entityId &&
+            this.executionContext == obj.executionContext &&
+            this.active == obj.active &&
+            this.state == obj.state &&
+            this.initDate == obj.initDate &&
+            this.duration == obj.duration
+          )
+      case _ => false
+    }
+  }
+}
 
 case class ScheduledWorkflowTaskDtoLifted(
                                            id: Rep[String],

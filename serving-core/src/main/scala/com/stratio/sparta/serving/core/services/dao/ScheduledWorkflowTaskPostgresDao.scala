@@ -139,7 +139,7 @@ class ScheduledWorkflowTaskPostgresDao extends ScheduledWorkflowTaskDao {
       val period = AggregationTimeHelper.parseValueToMilliSeconds(durationTime)
 
       if (period < MinimumPeriodTime)
-        throw new Exception(s"The configured period ($period) is less than the minimun period time ($MinimumPeriodTime) in scheduled tasks")
+        throw new Exception(s"The configured period ($period) is less than the minimum period time ($MinimumPeriodTime) in scheduled tasks")
     }
   }
 }

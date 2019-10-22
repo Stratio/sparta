@@ -60,7 +60,9 @@ class ScheduledWorkflowTaskExecutorActor  (launcherActor: ActorRef) extends Acto
       if (isThisNodeClusterLeader(cluster)) {
         val activeWorkflowTasksInDb = getActiveActionsToExecuteInDb
 
-        stopActions(activeWorkflowTasksInDb).onComplete {
+        val unActiveWorkflowTasksInDb = getUnActiveActionsToExecuteInDb
+
+        stopActions(activeWorkflowTasksInDb, unActiveWorkflowTasksInDb).onComplete {
           case Success(newActionsExecuted) =>
             if (newActionsExecuted.nonEmpty)
               log.info(s"Stopped scheduled actions in workflow scheduler: ${newActionsExecuted.mkString(",")}")
@@ -228,15 +230,27 @@ class ScheduledWorkflowTaskExecutorActor  (launcherActor: ActorRef) extends Acto
     }
   }
 
-  def stopActions(activeWorkflowTasksInDb: Future[Seq[ScheduledWorkflowTask]]): Future[Seq[String]] = {
+  def stopActions(
+                   activeWorkflowTasksInDb: Future[Seq[ScheduledWorkflowTask]],
+                   unActiveWorkflowTasksInDb: Future[Seq[ScheduledWorkflowTask]]
+                 ): Future[Seq[String]] = {
     for {
       activeTasksInDb <- activeWorkflowTasksInDb
+      unActiveTasksInDb <- unActiveWorkflowTasksInDb
     } yield {
-      val notActiveButRunningTasks = scheduledActions.filter { case (_, workflowAction) =>
-        !activeTasksInDb.exists(activeWorkflowTaskInDb =>
+      val tasksToStop = scheduledActions.filter { case (_, workflowAction) =>
+        val notActiveButRunningTasks = unActiveTasksInDb.exists(activeWorkflowTaskInDb =>
           activeWorkflowTaskInDb.id == workflowAction.scheduledWorkflowTask.id)
+        val updatedButRunningTasks = activeTasksInDb.exists(activeWorkflowTaskInDb =>
+          activeWorkflowTaskInDb.id == workflowAction.scheduledWorkflowTask.id &&
+            activeWorkflowTaskInDb != workflowAction.scheduledWorkflowTask
+        )
+        notActiveButRunningTasks || updatedButRunningTasks
       }.toMap
-      notActiveButRunningTasks.map { case (_, workflowAction) => cancelAndRemoveTask(workflowAction.scheduledWorkflowTask) }.toSeq
+
+      tasksToStop.map { case (_, workflowAction) =>
+        cancelAndRemoveTask(workflowAction.scheduledWorkflowTask)
+      }.toSeq
     }
   }
 
@@ -251,6 +265,10 @@ class ScheduledWorkflowTaskExecutorActor  (launcherActor: ActorRef) extends Acto
 
   def getActiveActionsToExecuteInDb: Future[Seq[ScheduledWorkflowTask]] = {
     scheduledWorkflowTaskPgService.filterScheduledWorkflowTaskByActive(active = true)
+  }
+
+  def getUnActiveActionsToExecuteInDb: Future[Seq[ScheduledWorkflowTask]] = {
+    scheduledWorkflowTaskPgService.filterScheduledWorkflowTaskByActive(active = false)
   }
 
 }

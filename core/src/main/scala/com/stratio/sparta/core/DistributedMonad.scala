@@ -247,7 +247,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
             * the first record inside the first field
             */
           seq_advancedQRs.foreach{ advancedQualityRule =>
-            val resultQuery = cachedRDD.sqlContext.sql(advancedQualityRule.retrieveQueryReplacedResource).first().getLong(0)
+            val resultQuery = cachedRDD.sqlContext.sql(advancedQualityRule.retrieveQueryReplacedResources).first().getLong(0)
             mapAccumulators(advancedQualityRule.id).add(resultQuery)
           }
 
@@ -301,7 +301,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
             * the rowCountAccumulator was never incremented row by row, so we need a count
             * */
 
-          if(seq_simpleQRs.isEmpty) rowCountAccumulator.add(cachedRDD.count())
+          if(seq_simpleQRs.isEmpty) rowCountAccumulator.add(cachedRDD.first().getLong(0))
 
           val seqThresholds: Map[Long, QRThresholdResults] =
             qualityRules.map { rule =>
@@ -326,7 +326,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
           res ++= qualityRules.map { qr =>
             val stringConditions =
-              if (qr.predicates.isEmpty) qr.plannedQuery.get.query
+              if (qr.predicates.isEmpty) qr.retrieveQueryReplacedResources
               else qr.predicates.mkString(s"\n${qr.logicalOperator.get.toUpperCase}")
 
             SparkQualityRuleResults(

@@ -13,6 +13,16 @@ case class ExecutionContext(
                              paramsLists: Seq[String] = Seq.empty[String]
                            ) {
 
+  override def equals(obj: Any): Boolean =
+    obj match {
+      case obj: ExecutionContext =>
+        obj.isInstanceOf[ExecutionContext] && (
+          this.extraParams.diff(obj.extraParams).isEmpty && obj.extraParams.diff(this.extraParams).isEmpty &&
+            this.paramsLists.diff(obj.paramsLists).isEmpty &&  obj.paramsLists.diff(this.paramsLists).isEmpty
+          )
+      case _ => false
+    }
+
   def toParametersMap: Map[String, String] = extraParams.flatMap(parameter =>
     if(parameter.value.nonEmpty)
       Option(parameter.name -> parameter.value.getOrElse(""))

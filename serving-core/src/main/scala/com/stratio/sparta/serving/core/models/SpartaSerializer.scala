@@ -40,8 +40,8 @@ trait SpartaSerializer {
       new EnumNameSerializer(DateGranularity) +
       new EnumNameSerializer(PhaseEnum) +
       new EnumNameSerializer(ExecutionTypeEnum) +
-      new EnumNameSerializer(QualityRuleTypeEnum)
-
+      new EnumNameSerializer(QualityRuleTypeEnum) +
+      new EnumNameSerializer(QualityRuleResourceTypeEnum)
   }
 
 }

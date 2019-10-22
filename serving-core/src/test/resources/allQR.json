@@ -1,0 +1,335 @@
+{
+  "content": [
+    {
+      "id": 5,
+      "metadataPath": "tenant1-hdfs-example://user/tenant1-spartamig/sdasd/Test>/:Test:",
+      "name": "example6",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "RESOURCE",
+      "parameters": {
+        "advanced": {
+          "query": "select count(s_audit.shopId) from ${32452} s_audit, ${42} s_ref where s_ref.shopId = s_audit.shopId",
+          "resources": [
+            {
+              "id": 32452,
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            },
+            {
+              "id": 42,
+              "type": "XD",
+              "resource": "reference_sales",
+              "metadatapath": "xddatastore://xddatastore>/:reference_sales:"
+            }
+          ],
+          "queryReference": "select count(userId) from ${42}"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "M"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "tenant1",
+      "createdAt": "2019-09-27T08:02:07.891Z",
+      "modifiedAt": "2019-09-27T08:02:07.891Z",
+      "userId": "admin"
+    },
+    {
+      "id": 4,
+      "metadataPath": "tenant1-hdfs-example://user/tenant1-spartamig/sdasd/Test>/:Test:",
+      "name": "example5",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "RESOURCE",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from (select id, status_code, income, count(*) from ${2131} group by id, status_code, income having count(*) > 1)",
+          "resources": [
+            {
+              "id": 2131,
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from ${2131}"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "5"
+      },
+      "resultOperation": "<",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "L"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "tenant1",
+      "createdAt": "2019-09-27T08:01:26.753Z",
+      "modifiedAt": "2019-09-27T08:01:26.753Z",
+      "userId": "admin"
+    },
+    {
+      "id": 3,
+      "metadataPath": "tenant1-hdfs-example://user/tenant1-spartamig/sdasd/Test>/:Test:",
+      "name": "example4",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "advanced": {
+          "query": "select count(*) from ${2131} where income >= 0 and status_code = 1 and name is not null",
+          "resources": [
+            {
+              "id": 2131,
+              "type": "XD",
+              "resource": "sales",
+              "metadatapath": "xddatastore://xddatastore>/:sales:"
+            }
+          ],
+          "queryReference": "select count(*) from ${2131}"
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "type": "ACT_PASS"
+      },
+      "resultExecute": {
+        "type": "EXE_PRO",
+        "config": {
+          "scheduling": [
+            {
+              "period": 86400,
+              "initialization": 1558536045000
+            }
+          ],
+          "executionOptions": {
+            "size": "S"
+          }
+        }
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "tenant1",
+      "createdAt": "2019-09-27T08:00:30.813Z",
+      "modifiedAt": "2019-09-27T08:00:30.813Z",
+      "userId": "admin"
+    },
+    {
+      "id": 2,
+      "metadataPath": "tenant1-hdfs-example://user/tenant1-spartamig/sdasd/Test>/:Test:",
+      "name": "example3",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "FIELD",
+      "parameters": {
+        "table": {
+          "type": "XD"
+        },
+        "filter": {
+          "cond": [
+            {
+              "order": 1,
+              "param": [
+                {
+                  "name": "",
+                  "value": "0"
+                }
+              ],
+              "attribute": "income",
+              "operation": ">="
+            },
+            {
+              "order": 2,
+              "param": [
+                {
+                  "name": "",
+                  "value": "1"
+                }
+              ],
+              "attribute": "status_code",
+              "operation": "="
+            },
+            {
+              "order": 3,
+              "attribute": "name",
+              "operation": "is not null"
+            }
+          ],
+          "type": "and",
+          "order": 1
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "95"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "%",
+      "resultAction": {
+        "path": "attribute-qr-failed",
+        "type": "ACT_MOV"
+      },
+      "resultExecute": {
+        "type": "EXE_REA"
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "tenant1",
+      "createdAt": "2019-09-27T07:59:25.054Z",
+      "modifiedAt": "2019-09-27T07:59:25.054Z",
+      "userId": "admin"
+    },
+    {
+      "id": 1,
+      "metadataPath": "tenant1-hdfs-example://user/tenant1-spartamig/sdasd/Test>/:Test:",
+      "name": "example2",
+      "description": "",
+      "type": "SPARK",
+      "catalogAttributeType": "RESOURCE",
+      "parameters": {
+        "table": {
+          "type": "XD"
+        },
+        "filter": {
+          "cond": [
+            {
+              "order": 1,
+              "param": [
+                {
+                  "name": "",
+                  "value": "0"
+                }
+              ],
+              "attribute": "id",
+              "operation": ">="
+            },
+            {
+              "order": 2,
+              "param": [
+                {
+                  "name": "",
+                  "value": "3"
+                }
+              ],
+              "attribute": "status_code",
+              "operation": "<="
+            },
+            {
+              "order": 3,
+              "attribute": "name",
+              "operation": "is not null"
+            }
+          ],
+          "type": "and",
+          "order": 1
+        }
+      },
+      "query": null,
+      "active": true,
+      "resultUnit": {
+        "name": "",
+        "value": "500000"
+      },
+      "resultOperation": ">",
+      "resultOperationType": "abs",
+      "resultAction": {
+        "path": "attribute-qr-failed",
+        "type": "ACT_MOV"
+      },
+      "resultExecute": {
+        "type": "EXE_REA"
+      },
+      "link": {
+        "dashboards": []
+      },
+      "qualityGenericId": null,
+      "tenant": "tenant1",
+      "createdAt": "2019-09-27T07:57:49.675Z",
+      "modifiedAt": "2019-09-27T07:57:49.676Z",
+      "userId": "admin"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": false,
+      "unsorted": true
+    },
+    "pageSize": 20,
+    "pageNumber": 0,
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalElements": 5,
+  "totalPages": 1,
+  "first": true,
+  "sort": {
+    "sorted": false,
+    "unsorted": true
+  },
+  "numberOfElements": 5,
+  "size": 20,
+  "number": 0
+}

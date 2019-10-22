@@ -6,168 +6,269 @@
 
 package com.stratio.sparta.core.models
 
+import com.stratio.sparta.core.enumerators.QualityRuleResourceTypeEnum
+import com.stratio.sparta.core.enumerators.QualityRuleResourceTypeEnum.QualityRuleResourceType
 import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum.QualityRuleType
 import com.stratio.sparta.core.enumerators.QualityRuleTypeEnum._
+import com.stratio.sparta.core.models.qualityrule.ValidationQR
+import com.stratio.sparta.core.utils.QualityRulesUtils
 import com.stratio.sparta.core.utils.RegexUtils._
+import org.joda.time.{DateTime, DateTimeZone}
+import MetadataPath._
 
 import scala.util.{Failure, Success, Try}
 
 case class SpartaQualityRule(id: Long,
                              metadataPath: String,
                              name: String,
-                             qualityRuleScope: String,
+                             qualityRuleScope: String, //Table or Resource
                              logicalOperator: Option[String],
+                             metadataPathResourceType: Option[QualityRuleResourceType] = None,
+                             metadataPathResourceExtraParams : Seq[PropertyKeyValue] = Seq.empty[PropertyKeyValue],
                              enable: Boolean,
                              threshold: SpartaQualityRuleThreshold,
                              predicates: Seq[SpartaQualityRulePredicate],
                              stepName: String,
                              outputName: String,
                              executionId: Option[String] = None,
-                             qualityRuleType: QualityRuleType = Reactive,
+                             qualityRuleType: QualityRuleType = Reactive, //Planned or Reactive
                              plannedQuery: Option[PlannedQuery] = None,
                              tenant: Option[String] = None,
                              creationDate: Option[Long]= None,
                              modificationDate: Option[Long] = None,
-                             initDate: Option[Long] = None,
-                             period: Option[Long] = None,
-                             sparkResourcesSize: Option[String] = None,
-                             taskId: Option[String] = None
+                             schedulingDetails : Option[SchedulingDetails] = None,
+                             taskId: Option[String] = None,
+                             hadoopConfigUri: Option[String] = None
                             ) {
+
+  import SpartaQualityRule._
+
   override def toString: String = {
+    def planningDetails(schedulingDetails: SchedulingDetails): String =
+      s"""
+         | to be executed each ${schedulingDetails.period.getOrElse("NaN")} seconds
+         | starting from ${schedulingDetails.initDate.fold("NaN "){ date => new DateTime(date, DateTimeZone.UTC).toString()}}
+         | with cluster resources size ${schedulingDetails.sparkResourcesSize.fold("NotDefined: set to default PlannedQRSettings"){ size => size}}
+         |""".stripMargin.removeAllNewlines
+
+    def printListPropertyKeyValue(listPropertyKeyValue:  Seq[PropertyKeyValue]) =
+      s"""[${listPropertyKeyValue.map(elem => s"${elem.key}" ->  s"${elem.value}").mkString(",")}]"""
+
     s"id: $id, metadataPath: $metadataPath, " +
       s"enable: $enable, stepName: $stepName, " +
       s"outputName: $outputName, " +
-      s"lastUpdate: ${modificationDate.getOrElse("NaN")}, "+
+      s"lastUpdate: ${modificationDate.getOrElse("NaN")}, " +
+      s"metadataPathResourceType: ${metadataPathResourceType.fold("None"){x => x.toString}}, " +
+      s"metadataPathResourceExtraParams: ${printListPropertyKeyValue(metadataPathResourceExtraParams)}, " +
+      s"hadoopConfigUri: ${hadoopConfigUri.fold("None"){x => x.toString}}, " +
       s"${
         if (predicates.nonEmpty) "predicates: " + s"${predicates.mkString(s" ${logicalOperator.get} ")}"
-        else "advancedQuery: " + s"${plannedQuery.fold("Empty query") { pq => pq.query }}"}, " +
-      s"threshold: $threshold, " + s"${executionId.fold(""){ exId => s" executionId: $exId" }}" +
+        else "advancedQuery: " + s"${plannedQuery.fold("Empty plannedQuery") { pq => pq.prettyPrint }}"
+      }, " +
+      s"threshold: $threshold, " + s"${executionId.fold("") { exId => s" executionId: $exId" }}" +
       s"type: $qualityRuleType " + s"${
       if (qualityRuleType == Planned)
-        s"to be executed each ${period.getOrElse("NaN")} seconds with cluster resources size ${sparkResourcesSize.getOrElse("NotDefined: set to default PlannedQRSettings")} ${taskId.fold(""){ taskID => s"and related to the taskId $taskID "}}"
-      else ""}"
+        s"${schedulingDetails.fold(""){x => planningDetails(x)}} ${taskId.fold("") { taskID => s"and related to the taskId $taskID " }}"
+      else ""
+    }"
   }
+
+  def retrieveQueryForInputStepForPlannedQR: String = {
+    /** If there is a queryReference, use it once the placeholders have been replaced.
+      * If there isn't and it's a simple QR it should be a select (*) from table name
+      */
+
+    val dummyQuery = "select 1 as id"
+
+    lazy val advancedPlannedQuery: Option[String] = this.plannedQuery.map(pq =>
+      replacePlaceholdersWithResources(pq.queryReference, pq.resources))
+
+    lazy val simplePlannedQuery: Option[String] = {
+      val metadataQR = MetadataPath.fromMetadataPathString(metadataPath)
+      for {
+        typeResource <- metadataPathResourceType
+      } yield {
+        typeResource match {
+          case QualityRuleResourceTypeEnum.XD =>
+            val tableName = getTableName(metadataPath, metadataPathResourceType)
+            val database = metadataQR.path.fold(""){ db =>
+              s"${db.stripPrefixWithIgnoreCase("/")}."}
+            s"select * from $database$tableName"
+          case QualityRuleResourceTypeEnum.JDBC =>
+            val tableName = getTableName(metadataPath, metadataPathResourceType)
+            s"select * from $tableName"
+          case QualityRuleResourceTypeEnum.HDFS =>
+            val tableName = getTableName(metadataPath, metadataPathResourceType)
+            s"select * from $tableName"
+        }
+      }
+    }
+    advancedPlannedQuery.getOrElse(simplePlannedQuery.getOrElse(dummyQuery))
+  }
+
 }
 
-object SpartaQualityRule {
+object SpartaQualityRule extends ValidationQR {
 
-  val DefaultPlannedQRInputStepName = "plannedQR_input"
+  // These are the key we expect to find as details of the resources
+  val qrConnectionURI = "connectionURI"
+  val qrTlsEnabled = "tlsEnabled"
+  val qrSecurity = "securityType"
+  val qrDriver = "driver"
+  val qrSchemaFile = "schema"
+  val qrVendor = "vendor"
+
+  val defaultPlannedQRMainResourceID = -1L
+
+  val mandatoryOptions = Set(qrConnectionURI, qrTlsEnabled, qrDriver, qrSchemaFile, qrVendor, qrSecurity)
+  val mandatoryOptionsHDFS = Seq(qrSchemaFile, qrConnectionURI)
+  val mandatoryOptionsJDBC = Seq(qrConnectionURI, qrVendor)
+
+
+  def filterQRMandatoryOptions(opt : Seq[PropertyKeyValue]) : Seq[PropertyKeyValue] =
+    opt.filterNot{ property => mandatoryOptions.contains(property.key)}
+
+  val inputStepNamePlannedQR = "plannedQR_input"
+  val outputStepNamePlannedQR = "metrics"
 
   val availablePlannedQRSparkResourcesSize = Seq("PlannedQRSettings","S","M","L","XL")
 
-  def inputStepNameForPlannedQR(resource: String): String = {
-    s"${resource}_input"
-  }
-
   implicit class SpartaQualityRuleOps(instance: SpartaQualityRule) {
+
     import instance._
 
-    def validSpartaQR: Boolean =
-      cannotHaveBothPredicatesAndQuery && isEitherAnAdvancedOrASimpleValidQR && isValidPlannedOrProactive && hasModificationAndCreationTime
-
-    def inputStepNameForPlannedQR: String = {
-      plannedQuery.fold(DefaultPlannedQRInputStepName)(pq => s"${pq.resource}_input")
-    }
+    def validSpartaQR: Try[Boolean] =
+      checkValidity(cannotHaveBothPredicatesAndQuery ::
+        isEitherAnAdvancedOrASimpleValidQR :: isValidPlannedOrProactive :: hasModificationAndCreationTime :: allDetailsForResources :: Nil)
 
     /**
       * Inside a workflow, no step name can match any existing table inside the Catalog.
       * Still, since we need to operate on that table, we will use the inputStepNameForPlannedQR (resource name + "_input")
       * that is set as stepName inside the QR and as the writer tableName property inside the Input of the PlannedQR workflow.
       * This means that we should change the provided query too when executing the QR.
-      * */
-    def retrieveQueryReplacedResource: String = {
-      plannedQuery.map(pq =>
-        replaceWholeWord(inputText = pq.query, wordToReplace = pq.resource, replacement = inputStepNameForPlannedQR))
-        .getOrElse(throw new RuntimeException("Impossible to execute the planned QR query: the query does not contain the specified resource"))
+      **/
+    def retrieveQueryReplacedResources: String = {
+      val replacedQuery = plannedQuery.fold("") { pq =>
+        replacePlaceholdersWithResources(pq.query, pq.resources)
+      }
+      if (replacedQuery.isEmpty || containsPlaceholders(replacedQuery))
+        throw new RuntimeException("Impossible to execute the planned QR query: some placeholders could not be replaced with the related resource")
+      else replacedQuery
     }
 
-    private def validQuery: Boolean =
-      plannedQuery.fold(predicates.nonEmpty) { pq =>
-        val mustStartWith = "Select count(*) from"
+    private def checkValidity(seqTry: Seq[Try[Boolean]]): Try[Boolean] = {
+      //Merge together all the Failures
+      val seqFailures = seqTry.filter(elem => elem.isFailure)
+      if (seqFailures.isEmpty) Success(true)
+      else {
+        val errorAsMsg = seqFailures.flatMap {
+          case Failure(e) => Some(e.getLocalizedMessage)
+          case Success(_) => None
+        }.mkString("\n")
+        errorAsFailure(errorAsMsg)
+      }
+    }
+
+    private def allDetailsForResources: Try[Boolean] = {
+      val seqResources: Seq[ResourcePlannedQuery] = QualityRulesUtils.sequenceMetadataResources(instance)
+      val checkResources = seqResources.map { res => ResourcePlannedQuery.allDetailsForSingleResource(res) }
+      checkValidity(checkResources)
+    }
+
+
+    private def validQuery: Try[Boolean] =
+      plannedQuery.fold(Try(predicates.nonEmpty)) { pq =>
+        val mustStartWith = "Select count"
         val queryTrimmedAndSpaceNormalized = pq.query.trimAndNormalizeString
         val nonEmptyQuery = queryTrimmedAndSpaceNormalized.nonEmpty
-        val validPrefixQuery= queryTrimmedAndSpaceNormalized.startWithIgnoreCase(mustStartWith)
-        val queryContainsTableResource =containsWholeWord(inputText = queryTrimmedAndSpaceNormalized, wordToFind = pq.resource)
+        val validPrefixQuery = queryTrimmedAndSpaceNormalized.startWithIgnoreCase(mustStartWith)
+        val queryContainsTableResource = !containsPlaceholders(replacePlaceholdersWithResources(pq.query, pq.resources))
         (nonEmptyQuery, validPrefixQuery, queryContainsTableResource) match {
-          case (true, true, true) => true
-          case (false, _, _ ) => throw new RuntimeException("The query specified for the planned quality rule is empty")
-          case (true,false,_) => throw new RuntimeException("The query specified for the planned quality rule does not start with 'select count(*) from'")
-          case (true, true, false) => throw new RuntimeException("The query specified for the planned quality rule does not contain the specified resource")
+          case (true, true, true) => Success(true)
+          case (false, _, _) => errorAsFailure(s"The query specified for the planned quality rule with id $id is empty")
+          case (true, false, _) => errorAsFailure(s"The query specified for the planned quality rule with id $id does not start with 'select count(*) from'")
+          case (true, true, false) => errorAsFailure(s"The query specified for the planned quality rule with id $id does not contain the specified resource")
         }
       }
 
-    private def isEitherAnAdvancedOrASimpleValidQR: Boolean = {
-      val advanced = Try(isValidAdvancedQR)
-      val simple = Try(isValidSimpleQR)
-      (simple, advanced) match {
-        case (Success(true), Failure(_)) => true
-        case (Failure(_), Success(true)) => true
+    private def isEitherAnAdvancedOrASimpleValidQR: Try[Boolean] = {
+      (isValidSimpleQR, isValidAdvancedQR) match {
+        case (Success(true), Failure(_)) => Success(true)
+        case (Failure(_), Success(true)) => Success(true)
         case (Success(true), Success(true)) =>
-          throw new RuntimeException("The quality rule is invalid: it is both a simple and an advanced quality rule")
-        case (Failure(exceptionSimple),Failure(exceptionAdvanced)) =>
-          throw new RuntimeException(s"The quality rule is neither a simple nor an advanced type. ${exceptionSimple.getLocalizedMessage}. ${exceptionAdvanced.getLocalizedMessage}")
-        case (_,_) => throw new RuntimeException(s"The quality rule is neither a simple nor an advanced type.")
+          errorAsFailure(s"The quality rule with id $id is invalid: it is both a simple and an advanced quality rule")
+        case (Failure(exceptionSimple), Failure(exceptionAdvanced)) =>
+          errorAsFailure(s"The quality rule with id $id is neither a simple nor an advanced type. ${exceptionSimple.getLocalizedMessage}. ${exceptionAdvanced.getLocalizedMessage}")
+        case (_, _) => errorAsFailure(s"The quality rule with id $id is neither a simple nor an advanced type.")
       }
     }
 
-    private def isValidAdvancedQR: Boolean = {
+    private def isValidAdvancedQR: Try[Boolean] = {
       if (qualityRuleType == Planned && plannedQuery.isDefined) {
-        validQuery && (
-            if (plannedQuery.get.resource.trim.nonEmpty) true
-            else
-              throw new RuntimeException(s"A resource table must be specified in the Planned advanced query")
-          )
-      } else throw new RuntimeException(s"An advanced quality rule cannot be Proactive")
+        checkValidity(validQuery :: (
+          if (plannedQuery.get.resources.nonEmpty) Success(true)
+          else
+            errorAsFailure(s"One or more resources must be specified in the Planned advanced query")
+          ) :: Nil)
+      } else errorAsFailure(s"An advanced quality rule cannot be Proactive")
+
     }
 
-    private def isValidSimpleQR: Boolean = {
-      if (logicalOperator.isEmpty) throw new RuntimeException("The quality rule has no defined operator")
+    private def isValidSimpleQR: Try[Boolean] = {
+      if (logicalOperator.isEmpty) errorAsFailure(s"The quality rule with id $id has no defined operator")
       else {
-        val validOperator = logicalOperator.fold(false){op => op.equalsIgnoreCase("OR") || op.equalsIgnoreCase("AND")}
+        val validOperator = logicalOperator.fold(false) { op => op.equalsIgnoreCase("OR") || op.equalsIgnoreCase("AND") }
         (validOperator, predicates.nonEmpty) match {
-          case (true, true) => true
-          case (false, _) => throw new RuntimeException(s"The operator defined for the quality rule is not supported ${logicalOperator.get}")
-          case (_, false) => throw new RuntimeException(s"A simple quality rule must have some predicates")
+          case (true, true) => Success(true)
+          case (false, _) => errorAsFailure(s"The operator defined for the quality rule with id $id is not supported ${logicalOperator.get}")
+          case (_, false) => errorAsFailure(s"A simple quality rule (id $id) must have some predicates")
         }
       }
     }
 
-    private def hasModificationAndCreationTime: Boolean =
-      if (modificationDate.isDefined && creationDate.isDefined) true
-      else throw new RuntimeException("The quality rule is invalid: it is mandatory to have the fields creationDate " +
+    private def hasModificationAndCreationTime: Try[Boolean] =
+      if (modificationDate.isDefined && creationDate.isDefined) Success(true)
+      else errorAsFailure(s"The quality rule with id $id is invalid: it is mandatory to have the fields creationDate " +
         "and modificationDate defined")
 
-    private def cannotHaveBothPredicatesAndQuery: Boolean =
-      if (!(predicates.nonEmpty && plannedQuery.isDefined)) true
-      else throw new RuntimeException("The quality rule is invalid: it defines both predicates and an advanced query")
+    private def cannotHaveBothPredicatesAndQuery: Try[Boolean] =
+      if (!(predicates.nonEmpty && plannedQuery.isDefined)) Success(true)
+      else errorAsFailure(s"The quality rule with id $id is invalid: it defines both predicates and an advanced query")
 
-    private def isValidPlannedOrProactive: Boolean =
-      (qualityRuleType, Try(hasValidPlannedInfo)) match {
-        case (Planned, Success(true)) => true
+    private def isValidPlannedOrProactive: Try[Boolean] =
+      (qualityRuleType, hasValidPlannedInfo) match {
+        case (Planned, Success(true)) => Success(true)
         case (Planned, Failure(exception)) =>
-          throw new RuntimeException(s"The quality rule is a Planned quality rule but its scheduling information is invalid: ${exception.getLocalizedMessage}")
+          errorAsFailure(s"The quality rule with id $id is a Planned quality rule but its scheduling information is invalid: ${exception.getLocalizedMessage}")
         case (Planned, _) =>
-          throw new RuntimeException(s"The quality rule is a Planned quality rule but its scheduling information is invalid")
-        case (Reactive, Success(true)) => throw new RuntimeException(s"The quality rule is Proactive but scheduling information was provided too")
-        case (Reactive, _) => true
+          errorAsFailure(s"The quality rule with id $id is a Planned quality rule but its scheduling information is invalid")
+        case (Reactive, Success(true)) =>
+          errorAsFailure(s"The quality rule is Proactive but scheduling information was provided too")
+        case (Reactive, _) => Success(true)
       }
 
-    private def hasValidPlannedInfo: Boolean = {
-      val validInitDate = initDate
-        .fold(throw new RuntimeException(s"No initDate was set for this planned quality rule")) { inDate =>
-          if (inDate >= 0L) true
-          else
-            throw new RuntimeException(s"The selected periodicity for this planned quality rule is not valid")}
-      val validPeriod = period
-        .fold(throw new RuntimeException(s"No periodicity was set for this planned quality rule")){ p =>
-          if (p > 1L) true
-          else throw new RuntimeException(s"The selected periodicity for this planned quality rule is not valid")}
-      val validSparkSize =
-        if (sparkResourcesSize.isDefined) {
-          if (availablePlannedQRSparkResourcesSize.contains(sparkResourcesSize.get)) true
-          else throw new RuntimeException(s"The selected Spark resource size is not available in Sparta")
-        } else throw new RuntimeException(s"No Spark resource size for this planned quality rule was passed")
-      validInitDate && validPeriod && validSparkSize
+    private def hasValidPlannedInfo: Try[Boolean] = {
+      schedulingDetails.fold(errorAsFailure("No scheduling details were provided")) {
+        details =>
+          val validInitDate = details.initDate
+            .fold(errorAsFailure(s"No initDate was set for the planned quality rule with id $id")) { inDate =>
+              if (inDate >= 0L) Success(true)
+              else
+                errorAsFailure(s"The selected periodicity for the planned quality rule with id $id is not valid")
+            }
+          //Can be empty, but if it's not empty it should be > 1
+          val validPeriod = details.period
+            .fold(Try(true)) { p =>
+              if (p > 1L) Success(true)
+              else errorAsFailure(s"The selected periodicity for the planned quality rule with id $id is not valid")
+            }
+          val validSparkSize: Try[Boolean] =
+            if (details.sparkResourcesSize.isDefined) {
+              if (availablePlannedQRSparkResourcesSize.contains(details.sparkResourcesSize.get)) Success(true)
+              else errorAsFailure(s"The selected Spark resource size in the qualityRule with id $id is not available in Sparta")
+            } else errorAsFailure(s"No Spark resource size for the planned quality rule with id $id was passed")
+          checkValidity(validInitDate :: validPeriod :: validSparkSize :: Nil)
+      }
     }
   }
 
@@ -210,4 +311,4 @@ case class SpartaQualityRuleThreshold(value: Double,
 case class SpartaQualityRuleThresholdActionType(`type`: String, path: Option[String] = None)
 
 
-
+case class SchedulingDetails(initDate: Option[Long] = None, period: Option[Long] = None, sparkResourcesSize: Option[String] = None)

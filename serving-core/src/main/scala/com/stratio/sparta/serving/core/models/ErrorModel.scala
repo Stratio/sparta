@@ -188,6 +188,7 @@ object ErrorModel extends SpartaSerializer {
   val DebugWorkflowServiceFindAllMockData = "926"
 
   /* Data quality result service 950 - 974 */
+  /* Reactive quality rules service 950 - 960 */
   val QualityRuleResultServiceFindAll = "950"
   val QualityRuleResultServiceFindById = "951"
   val QualityRuleResultServiceFindByExecutionId = "952"
@@ -196,6 +197,14 @@ object ErrorModel extends SpartaSerializer {
   val QualityRuleResultServiceDeleteAll = "955"
   val QualityRuleResultServiceDeleteById = "956"
   val QualityRuleResultServiceDeleteByExecutionId = "957"
+
+  /* Planned quality rules service 960 - 974 */
+  val PlannedQualityRuleServiceFindAll = "960"
+  val PlannedQualityRuleServiceFindById = "961"
+  val PlannedQualityRuleServiceFindByTaskId = "962"
+  val PlannedQualityRuleServiceDeleteAll = "963"
+  val PlannedQualityRuleServiceDeleteById = "964"
+
 
 
   /* Parameter lists Service 975 - 999 */
@@ -358,6 +367,9 @@ object ErrorModel extends SpartaSerializer {
     QualityRuleResultServiceDeleteAll -> "Error while deleting all quality rule results",
     QualityRuleResultServiceDeleteById -> "Error while deleting a quality rule result with the specified ID",
     QualityRuleResultServiceDeleteByExecutionId -> "Error while deleting a quality rule result with the specified execution ID",
+    PlannedQualityRuleServiceFindAll -> "Error while retrieving all the stored Planned Quality rules",
+    PlannedQualityRuleServiceFindById -> "Error while retrieving the planned quality rule with the specified ID",
+    PlannedQualityRuleServiceFindByTaskId -> "Error while retrieving the planned quality rule with the specified taskID",
     ParameterListServiceUnexpected -> "Unexpected behaviour in parameter list service",
     ParameterListServiceFindById -> "Error finding parameter list by ID",
     ParameterListServiceFindByName -> "Error finding parameter list by Name",

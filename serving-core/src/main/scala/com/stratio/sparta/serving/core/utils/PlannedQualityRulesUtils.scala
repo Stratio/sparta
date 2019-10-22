@@ -7,8 +7,11 @@ package com.stratio.sparta.serving.core.utils
 
 import java.util.UUID
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.models.SpartaQualityRule
 import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.core.utils.RegexUtils._
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
@@ -20,98 +23,121 @@ import com.stratio.sparta.serving.core.services.dao.{ScheduledWorkflowTaskPostgr
 
 import scala.concurrent.Future
 
-class PlannedQualityRulesUtils {
+object PlannedQualityRulesUtils extends SLF4JLogging{
 
   lazy val workflowPostgresService: WorkflowPostgresDao = PostgresDaoFactory.workflowPgService
   lazy val scheduledTaskPostgresService: ScheduledWorkflowTaskPostgresDao = PostgresDaoFactory.scheduledWorkflowTaskPgService
+  lazy val plannedQualityRulePgService = PostgresDaoFactory.plannedQualityRulePgService
 
-  import PlannedQualityRulesUtils._
-
-  def createOrUpdateTaskPlanning(spartaQualityRule: SpartaQualityRule): Future[(ScheduledWorkflowTask, SpartaQualityRule)] = {
+  def createOrUpdateTaskPlanning(spartaQualityRule: SpartaQualityRule,
+                                 extraProperties: Seq[(String,String)] = Seq.empty[(String, String)]
+                                ): Future[(ScheduledWorkflowTask, SpartaQualityRule)] = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    implicit val sp_QR = spartaQualityRule
 
-    val parametrizedWorkflow: Future[Workflow] =
+    val parametrizedWorkflow: Future[Workflow] = {
+      val idAccordingToType = DefaultXDPlannedQRWorkflowId
       (for {
-        pqrWf <- workflowPostgresService.findWorkflowById(DefaultPlannedQRWorkflowId)
+        pqrWf <- workflowPostgresService.findWorkflowById(idAccordingToType)
       } yield pqrWf).fallbackTo(workflowPostgresService.createWorkflow(createWorkflowFromScratch))
+    }
 
-    lazy val oldTaskFromDb: Future[Option[ScheduledWorkflowTask]] =
-      if (spartaQualityRule.taskId.isEmpty) Future(None)
-      else
-        for {oldTask <- scheduledTaskPostgresService.findByID(spartaQualityRule.taskId.get)} yield oldTask
+    def oldTaskFromDb(qr: Option[SpartaQualityRule]): Future[Option[ScheduledWorkflowTask]] =
+      qr.fold(Future(None): Future[Option[ScheduledWorkflowTask]]) { qr =>
+        for {oldTask <- scheduledTaskPostgresService.findByID(qr.taskId.get)} yield oldTask
+      }
 
     for {
       _ <- parametrizedWorkflow
-      oldTask <- oldTaskFromDb
-      task <- {
-        if (oldTask.isDefined)
-          upsertWorkflowTask(updateQualityRuleToWorkflowTask(oldTask.get))
-        else
-          upsertWorkflowTask(createQualityRuleToWorkflowTask)
-      }
-    } yield (task, spartaQualityRule.copy(taskId = Some(task.id)))
+      oldQR <- plannedQualityRulePgService.findById(spartaQualityRule.id)
+      oldTask <- oldTaskFromDb(oldQR)
+      task <- updatedWorkflowTask(oldTask, spartaQualityRule)
+    } yield
+      (task, spartaQualityRule.copy(taskId = Some(task.id)))
   }
 
-  def upsertWorkflowTask(task: ScheduledWorkflowTask): Future[ScheduledWorkflowTask] =
+  def updatedWorkflowTask(oldTask: Option[ScheduledWorkflowTask], spartaQualityRule: SpartaQualityRule): Future[ScheduledWorkflowTask] =
+    oldTask match {
+      case Some(oldTaskItem) =>
+        val updatedTask = updateQualityRuleToWorkflowTask(oldTaskItem, spartaQualityRule)
+        upsertWorkflowTask(updatedTask)
+      case None =>
+        val newTask = createQualityRuleToWorkflowTask(spartaQualityRule)
+        upsertWorkflowTask(newTask)
+    }
+
+  def upsertWorkflowTask(task: ScheduledWorkflowTask): Future[ScheduledWorkflowTask] = {
     scheduledTaskPostgresService.updateScheduledWorkflowTask(task)
+  }
 
   /**
     * Add specific env variables from the Quality Rule
     **/
-  def createQualityRuleToWorkflowTask(implicit spartaQualityRule: SpartaQualityRule): ScheduledWorkflowTask =
+  def createQualityRuleToWorkflowTask(spartaQualityRule: SpartaQualityRule): ScheduledWorkflowTask = {
+    val newExecutionContext = plannedQRExecutionContext(spartaQualityRule)
+    log.debug(s"Creating task execution context with the following variables: [${newExecutionContext.map(_.extraParams.seq.map(x => s"${x.name} -> ${x.value}").mkString(","))}]")
+    val periodAsDuration: Option[Long] = spartaQualityRule.schedulingDetails.flatMap(_.period)
+    val activeTask = spartaQualityRule.enable
     ScheduledWorkflowTask(
       id = UUID.randomUUID().toString,
-      taskType = ScheduledTaskType.UNIQUE_PERIODICAL,
+      taskType = periodAsDuration.fold(ScheduledTaskType.ONE_TIME){ _=> ScheduledTaskType.PERIODICAL},
       actionType = ScheduledActionType.RUN,
-      entityId = DefaultPlannedQRWorkflowId,
-      executionContext = plannedQRExecutionContext,
-      active = true,
+      entityId = DefaultXDPlannedQRWorkflowId,
+      executionContext = newExecutionContext,
+      active = activeTask,
       state = ScheduledTaskState.NOT_EXECUTED,
-      duration = Some(s"${spartaQualityRule.period.get}s"),
-      initDate = spartaQualityRule.initDate.get,
+      duration = periodAsDuration.fold(None: Option[String]){ period => Some(s"${period}s")},
+      initDate = spartaQualityRule.schedulingDetails.get.initDate.get,
       loggedUser = None
     )
+  }
 
-  def updateQualityRuleToWorkflowTask(oldTask: ScheduledWorkflowTask)
-                                     (implicit spartaQualityRule: SpartaQualityRule): ScheduledWorkflowTask =
+  def updateQualityRuleToWorkflowTask(oldTask: ScheduledWorkflowTask, spartaQualityRule: SpartaQualityRule): ScheduledWorkflowTask = {
+    val newExecutionContext = plannedQRExecutionContext(spartaQualityRule)
+    log.debug(s"Updating task execution context with the following variables: [${newExecutionContext.map(_.extraParams.seq.map(x => s"${x.name} -> ${x.value}").mkString(","))}]")
+    val periodAsDuration: Option[Long] = spartaQualityRule.schedulingDetails.flatMap(_.period)
+    val activeTask = spartaQualityRule.enable
     ScheduledWorkflowTask(
       id = oldTask.id,
-      taskType = ScheduledTaskType.UNIQUE_PERIODICAL,
+      taskType = periodAsDuration.fold(ScheduledTaskType.ONE_TIME){ _=> ScheduledTaskType.PERIODICAL},
       actionType = ScheduledActionType.RUN,
-      entityId = DefaultPlannedQRWorkflowId,
-      executionContext = plannedQRExecutionContext,
-      active = true,
+      entityId = DefaultXDPlannedQRWorkflowId,
+      executionContext = newExecutionContext,
+      active = activeTask,
       state = ScheduledTaskState.NOT_EXECUTED,
-      duration = Some(s"${spartaQualityRule.period.get}s"),
-      initDate = spartaQualityRule.initDate.get,
+      duration = periodAsDuration.fold(None: Option[String]){ period => Some(s"${period}s")},
+      initDate = spartaQualityRule.schedulingDetails.get.initDate.get,
       loggedUser = None
     )
+  }
 
-  def plannedQRExecutionContext(implicit spartaQualityRule: SpartaQualityRule): Option[ExecutionContext] = Some(
+  def plannedQRExecutionContext(spartaQualityRule: SpartaQualityRule): Option[ExecutionContext] = Some(
     ExecutionContext(
       extraParams = Seq(
-        ParameterVariable(name = inputTableNameEnvVariable,
-          value = Some(spartaQualityRule.inputStepNameForPlannedQR)),
-        ParameterVariable(name = queryReferenceEnvVariable,
-          value = spartaQualityRule.plannedQuery.map(_.queryReference))
-      ),
-      paramsLists = Seq(spartaQualityRule.sparkResourcesSize.getOrElse(DefaultPlannedQRParameterList)))
+        ParameterVariable(name = hadoopConfigURIEnv,
+          value = Some(retrieveHadoopConfigUriForQR(spartaQualityRule))),
+        ParameterVariable(name = queryReferenceEnv,
+          value = Some(spartaQualityRule.retrieveQueryForInputStepForPlannedQR.cleanOutControlChar.trimAndNormalizeString))),
+      paramsLists = Seq(
+        spartaQualityRule.schedulingDetails.flatMap(details => details.sparkResourcesSize.map(size => size)).getOrElse(DefaultPlannedQRParameterList))
+    )
   )
-}
 
-object PlannedQualityRulesUtils{
-
-  private val inputTableNameEnvVariable = "{{{PLANNED_QR_INPUT_TABLE}}}"
-  private val queryReferenceEnvVariable = "{{{PLANNED_QR_QUERY}}}"
+  private val hadoopConfigURIEnv = "QR_HADOOP_CONFIG"
+  private val hadoopConfigURIEnvVariable = s"{{{$hadoopConfigURIEnv}}}"
+  private val queryReferenceEnv = "PLANNED_QR_QUERY"
+  private val queryReferenceEnvVariable = s"{{{$queryReferenceEnv}}}"
   private val sparkUserForPlannedQR = "root"
+  private val offsetPosition = 200
+  private val inputPosition = Position(0.0, 0.0)
+  private val outputPosition = Position(inputPosition.x + offsetPosition, inputPosition.y + offsetPosition)
 
   def createWorkflowFromScratch: Workflow = {
+
     Workflow(
-      id = Option(DefaultPlannedQRWorkflowId),
+      id = Option(DefaultXDPlannedQRWorkflowId),
       name = "planned-quality-rule-workflow",
-      description = "Workflow whose Input is a Crossdata Step and output is a Print that outputs statistics",
+      description = "Workflow whose Input is a SQL Input Step and output is a Print that outputs statistics",
       settings =  defaultSettings,
       pipelineGraph = defaultPipeline,
       executionEngine = Batch,
@@ -124,16 +150,22 @@ object PlannedQualityRulesUtils{
     )
   }
 
-  protected[core] def inputQRNode : NodeGraph = NodeGraph(
-    name = "planned_qr_input",
+  protected def retrieveHadoopConfigUriForQR(qr: SpartaQualityRule): String = {
+    qr.hadoopConfigUri.fold(AppConstant.getInstanceHadoopURI){ uri => uri}
+  }
+
+  import SpartaQualityRule._
+
+  protected[core] def inputXD_QRNode : NodeGraph = NodeGraph(
+    name = inputStepNamePlannedQR,
     stepType = "Input",
-    className = "CrossdataInputStep",
-    classPrettyName = "Crossdata",
+    className = "SQLInputStepBatch",
+    classPrettyName = "SQL",
     arity = Seq(NodeArityEnum.NullaryToNary),
-    writer =  Option(WriterGraph(tableName = Some(inputTableNameEnvVariable))),
-    description = Some("Input step Crossdata"),
-    configuration = Map("query" -> JsoneyString(queryReferenceEnvVariable),
-      "tlsEnabled" -> JsoneyString("true")),
+    writer =  Option(WriterGraph(tableName = Some(inputStepNamePlannedQR))),
+    description = Some("Input step SQL"),
+    uiConfiguration = Some(NodeUiConfiguration(Some(inputPosition))),
+    configuration = Map("query" -> JsoneyString(queryReferenceEnvVariable)),
     nodeTemplate = None,
     supportedEngines = Seq(Batch),
     executionEngine = Option(Batch),
@@ -141,16 +173,17 @@ object PlannedQualityRulesUtils{
   )
 
   protected[core] def outputQRNode : NodeGraph = NodeGraph(
-    name = "metrics",
+    name = outputStepNamePlannedQR,
     stepType = "Output",
     className = "PrintOutputStep",
     classPrettyName = "Print",
     arity = Seq(NodeArityEnum.NaryToNullary),
     writer =  Option(WriterGraph()),
     description = Some("Output step metrics"),
+    uiConfiguration = Some(NodeUiConfiguration(Some(outputPosition))),
     configuration = Map(
       "printSchema" -> JsoneyString("true"),
-      "printMetadata" -> JsoneyString("true"),
+      "printMetadata" -> JsoneyString("false"),
       "logLevel" -> JsoneyString("error")),
     nodeTemplate = None,
     supportedEngines = Seq(Batch),
@@ -158,21 +191,34 @@ object PlannedQualityRulesUtils{
     supportedDataRelations = Some(Seq(DataType.ValidData))
   )
 
-  protected[core] def defaultPipeline : PipelineGraph =
+  protected[core] def defaultPipeline : PipelineGraph = {
+    val inputQRNode = inputXD_QRNode
     PipelineGraph(nodes = Seq(inputQRNode, outputQRNode), edges = defaultEdges)
+  }
 
-  protected[core] def defaultEdges : Seq[EdgeGraph] = Seq(EdgeGraph(origin = "planned_qr_input",
-    destination = "metrics"))
+  protected[core] def defaultEdges : Seq[EdgeGraph] =
+    Seq(EdgeGraph(origin = inputStepNamePlannedQR, destination = outputStepNamePlannedQR))
 
   protected[core] def defaultSettings : Settings = Settings(
-    global = GlobalSettings().copy(parametersLists = Seq(DefaultPlannedQRParameterList)),
+    global = GlobalSettings().copy(
+      //executionMode = WorkflowExecutionMode.local, //Use to test locally
+      enableQualityRules = Some(true),
+      parametersLists = Seq(DefaultPlannedQRParameterList),
+      marathonDeploymentSettings = Some(
+        MarathonDeploymentSettings().copy(
+          forcePullImage = Some(true),
+          userEnvVariables = Seq(KeyValuePair(JsoneyString(SystemHadoopConfUri), JsoneyString(hadoopConfigURIEnvVariable)))
+        )
+      )
+    ),
     sparkSettings = SparkSettings(
       sparkConf = SparkConf(
         coarse = Some(true),
         sparkResourcesConf = defaultSparkResourcesSettings,
         sparkUser = Option(JsoneyString(sparkUserForPlannedQR)),
         sparkSqlCaseSensitive = Some(true),
-        hdfsTokenCache = Some(true)
+        hdfsTokenCache = Some(true),
+        userSparkConf = Seq.empty[SparkProperty]
       )
     )
   )

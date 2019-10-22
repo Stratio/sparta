@@ -8,8 +8,8 @@ package com.stratio.sparta.serving.api.service.http
 
 import java.io.{File, PrintWriter}
 import java.util.UUID
-import javax.ws.rs.Path
 
+import javax.ws.rs.Path
 import akka.pattern.ask
 import com.stratio.sparta.core.models.WorkflowValidationReply
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
