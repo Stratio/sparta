@@ -8,14 +8,6 @@ package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
 
-import scala.collection.JavaConverters._
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
-import org.apache.ignite.cache.query.ScanQuery
-import org.apache.ignite.lang.IgniteBiPredicate
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization.write
-import slick.jdbc.PostgresProfile
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -28,6 +20,15 @@ import com.stratio.sparta.serving.core.models.enumerators.CiCdLabel
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
+import org.apache.ignite.cache.query.ScanQuery
+import org.apache.ignite.lang.IgniteBiPredicate
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization.write
+import slick.jdbc.PostgresProfile
+
+import scala.collection.JavaConverters._
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 //scalastyle:off
 class WorkflowPostgresDao extends WorkflowDao {
@@ -35,9 +36,8 @@ class WorkflowPostgresDao extends WorkflowDao {
   override val profile = PostgresProfile
   override val db = JdbcSlickConnection.getDatabase
 
-  import profile.api._
-
   import WorkflowPostgresDao._
+  import profile.api._
 
   private val validatorService = new WorkflowValidatorService()
 
@@ -128,13 +128,15 @@ class WorkflowPostgresDao extends WorkflowDao {
             s" version ${workflow.version} and group ${workflow.group.name} exists." +
             s" The created workflow has id ${workflow.id.get}")
 
-      workflowUpdate.ciCdLabel.find(_ == CiCdLabel.Released.toString).map(_ =>{
+      workflowUpdate.ciCdLabel.find(_ == CiCdLabel.Released.toString) foreach { _ =>
         throw new ServerException(
           s"Workflow with name ${workflow.name}," +
             s" ciCdLabel ${workflow.ciCdLabel} is '${CiCdLabel.Released.toString}' and it isn't editable")
-      })
+      }
 
-      val workflowWithFields = addSpartaVersion(addParametersUsed(addUpdateDate(workflow.copy(groupId = workflow.group.id.orElse(workflow.groupId)))))
+      val workflowWithFields =
+        updateCiCdLabel(addSpartaVersion(addParametersUsed(addUpdateDate(workflow.copy(groupId = workflow.group.id.orElse(workflow.groupId))))))
+
       upsert(workflowWithFields)
       workflowWithFields
     }).cached()
@@ -403,6 +405,13 @@ object WorkflowPostgresDao extends SpartaSerializer {
     workflow.versionSparta match {
       case None => workflow.copy(versionSparta = Some(AppConstant.version))
       case Some(_) => workflow
+    }
+
+  private[sparta] def updateCiCdLabel(workflow: Workflow): Workflow =
+    if (workflow.ciCdLabel.exists(lab => CiCdLabel.isReleaseCandidate(lab))){
+      workflow.copy(ciCdLabel = None)
+    } else {
+      workflow
     }
 
   private[sparta] def addUpdateDate(workflow: Workflow): Workflow =
