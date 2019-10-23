@@ -42,5 +42,6 @@ export enum ExecutionStatus {
 
 export enum CITags {
   Released = 'Released',
+  ReleaseCandidatePrefix = 'RC-',
   ReleaseCandidate = 'ReleaseCandidate'
 }

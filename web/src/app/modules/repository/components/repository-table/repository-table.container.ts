@@ -135,10 +135,10 @@ export class RepositoryTableContainer implements OnInit {
   }
 
   promoteVersion(version): void {
-    if (version.ciCdLabel === CITags.ReleaseCandidate) {
+    if (version.ciCdStatus === CITags.ReleaseCandidate) {
       this._store.dispatch(new workflowActions.PromoteReleaseAction(version.id));
-    } else if (!version.ciCdLabel || (version.ciCdLabel !== CITags.ReleaseCandidate
-                                      || version.ciCdLabel !== CITags.Released)) {
+    } else if (!version.ciCdLabel || (version.ciCdStatus !== CITags.ReleaseCandidate
+                                      || version.ciCdStatus !== CITags.Released)) {
       this._store.dispatch(new workflowActions.PromoteCandidateAction(version.id));
     }
   }

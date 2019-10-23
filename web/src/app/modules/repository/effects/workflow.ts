@@ -174,7 +174,7 @@ export class WorkflowEffect {
     .pipe(ofType(workflowActions.PROMOTE_RELEASE))
     .pipe(map((action: any) => action.versionId))
     .pipe(switchMap(id => {
-      return this.workflowService.promoteCandidateVersion(id).pipe(mergeMap(response => [
+      return this.workflowService.promoteReleaseVersion(id).pipe(mergeMap(response => [
         new workflowActions.PromoteReleaseCompleteAction(response)
       ])).pipe(catchError(error => from([
         new workflowActions.PromoteReleaseErrorAction(), new errorActions.ServerErrorAction(error)

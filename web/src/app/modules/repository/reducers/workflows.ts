@@ -9,6 +9,7 @@ import { formatDate } from '@utils';
 import { homeGroup } from '@app/shared/constants/global';
 import { DataDetails } from './../models/data-details';
 import { Group, GroupWorkflow } from './../models/workflows';
+import {CITags} from '@models/enums';
 
 export interface State {
   currentLevel: any;
@@ -93,6 +94,8 @@ export function reducer(state: State = initialState, action: any): State {
         version.lastUpdateAux = lastUpdateDate;
         version.lastUpdate = formatDate(lastUpdate);
         version.tagsAux = version.tags ? version.tags.join(', ') : '';
+        version.ciCdStatus = version.ciCdLabel && version.ciCdLabel.startsWith(CITags.ReleaseCandidatePrefix)
+                              ? CITags.ReleaseCandidate : version.ciCdLabel;
         try {
           const lastErrorDate = version.execution.genericDataExecution.lastError.date;
           version.lastErrorDate = formatDate(lastErrorDate, true, true);

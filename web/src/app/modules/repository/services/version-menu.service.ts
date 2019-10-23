@@ -28,16 +28,16 @@ export class VersionMenuService {
 
   public getVersionMenu(version: any) {
     const versionMenu: MenuOptionListGroup[] = [];
-    if (version.ciCdLabel !== CITags.Released) {
+    if (version.ciCdStatus !== CITags.Released) {
       versionMenu.push(versionOptions.editVersionOption);
       versionMenu.push(versionOptions.runVersionOptions);
     }
     const newVersionsOps = _cloneDeep(versionOptions.newVersionOptions);
-    if (version.ciCdLabel === CITags.Released || !this._isCiCdEnabled) {
+    if (version.ciCdStatus === CITags.Released || !this._isCiCdEnabled) {
       newVersionsOps.options = newVersionsOps.options.filter(op => op.id !== 'promote-version');
     }
     versionMenu.push(newVersionsOps);
-    if (version.ciCdLabel !== CITags.Released) {
+    if (version.ciCdStatus !== CITags.Released) {
       versionMenu.push(versionOptions.deleteVersionOption);
     }
     return versionMenu;
