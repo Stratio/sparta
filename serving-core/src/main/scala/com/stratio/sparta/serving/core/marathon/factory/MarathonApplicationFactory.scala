@@ -9,7 +9,7 @@ import java.util.UUID
 
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant.spartaTenant
-import com.stratio.sparta.serving.core.constants.MarathonConstant.GenericWorkflowIdentity
+import com.stratio.sparta.serving.core.constants.MarathonConstant.{DefaultRandomPort, GenericWorkflowIdentity}
 import com.stratio.sparta.serving.core.marathon._
 import com.stratio.sparta.serving.core.marathon.builder.{DefaultBuilderImplicits, StratioBuilderImplicits, WorkflowBuilderImplicits}
 import com.stratio.sparta.serving.core.models.RocketModes.RocketMode
@@ -29,12 +29,15 @@ object MarathonApplicationFactory {
   val AkkaClusterServicePort = 0
 
   val SparkUIPort = 4041
+  val SparkUIPortName = "sparkui"
+  val SparkUIRedirectionsPortName = "sparkapi"
   val SparkUIServicePort = 0
-  val SparkUIHealthCheckPortIndex = 4
+  val SparkUIHealthCheckPortIndex = 3
   val SparkUIHealthCheckGracePeriodSeconds = 300
   val SparkUIHealthCheckIntervalSeconds = 180
   val SparkUIHealthCheckTimeoutSeconds = 30
   val SparkUIHealthCheckMaxConsecutiveFailures = 3
+  val SparkUIHealthCheckPath = "/environment"
 
   def createDefaultApplication(id: String = UUID.randomUUID().toString,
                                dockerImage: String = DefaultImage,
@@ -88,23 +91,16 @@ object MarathonApplicationFactory {
       .addSpartaWorkerMode(workerBootstrapMode)
 
     val akkaSeedDockerPortMapping = DockerPortMapping(
-      hostPort = AkkaClusterPort,
+      hostPort = DefaultRandomPort,
       containerPort = AkkaClusterPort,
       servicePort = Option(AkkaClusterServicePort),
       protocol = "tcp",
       name = Option("akkaseed")
     )
 
-    val sparkUISeedDockerPortMapping = DockerPortMapping(
-      hostPort = SparkUIPort,
-      containerPort = SparkUIPort,
-      servicePort = Option(SparkUIServicePort),
-      protocol = "tcp",
-      name = Option("sparkui")
-    )
-
     val marathonHealthCheck = Option(Seq(MarathonHealthCheck(
       protocol = "HTTP",
+      path = Option(SparkUIHealthCheckPath),
       portIndex = Option(SparkUIHealthCheckPortIndex),
       gracePeriodSeconds = SparkUIHealthCheckGracePeriodSeconds,
       intervalSeconds = SparkUIHealthCheckIntervalSeconds,
@@ -118,7 +114,7 @@ object MarathonApplicationFactory {
         docker = workerMarathonApplication.container.docker.copy(
           portMappings = Option(
             workerMarathonApplication.container.docker.portMappings.getOrElse(
-              Seq.empty[DockerPortMapping]) ++ Seq(akkaSeedDockerPortMapping, sparkUISeedDockerPortMapping)
+              Seq.empty[DockerPortMapping]) ++ Seq(akkaSeedDockerPortMapping)
           ),
           forcePullImage = Option(true)
         )

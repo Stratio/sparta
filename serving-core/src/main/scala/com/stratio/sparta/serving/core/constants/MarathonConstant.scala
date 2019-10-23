@@ -31,7 +31,8 @@ object MarathonConstant {
   val DefaultPrivileged = false
   val DefaultIncludeCommonVolumes = true
   val DefaultIncludeCertVolumes = true
-  val DefaultSparkUIPort = 4040
+  val DefaultSparkUIRedirectionPort = 4040
+  val DefaultRandomPort = 0
   val DefaultMetricsMarathonDriverPort = 6080
   val DefaultJmxMetricsMarathonDriverPort = 5080
   val DefaultSOMemSize = 1024

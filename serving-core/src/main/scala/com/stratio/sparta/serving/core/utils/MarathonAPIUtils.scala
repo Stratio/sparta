@@ -357,7 +357,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   private[utils] def extractAppParameters(json: String): Option[AppParameters] = {
     val queryId = "$.app.id"
     val queryIpAddress = "$.app.tasks.[0].ipAddresses.[0].ipAddress"
-    val queryPort = "$.app.tasks.[0].ports.[0]"
+    val queryPort = "$.app.tasks.[0].ports.[3]"
 
     Try {
       val extractor = new JsonPathExtractor(json, false)

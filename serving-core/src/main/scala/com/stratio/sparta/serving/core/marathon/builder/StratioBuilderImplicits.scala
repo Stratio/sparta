@@ -10,9 +10,11 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant.BaseZkPath
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.marathon._
+import com.stratio.sparta.serving.core.marathon.factory.MarathonApplicationFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.typesafe.config.Config
 import org.json4s.jackson.Serialization.write
+import MarathonApplicationFactory._
 
 import scala.util.{Properties, Try}
 
@@ -111,11 +113,35 @@ object StratioBuilderImplicits {
         if (isCalicoEnabled)
           Option(
             Seq(
-              DockerPortMapping(DefaultSparkUIPort, DefaultSparkUIPort, Option(0), protocol = "tcp"),
-              DockerPortMapping(DefaultMetricsMarathonDriverPort,
-                DefaultMetricsMarathonDriverPort, Option(0), protocol = "tcp", name = Option("metrics")),
-              DockerPortMapping(DefaultJmxMetricsMarathonDriverPort,
-                DefaultJmxMetricsMarathonDriverPort, Option(0), protocol = "tcp", name = Option("jmx"))
+              DockerPortMapping(
+                hostPort = DefaultRandomPort,
+                containerPort = DefaultSparkUIRedirectionPort,
+                servicePort = Option(DefaultRandomPort),
+                protocol = "tcp",
+                name = Option(MarathonApplicationFactory.SparkUIRedirectionsPortName)
+
+              ),
+              DockerPortMapping(
+                hostPort = DefaultRandomPort,
+                containerPort = DefaultMetricsMarathonDriverPort,
+                servicePort = Option(DefaultRandomPort),
+                protocol = "tcp",
+                name = Option("metrics")
+              ),
+              DockerPortMapping(
+                hostPort = DefaultRandomPort,
+                containerPort = DefaultJmxMetricsMarathonDriverPort,
+                servicePort = Option(DefaultRandomPort),
+                protocol = "tcp",
+                name = Option("jmx")
+              ),
+              DockerPortMapping(
+                hostPort = DefaultRandomPort,
+                containerPort = SparkUIPort,
+                servicePort = Option(SparkUIServicePort),
+                protocol = "tcp",
+                name = Option(SparkUIPortName)
+              )
             ) ++
               marathonApplication.container.docker.portMappings.getOrElse(Seq.empty)
           )

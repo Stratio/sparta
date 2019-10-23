@@ -11,6 +11,7 @@ import com.stratio.sparta.core.utils.Utils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
+import com.stratio.sparta.serving.core.marathon.factory.MarathonApplicationFactory
 import com.stratio.sparta.serving.core.marathon.{MarathonApplication, MarathonHealthCheck}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow._
@@ -71,8 +72,8 @@ object MarathonService {
 
     Option(Seq(MarathonHealthCheck(
       protocol = "HTTP",
-      path = Option("/environment"),
-      portIndex = Option(0),
+      path = Option(MarathonApplicationFactory.SparkUIHealthCheckPath),
+      portIndex = Option(MarathonApplicationFactory.SparkUIHealthCheckPortIndex),
       gracePeriodSeconds = workflowHealthcheckSettings.gracePeriodSeconds,
       intervalSeconds = workflowHealthcheckSettings.intervalSeconds,
       timeoutSeconds = workflowHealthcheckSettings.timeoutSeconds,

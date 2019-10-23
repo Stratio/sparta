@@ -14,6 +14,7 @@ import akka.stream.ActorMaterializer
 import com.stratio.crossdata.util.using
 import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant, SparkConstant}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
+import com.stratio.sparta.serving.core.marathon.factory.MarathonApplicationFactory
 import com.stratio.sparta.serving.core.utils.MarathonAPIUtils._
 import com.stratio.sparta.serving.core.utils.NginxUtils._
 
@@ -60,7 +61,7 @@ object NginxUtils {
                securityFolder: String = Properties.envOrElse(MarathonConstant.SpartaSecretFolderEnv, "/etc/sds/sparta/security"),
                workflowsUiVhost: String = WorkflowHelper.getVirtualHost,
                workflowsUiVpath: String = WorkflowHelper.getVirtualPath,
-               workflowsUiPort: Int = Properties.envOrElse(SparkConstant.SparkUiPortEnv, SparkConstant.DefaultUIPort.toString).toInt,
+               workflowsUiPort: Int = Properties.envOrElse(SparkConstant.WorkflowsSparkUiPortRedirectionEnv, MarathonConstant.DefaultSparkUIRedirectionPort.toString).toInt,
                useSsl: Boolean = AppConstant.securityTLSEnable,
                ignoreInvalidHeaders: String = Try(Properties.envOrNone(MarathonConstant.NginxIgnoreInvalidHeadersEnv).get).getOrElse("on")
              ): NginxMetaConfig = {
@@ -131,8 +132,7 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
   val crossdataItem = AppParameters(
     appId = "crossdata-sparkUI",
     addressIP = "127.0.0.1",
-    port = Try(Properties.envOrNone(SparkConstant.CrossdataSparkUiPort).get.toInt)
-      .getOrElse(SparkConstant.DefaultUIPort)
+    port = Try(Properties.envOrNone(SparkConstant.SparkUiPortEnv).get.toInt).getOrElse(MarathonApplicationFactory.SparkUIPort)
   )
 
   def startNginx(): Future[Unit] = Future {

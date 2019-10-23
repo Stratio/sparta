@@ -10,6 +10,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{MarathonConstant, SparkConstant}
 import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.marathon.factory.MarathonApplicationFactory
 
 import scala.util._
 
@@ -19,7 +20,7 @@ object LinkHelper extends SLF4JLogging {
     SpartaConfig.getSparkConfig().flatMap { sparkConfig =>
       val sparkMaster = Try(sparkConfig.getString("master")).getOrElse("local[*]")
       val sparkUiEnabled = Try(sparkConfig.getString("spark.ui.enabled").toBoolean).getOrElse(true)
-      val sparkUiPort = Try(sparkConfig.getInt("spark.ui.port")).getOrElse(SparkConstant.DefaultUIPort)
+      val sparkUiPort = Try(sparkConfig.getInt("spark.ui.port")).getOrElse(MarathonApplicationFactory.SparkUIPort)
 
       if (sparkUiEnabled) {
         if (WorkflowHelper.isMarathonLBConfigured) NginxUtils.buildSparkUI("crossdata-sparkUI")

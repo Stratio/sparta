@@ -99,11 +99,10 @@ object SparkConstant {
   val SparkMesosMaster = "mesos://zk://master.mesos:2181/mesos"
   val SparkLocalMaster = "local[2]"
 
-  val SparkUiPortEnv = "PORT_SPARKAPI"
-  val DefaultUIPort = 4041
+  val WorkflowsSparkUiPortRedirectionEnv = "PORT_SPARKAPI"
+  val SparkUiPortEnv = "PORT_SPARKUI"
 
   val CrossdataSparkUiEnabled = "CROSSDATA_SERVER_SPARK_UI_ENABLED"
-  val CrossdataSparkUiPort = "CROSSDATA_SERVER_CONFIG_SPARK_UI_PORT"
 
   val DefaultShutdownTaskTimeout = "10s"
   val DefaultShutdownTaskTimeoutMs = 10000

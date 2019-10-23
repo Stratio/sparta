@@ -33,6 +33,7 @@
  initSparkEnvOptions
  initLocalSparkIp
  initSparkUICrossdata
+ initSparkDefaultsOptions
  INFO "[SPARTA-SERVER] Loaded Sparta Spark options"
 
  INFO "[SPARTA-SERVER] Initializing Sparta Hdfs options ... "

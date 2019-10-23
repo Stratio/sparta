@@ -61,11 +61,3 @@ function initPluginCrossdata() {
         esac
  fi
 }
-
-function initSparkDefaultsOptions() {
-
-  if [ -v PORT_SPARKUI ] && [ ${#PORT_SPARKUI} != 0 ]; then
-    echo "spark.ui.port=${PORT_SPARKUI}" >> ${SPARK_CONF_DEFAULTS_FILE}
-  fi
-
-}
