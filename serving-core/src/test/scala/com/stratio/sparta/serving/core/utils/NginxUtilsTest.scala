@@ -678,7 +678,7 @@ class NginxUtilsTest extends BaseUtilsTest {
       |      "state": "TASK_RUNNING",
       |      "startedAt": "2018-01-04T12:24:51.098Z",
       |      "stagedAt": "2018-01-04T12:21:46.736Z",
-      |      "ports": [4040],
+      |      "ports": [0,1,2,4040],
       |      "version": "2018-01-04T12:21:46.218Z",
       |      "ipAddresses": [{
       |        "ipAddress": "172.25.159.108",
