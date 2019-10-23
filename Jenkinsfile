@@ -2,15 +2,12 @@
 
 hose {
     EMAIL = 'sparta'
-    MODULE = 'sparta'
     DEVTIMEOUT = 70
     RELEASETIMEOUT = 40
-    FOSS = true
-    REPOSITORY = 'sparta-workflow'
     PKGMODULES = ['dist']
     PKGMODULESNAMES = ['sparta']
     DEBARCH = 'all'
-    MAVEN_THREADSPERCORE = 4
+    MAVEN_THREADSPERCORE = 1
     EXPOSED_PORTS = [9090,10000,11000]
     NEW_VERSIONING = 'true'
     LABEL_CONTROL = 'true'
