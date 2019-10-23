@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.12.0 (upcoming)
+
+* Pending changelog
+
+## 2.11.0-6eb7795 (Built: October 23, 2019 | Pre-release)
+
+* Improvements and new features:
+     
+    - Proactive quality rules
+    - Micro-service workers architecture (stability goal)
+    - Annotations in workflow editor
+    - Multiple writers by output in inputs/transformations
+    - Read only workflow view
+    - Workflow continuous integration over Jenkins (CI/CD goal)
+    - Kafka key and value serialization/deserialization policies
+    - JWT authentication
+    - Crossdata and SQL input
+    - ArangoDB input
+    - ArangoDB output
+    - Ignite input JDBC
+    - Ignite output JDBC
+    - XLS input
+    - XLS output
+    - Postgres input with pushdown
+    - Update ML Models repository client
+    - Distributed session management
+
 ## 1.6.0 (upcoming)
 
 * Pending changelog
