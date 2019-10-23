@@ -21,7 +21,7 @@ trait PlannedQualityRuleDao extends DaoUtils{
 
   lazy val table = TableQuery[PlannedQualityRuleTable]
 
-  override val initializationOrder: Int = 4
+  override val initializationOrder: Int = 5
 
   def $id(table: PlannedQualityRuleTable): Rep[Id] = table.id
 
