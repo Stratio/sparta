@@ -31,7 +31,7 @@ class MarathonService(marathonUpAndDownComponent: MarathonUpAndDownComponent) ex
   def launch(marathonApplication: MarathonApplication): Unit =
     Utils.retry(marathonApiRetryAttempts, marathonApiRetrySleep) {
       val launchRequest = marathonUpAndDownComponent.upApplication(marathonApplication, Try(getToken).toOption)
-      Await.result(launchRequest, marathonApiTimeout seconds) match {
+      Await.result(launchRequest, marathonApiTimeout millis) match {
         case response: (StatusCode, String) =>
           log.info(s"Workflow App ${marathonApplication.id} launched to marathon api with status code ${response._1} and response ${response._2}")
           val statusResponse = response._1.intValue()
@@ -47,7 +47,7 @@ class MarathonService(marathonUpAndDownComponent: MarathonUpAndDownComponent) ex
   def kill(containerId: String): Unit =
     Utils.retry(marathonApiRetryAttempts, marathonApiRetrySleep) {
       val killRequest = marathonUpAndDownComponent.killDeploymentsAndDownApplication(containerId, Try(getToken).toOption)
-      Await.result(killRequest, marathonApiTimeout seconds) match {
+      Await.result(killRequest, marathonApiTimeout millis) match {
         case responses: Seq[(StatusCode, String)] =>
           val statusFailed = responses.forall { case (statusResponse,  _) =>
             (statusResponse.intValue() >= 400) && (statusResponse.intValue() < 600)
