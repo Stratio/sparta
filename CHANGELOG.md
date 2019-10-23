@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.11.0 (upcoming)
+## 2.11.0 (October 23, 2019)
 
 * Improvements and new features:
      
